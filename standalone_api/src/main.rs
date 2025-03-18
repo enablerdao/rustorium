@@ -6,57 +6,36 @@ use axum::{
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::net::SocketAddr;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, Mutex};
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
-use tracing::{info, warn, Level};
+use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
-use uuid::Uuid;
 
-// モデル定義
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct Transaction {
-    id: String,
-    sender: String,
-    recipient: String,
-    amount: u64,
-    fee: u64,
-    nonce: u64,
-    timestamp: u64,
-    data: String,
-    status: String,
+mod blockchain;
+use blockchain::{BlockchainState, Transaction};
+
+// トランザクション作成リクエスト
+#[derive(Debug, Serialize, Deserialize)]
+struct CreateTransactionRequest {
+    from: String,
+    to: String,
+    amount: f64,
+    #[serde(default)]
+    data: Option<String>,
+    #[serde(default = "default_gas_price")]
+    gas_price: u64,
+    #[serde(default = "default_gas_limit")]
+    gas_limit: u64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct Block {
-    height: u64,
-    hash: String,
-    prev_hash: String,
-    timestamp: u64,
-    validator: String,
-    transactions: Vec<String>,
-    merkle_root: String,
+fn default_gas_price() -> u64 {
+    5
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct Account {
-    address: String,
-    balance: u64,
-    nonce: u64,
-    is_contract: bool,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct NodeStatus {
-    node_id: String,
-    version: String,
-    network: String,
-    latest_block_height: u64,
-    connected_peers: usize,
-    uptime_seconds: u64,
-    pending_transactions: usize,
+fn default_gas_limit() -> u64 {
+    21000
 }
 
 // APIレスポンス
@@ -85,68 +64,55 @@ impl<T> ApiResponse<T> {
     }
 }
 
-// トランザクション作成リクエスト
-#[derive(Debug, Serialize, Deserialize)]
-struct CreateTransactionRequest {
-    sender: String,
-    recipient: String,
-    amount: u64,
-    fee: u64,
-    nonce: Option<u64>,
-    data: Option<String>,
-}
-
 // アプリケーション状態
 struct AppState {
-    transactions: RwLock<HashMap<String, Transaction>>,
-    blocks: RwLock<HashMap<u64, Block>>,
-    accounts: RwLock<HashMap<String, Account>>,
-    start_time: std::time::Instant,
+    blockchain_state: BlockchainState,
 }
 
 // ハンドラー関数
-async fn get_status(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    let uptime_seconds = state.start_time.elapsed().as_secs();
+async fn get_status(State(state): State<Arc<Mutex<AppState>>>) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
-    let status = NodeStatus {
-        node_id: "rustorium-node-1".to_string(),
-        version: "0.1.0".to_string(),
-        network: "testnet".to_string(),
-        latest_block_height: 10,
-        connected_peers: 5,
-        uptime_seconds,
-        pending_transactions: state.transactions.read().unwrap().len(),
-    };
+    let stats = blockchain.get_network_stats();
     
-    (StatusCode::OK, Json(ApiResponse::success(status)))
+    (StatusCode::OK, Json(ApiResponse::success(stats)))
 }
 
 async fn get_block(
-    State(state): State<Arc<AppState>>,
-    Path(height): Path<u64>,
+    State(state): State<Arc<Mutex<AppState>>>,
+    Path(block_id): Path<String>,
 ) -> impl IntoResponse {
-    let blocks = state.blocks.read().unwrap();
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
-    match blocks.get(&height) {
-        Some(block) => (StatusCode::OK, Json(ApiResponse::success(block.clone()))),
+    let block = if let Ok(number) = block_id.parse::<u64>() {
+        blockchain.get_block_by_number(number).cloned()
+    } else {
+        blockchain.get_block_by_hash(&block_id).cloned()
+    };
+    
+    match block {
+        Some(block) => (StatusCode::OK, Json(ApiResponse::success(block))),
         None => (
             StatusCode::NOT_FOUND,
-            Json(ApiResponse::<Block>::error(format!(
-                "Block at height {} not found",
-                height
+            Json(ApiResponse::<blockchain::Block>::error(format!(
+                "Block {} not found",
+                block_id
             ))),
         ),
     }
 }
 
 async fn get_transaction(
-    State(state): State<Arc<AppState>>,
+    State(state): State<Arc<Mutex<AppState>>>,
     Path(tx_id): Path<String>,
 ) -> impl IntoResponse {
-    let transactions = state.transactions.read().unwrap();
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
-    match transactions.get(&tx_id) {
-        Some(tx) => (StatusCode::OK, Json(ApiResponse::success(tx.clone()))),
+    match blockchain.get_transaction(&tx_id) {
+        Some(tx) => (StatusCode::OK, Json(ApiResponse::success(tx))),
         None => (
             StatusCode::NOT_FOUND,
             Json(ApiResponse::<Transaction>::error(format!(
@@ -158,16 +124,17 @@ async fn get_transaction(
 }
 
 async fn get_account(
-    State(state): State<Arc<AppState>>,
+    State(state): State<Arc<Mutex<AppState>>>,
     Path(address): Path<String>,
 ) -> impl IntoResponse {
-    let accounts = state.accounts.read().unwrap();
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
-    match accounts.get(&address) {
+    match blockchain.accounts.get(&address) {
         Some(account) => (StatusCode::OK, Json(ApiResponse::success(account.clone()))),
         None => (
             StatusCode::NOT_FOUND,
-            Json(ApiResponse::<Account>::error(format!(
+            Json(ApiResponse::<blockchain::Account>::error(format!(
                 "Account {} not found",
                 address
             ))),
@@ -176,34 +143,35 @@ async fn get_account(
 }
 
 async fn create_transaction(
-    State(state): State<Arc<AppState>>,
+    State(state): State<Arc<Mutex<AppState>>>,
     Json(request): Json<CreateTransactionRequest>,
 ) -> impl IntoResponse {
-    // 新しいトランザクションを作成
-    let tx_id = Uuid::new_v4().to_string();
-    let timestamp = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .as_secs();
+    let mut app_state = state.lock().unwrap();
+    let mut blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
-    let nonce = request.nonce.unwrap_or(0);
+    let result = blockchain.add_transaction(
+        request.from.clone(),
+        request.to.clone(),
+        request.amount,
+        request.data.clone(),
+        request.gas_price,
+        request.gas_limit,
+    );
     
-    let transaction = Transaction {
-        id: tx_id.clone(),
-        sender: request.sender,
-        recipient: request.recipient,
-        amount: request.amount,
-        fee: request.fee,
-        nonce,
-        timestamp,
-        data: request.data.unwrap_or_default(),
-        status: "Pending".to_string(),
-    };
-    
-    // トランザクションを保存
-    state.transactions.write().unwrap().insert(tx_id, transaction.clone());
-    
-    (StatusCode::CREATED, Json(ApiResponse::success(transaction)))
+    match result {
+        Ok(tx_id) => {
+            // 自動マイニング（開発用）
+            if !blockchain.pending_transactions.is_empty() {
+                blockchain.mine_pending_transactions(request.from.clone());
+            }
+            
+            (StatusCode::CREATED, Json(ApiResponse::success(tx_id)))
+        }
+        Err(err) => (
+            StatusCode::BAD_REQUEST,
+            Json(ApiResponse::<String>::error(err)),
+        ),
+    }
 }
 
 // ブロックリスト取得のクエリパラメータ
@@ -214,23 +182,97 @@ struct ListBlocksQuery {
 }
 
 async fn list_blocks(
-    State(state): State<Arc<AppState>>,
+    State(state): State<Arc<Mutex<AppState>>>,
     Query(params): Query<ListBlocksQuery>,
 ) -> impl IntoResponse {
-    let blocks = state.blocks.read().unwrap();
-    let latest_height = 10; // 仮の最新ブロック高
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    let blocks = &blockchain.chain;
+    let latest_height = blocks.len() as u64 - 1;
     let start = params.start.unwrap_or(latest_height);
     let limit = params.limit.unwrap_or(10).min(100); // 最大100ブロック
     
     let mut result = Vec::new();
     
-    for height in (0..=start).rev().take(limit as usize) {
-        if let Some(block) = blocks.get(&height) {
+    for i in (0..=start.min(latest_height)).rev().take(limit as usize) {
+        if let Some(block) = blocks.get(i as usize) {
             result.push(block.clone());
         }
     }
     
     (StatusCode::OK, Json(ApiResponse::success(result)))
+}
+
+async fn list_transactions(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Query(params): Query<ListBlocksQuery>,
+) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    // すべてのトランザクションを収集
+    let mut all_transactions = Vec::new();
+    
+    // ペンディングトランザクション
+    for tx in &blockchain.pending_transactions {
+        all_transactions.push(tx.clone());
+    }
+    
+    // 確認済みトランザクション
+    for block in &blockchain.chain {
+        for tx in &block.transactions {
+            all_transactions.push(tx.clone());
+        }
+    }
+    
+    // タイムスタンプの降順でソート
+    all_transactions.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+    
+    let limit = params.limit.unwrap_or(10).min(100); // 最大100トランザクション
+    let start = params.start.unwrap_or(0);
+    
+    let result = all_transactions
+        .into_iter()
+        .skip(start as usize)
+        .take(limit as usize)
+        .collect::<Vec<_>>();
+    
+    (StatusCode::OK, Json(ApiResponse::success(result)))
+}
+
+async fn list_accounts(
+    State(state): State<Arc<Mutex<AppState>>>,
+) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    let accounts: Vec<_> = blockchain.accounts.values().cloned().collect();
+    
+    (StatusCode::OK, Json(ApiResponse::success(accounts)))
+}
+
+async fn create_account(
+    State(state): State<Arc<Mutex<AppState>>>,
+) -> impl IntoResponse {
+    let mut app_state = state.lock().unwrap();
+    let mut blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    let account = blockchain.create_account();
+    
+    (StatusCode::CREATED, Json(ApiResponse::success(account)))
+}
+
+async fn get_account_transactions(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Path(address): Path<String>,
+) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    let transactions = blockchain.get_account_transactions(&address);
+    
+    (StatusCode::OK, Json(ApiResponse::success(transactions)))
 }
 
 #[tokio::main]
@@ -243,66 +285,13 @@ async fn main() -> anyhow::Result<()> {
     tracing::subscriber::set_global_default(subscriber)
         .expect("Failed to set tracing subscriber");
     
-    // サンプルデータの作成
-    let mut transactions = HashMap::new();
-    let mut blocks = HashMap::new();
-    let mut accounts = HashMap::new();
-    
-    // サンプルアカウント
-    let account1 = Account {
-        address: "0x1234567890abcdef1234567890abcdef12345678".to_string(),
-        balance: 1000000,
-        nonce: 5,
-        is_contract: false,
-    };
-    
-    let account2 = Account {
-        address: "0xabcdef1234567890abcdef1234567890abcdef12".to_string(),
-        balance: 500000,
-        nonce: 3,
-        is_contract: false,
-    };
-    
-    accounts.insert(account1.address.clone(), account1);
-    accounts.insert(account2.address.clone(), account2);
-    
-    // サンプルトランザクション
-    let tx1 = Transaction {
-        id: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef".to_string(),
-        sender: "0x1234567890abcdef1234567890abcdef12345678".to_string(),
-        recipient: "0xabcdef1234567890abcdef1234567890abcdef12".to_string(),
-        amount: 1000,
-        fee: 10,
-        nonce: 5,
-        timestamp: 1677721600,
-        data: "".to_string(),
-        status: "Confirmed".to_string(),
-    };
-    
-    transactions.insert(tx1.id.clone(), tx1.clone());
-    
-    // サンプルブロック
-    for i in 0..10 {
-        let block = Block {
-            height: i,
-            hash: format!("0x{:064x}", i),
-            prev_hash: if i > 0 { format!("0x{:064x}", i - 1) } else { "0x0".to_string() },
-            timestamp: 1677721600 + i * 15,
-            validator: "0x1234567890abcdef1234567890abcdef12345678".to_string(),
-            transactions: if i == 5 { vec![tx1.id.clone()] } else { vec![] },
-            merkle_root: format!("0x{:064x}", i * 10),
-        };
-        
-        blocks.insert(i, block);
-    }
+    // ブロックチェーンの初期化
+    let blockchain_state = BlockchainState::new();
     
     // アプリケーション状態の作成
-    let app_state = Arc::new(AppState {
-        transactions: RwLock::new(transactions),
-        blocks: RwLock::new(blocks),
-        accounts: RwLock::new(accounts),
-        start_time: std::time::Instant::now(),
-    });
+    let app_state = Arc::new(Mutex::new(AppState {
+        blockchain_state,
+    }));
     
     // CORSの設定
     let cors = CorsLayer::new()
@@ -312,12 +301,17 @@ async fn main() -> anyhow::Result<()> {
     
     // ルーターの構築
     let app = Router::new()
-        .route("/api/status", get(get_status))
-        .route("/api/blocks", get(list_blocks))
-        .route("/api/blocks/:height", get(get_block))
-        .route("/api/transactions/:tx_id", get(get_transaction))
-        .route("/api/transactions", post(create_transaction))
-        .route("/api/accounts/:address", get(get_account))
+        .route("/", get(|| async { "Rustorium API Server" }))
+        .route("/blocks", get(list_blocks))
+        .route("/blocks/:id", get(get_block))
+        .route("/transactions", get(list_transactions))
+        .route("/transactions", post(create_transaction))
+        .route("/transactions/:id", get(get_transaction))
+        .route("/accounts", get(list_accounts))
+        .route("/accounts", post(create_account))
+        .route("/accounts/:address", get(get_account))
+        .route("/accounts/:address/transactions", get(get_account_transactions))
+        .route("/network/status", get(get_status))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(app_state);
