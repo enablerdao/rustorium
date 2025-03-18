@@ -8,7 +8,7 @@ authors = ["OpenHands <openhands@all-hands.dev>"]
 [workspace]
 members = [
     "api",
-    "web",
+    "frontend",
 ]
 
 [dependencies]
