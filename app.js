@@ -93,25 +93,36 @@ function addExtendedNavigation() {
 // Load dashboard data
 async function loadDashboardData() {
     try {
-        // WebSocketが接続されている場合はWebSocketを使用
-        if (wsClient && wsClient.isConnected) {
-            // WebSocketでネットワーク状態を取得
-            wsClient.getStatus();
-            
-            // WebSocketからのレスポンスを処理するリスナーを設定
+        // 初期データをAPIから取得
+        const response = await fetch('http://localhost:57620/network/status');
+        const data = await response.json();
+        
+        if (data.success) {
+            updateDashboardStats(data.data);
+            console.log("Initial dashboard data loaded:", data.data);
+        } else {
+            console.error('Failed to fetch network status:', data.error);
+        }
+        
+        // WebSocketリスナーを設定（リアルタイム更新用）
+        if (wsClient) {
             wsClient.on('onStatus', (stats) => {
+                console.log("WebSocket status update:", stats);
                 updateDashboardStats(stats);
             });
-        } else {
-            // フォールバック: APIからネットワーク統計情報を取得
-            const response = await fetch('http://localhost:57620/network/status');
-            const data = await response.json();
             
-            if (data.success) {
-                updateDashboardStats(data.data);
-            } else {
-                console.error('Failed to fetch network status:', data.error);
-            }
+            // 接続時にステータス情報をリクエスト
+            wsClient.on('onOpen', () => {
+                console.log("WebSocket connected, requesting status");
+                wsClient.getStatus();
+                
+                // 5秒ごとに更新
+                setInterval(() => {
+                    if (wsClient.isConnected) {
+                        wsClient.getStatus();
+                    }
+                }, 5000);
+            });
         }
         
         // ローディング表示を非表示にする
@@ -190,39 +201,45 @@ function updateDashboardStats(stats) {
 // Load recent transactions
 async function loadRecentTransactions() {
     try {
-        // WebSocketが接続されている場合はWebSocketを使用
-        if (wsClient && wsClient.isConnected) {
-            // WebSocketでトランザクション情報を取得
-            wsClient.getTransactions();
+        // APIからトランザクション情報を取得
+        const response = await fetch('http://localhost:57620/transactions');
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+            // 最新の5件のみ表示
+            const transactions = data.data.slice(0, 5);
             
-            // WebSocketからのレスポンスを処理するリスナーを設定
-            wsClient.on('onTransactions', (transactions) => {
-                // 最新の5件のみ表示
-                const recentTransactions = transactions.slice(0, 5);
-                displayTransactions(recentTransactions);
-            });
+            // Display transactions
+            displayTransactions(transactions);
+            
+            console.log("Loaded transactions:", transactions);
         } else {
-            // フォールバック: APIからトランザクション情報を取得
-            const response = await fetch('http://localhost:57620/transactions');
-            const data = await response.json();
-            
-            if (data.success && data.data) {
-                // 最新の5件のみ表示
-                const transactions = data.data.slice(0, 5);
-                
-                // Display transactions
-                displayTransactions(transactions);
-            } else {
-                // エラーの場合は空のリストを表示
-                displayTransactions([]);
-                console.error('Failed to fetch transactions:', data.error);
-            }
+            // エラーの場合は空のリストを表示
+            displayTransactions([]);
+            console.error('Failed to fetch transactions:', data.error);
         }
         
         // ローディング表示を非表示にする
         const loader = document.querySelector('.page-loader');
         if (loader) {
             loader.style.display = 'none';
+        }
+        
+        // WebSocketリスナーを設定（リアルタイム更新用）
+        if (wsClient) {
+            wsClient.on('onTransactions', (transactions) => {
+                // 最新の5件のみ表示
+                const recentTransactions = transactions.slice(0, 5);
+                displayTransactions(recentTransactions);
+                console.log("WebSocket transactions update:", recentTransactions);
+            });
+            
+            // トランザクション情報をリクエスト
+            setTimeout(() => {
+                if (wsClient.isConnected) {
+                    wsClient.getTransactions();
+                }
+            }, 1000);
         }
         
         /* 

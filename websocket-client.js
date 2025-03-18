@@ -15,6 +15,9 @@ class RustoriumWebSocket {
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
         this.reconnectDelay = 2000; // 2秒
+        
+        // 自動接続
+        this.connect();
     }
 
     // 接続

@@ -282,6 +282,7 @@ use axum::response::Response;
 use std::time::Duration;
 use tokio::time::interval;
 use futures_util::{StreamExt, SinkExt};
+use tokio_tungstenite::tungstenite;
 
 // WebSocketハンドラー
 async fn ws_handler(
@@ -295,6 +296,49 @@ async fn handle_socket(socket: WebSocket, state: Arc<Mutex<AppState>>) {
     // ソケットを送信と受信に分割
     let (mut sender, mut receiver) = socket.split();
     
+    // 接続時に初期データを送信
+    let initial_stats = {
+        let app_state = state.lock().unwrap();
+        let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+        blockchain.get_network_stats()
+    };
+    
+    if let Ok(json) = serde_json::to_string(&ApiResponse::success(initial_stats)) {
+        if sender.send(Message::Text(json)).await.is_err() {
+            return;
+        }
+    }
+    
+    // 定期的なステータス更新のタスクを作成
+    let state_clone = state.clone();
+    let mut update_interval = interval(Duration::from_secs(5));
+    
+    // 別スレッドでメッセージ処理と並行して実行
+    tokio::spawn(async move {
+        loop {
+            // 5秒ごとに実行
+            update_interval.tick().await;
+            
+            // ネットワーク状態を取得
+            let stats = {
+                let app_state = state_clone.lock().unwrap();
+                let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+                blockchain.get_network_stats()
+            };
+            
+            // WebSocketメッセージを作成
+            if let Ok(json) = serde_json::to_string(&ApiResponse::success(stats)) {
+                // 新しいWebSocketコネクションを作成して送信
+                if let Ok(socket) = tokio::net::TcpStream::connect("localhost:57620").await {
+                    if let Ok(ws_stream) = tokio_tungstenite::client_async("ws://localhost:57620/ws", socket).await {
+                        let (mut ws_sender, _) = ws_stream.0.split();
+                        let _ = ws_sender.send(tungstenite::Message::Text(json.into())).await;
+                    }
+                }
+            }
+        }
+    });
+    
     // クライアントからのメッセージを処理
     while let Some(Ok(message)) = receiver.next().await {
         if let Message::Text(text) = message {
@@ -305,7 +349,7 @@ async fn handle_socket(socket: WebSocket, state: Arc<Mutex<AppState>>) {
                         let app_state = state.lock().unwrap();
                         let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
                         blockchain.get_network_stats()
-                    }; // ロックをここで解放
+                    };
                     
                     if let Ok(json) = serde_json::to_string(&ApiResponse::success(stats)) {
                         if sender.send(Message::Text(json)).await.is_err() {
@@ -339,7 +383,7 @@ async fn handle_socket(socket: WebSocket, state: Arc<Mutex<AppState>>) {
                         
                         // 最新の10件を取得
                         all_transactions.into_iter().take(10).collect::<Vec<_>>()
-                    }; // ロックをここで解放
+                    };
                     
                     if let Ok(json) = serde_json::to_string(&ApiResponse::success(result)) {
                         if sender.send(Message::Text(json)).await.is_err() {
@@ -353,25 +397,6 @@ async fn handle_socket(socket: WebSocket, state: Arc<Mutex<AppState>>) {
                         break;
                     }
                 }
-            }
-        }
-    }
-    
-    // 定期的なステータス更新（5秒ごと）
-    let mut update_interval = interval(Duration::from_secs(5));
-    loop {
-        update_interval.tick().await;
-        
-        // ネットワーク状態を取得して送信
-        let stats = {
-            let app_state = state.lock().unwrap();
-            let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
-            blockchain.get_network_stats()
-        }; // ロックをここで解放
-        
-        if let Ok(json) = serde_json::to_string(&ApiResponse::success(stats)) {
-            if sender.send(Message::Text(json)).await.is_err() {
-                break;
             }
         }
     }
