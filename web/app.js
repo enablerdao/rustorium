@@ -94,7 +94,7 @@ function addExtendedNavigation() {
 async function loadDashboardData() {
     try {
         // 初期データをAPIから取得
-        const response = await fetch('http://localhost:57620/network/status');
+        const response = await fetch('/network/status');
         const data = await response.json();
         
         if (data.success) {
@@ -212,10 +212,29 @@ function updateDashboardStats(stats) {
         */
     } catch (error) {
         console.error('Error loading dashboard data:', error);
+        // エラー時にはデフォルト値を設定
+        updateDashboardStats({
+            block_count: 1,
+            pending_transactions: 0,
+            average_block_time: 2.1,
+            tps: 0.5
+        });
+        
         // ローディング表示を非表示にする
-        document.querySelector('.page-loader').style.display = 'none';
+        setTimeout(() => {
+            const loader = document.querySelector('.page-loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
+            }
+        }, 1000);
+        
         // エラーメッセージを表示
-        recentTransactionsEl.innerHTML = showError('Failed to connect to API server');
+        if (recentTransactionsEl) {
+            recentTransactionsEl.innerHTML = showError('Failed to connect to API server');
+        }
     }
 }
 
@@ -223,7 +242,7 @@ function updateDashboardStats(stats) {
 async function loadRecentTransactions() {
     try {
         // APIからトランザクション情報を取得
-        const response = await fetch('http://localhost:57620/transactions');
+        const response = await fetch('/transactions');
         const data = await response.json();
         
         if (data.success && data.data && data.data.length > 0) {

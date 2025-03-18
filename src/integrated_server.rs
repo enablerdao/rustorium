@@ -309,11 +309,11 @@ async fn handle_socket(socket: WebSocket, state: Arc<Mutex<AppState>>) {
         }
     }
     
-    // 定期的なステータス更新のタスクを作成
-    let state_clone = state.clone();
+    // 定期的なステータス更新を行う
     let mut update_interval = interval(Duration::from_secs(5));
     
     // 別スレッドでメッセージ処理と並行して実行
+    let state_clone = state.clone();
     tokio::spawn(async move {
         loop {
             // 5秒ごとに実行
@@ -326,8 +326,45 @@ async fn handle_socket(socket: WebSocket, state: Arc<Mutex<AppState>>) {
                 blockchain.get_network_stats()
             };
             
-            // WebSocketメッセージを作成
+            // WebSocketメッセージを作成して送信
             if let Ok(json) = serde_json::to_string(&ApiResponse::success(stats)) {
+                // 新しいWebSocketコネクションを作成して送信
+                if let Ok(socket) = tokio::net::TcpStream::connect("localhost:57620").await {
+                    if let Ok(ws_stream) = tokio_tungstenite::client_async("ws://localhost:57620/ws", socket).await {
+                        let (mut ws_sender, _) = ws_stream.0.split();
+                        let _ = ws_sender.send(tungstenite::Message::Text(json.into())).await;
+                    }
+                }
+            }
+            
+            // トランザクション情報も送信
+            let transactions = {
+                let app_state = state_clone.lock().unwrap();
+                let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+                
+                // すべてのトランザクションを収集
+                let mut all_transactions = Vec::new();
+                
+                // ペンディングトランザクション
+                for tx in &blockchain.pending_transactions {
+                    all_transactions.push(tx.clone());
+                }
+                
+                // 確認済みトランザクション
+                for block in &blockchain.chain {
+                    for tx in &block.transactions {
+                        all_transactions.push(tx.clone());
+                    }
+                }
+                
+                // タイムスタンプの降順でソート
+                all_transactions.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+                
+                // 最新の10件を取得
+                all_transactions.into_iter().take(10).collect::<Vec<_>>()
+            };
+            
+            if let Ok(json) = serde_json::to_string(&ApiResponse::success(transactions)) {
                 // 新しいWebSocketコネクションを作成して送信
                 if let Ok(socket) = tokio::net::TcpStream::connect("localhost:57620").await {
                     if let Ok(ws_stream) = tokio_tungstenite::client_async("ws://localhost:57620/ws", socket).await {
