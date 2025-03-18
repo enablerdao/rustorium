@@ -109,10 +109,16 @@ function showWalletPage() {
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">My Accounts</h5>
-                        <button class="btn btn-sm btn-primary" id="create-account-btn">
-                            <i class="bi bi-plus-circle me-1"></i>
-                            Create New Account
-                        </button>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary me-2" id="refresh-accounts-btn">
+                                <i class="bi bi-arrow-clockwise me-1"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-sm btn-primary" id="create-account-btn">
+                                <i class="bi bi-plus-circle me-1"></i>
+                                Create New Account
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div id="account-list">
@@ -134,14 +140,43 @@ function showWalletPage() {
                         <form id="import-account-form">
                             <div class="mb-3">
                                 <label for="private-key" class="form-label">Private Key</label>
-                                <input type="password" class="form-control" id="private-key" placeholder="0x..." required>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="private-key" placeholder="0x..." required>
+                                    <button class="btn btn-outline-secondary toggle-password" type="button" data-target="private-key">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                                 <div class="form-text">Enter your private key to import an existing account.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="account-name" class="form-label">Account Name (Optional)</label>
+                                <input type="text" class="form-control" id="account-name" placeholder="My Imported Account">
                             </div>
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-upload me-1"></i>
                                 Import
                             </button>
                         </form>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Network Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Current Network:</span>
+                            <span class="badge bg-primary">Testnet</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Gas Price:</span>
+                            <span>5 Gwei</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Block Height:</span>
+                            <span>10</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -156,10 +191,29 @@ function showWalletPage() {
     // 新規アカウント作成ボタンのイベントリスナーを追加
     document.getElementById('create-account-btn').addEventListener('click', handleCreateAccount);
     
+    // アカウント更新ボタンのイベントリスナーを追加
+    document.getElementById('refresh-accounts-btn').addEventListener('click', loadAccountList);
+    
     // アカウントインポートフォームのイベントリスナーを追加
     document.getElementById('import-account-form').addEventListener('submit', function(e) {
         e.preventDefault();
         handleImportAccount();
+    });
+    
+    // パスワード表示切替ボタンのイベントリスナーを追加
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                this.innerHTML = '<i class="bi bi-eye-slash"></i>';
+            } else {
+                input.type = 'password';
+                this.innerHTML = '<i class="bi bi-eye"></i>';
+            }
+        });
     });
 }
 
@@ -253,54 +307,108 @@ async function showAccountDetails(address) {
         const transactions = await fetchAccountTransactions(address);
         
         accountDetailsEl.innerHTML = `
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Account Details</h5>
-                    <div>
-                        <button class="btn btn-sm btn-outline-primary me-2" id="export-key-btn">
-                            <i class="bi bi-key me-1"></i>
-                            Export Private Key
-                        </button>
-                        <button class="btn btn-sm btn-primary" id="send-from-account-btn">
-                            <i class="bi bi-send me-1"></i>
-                            Send
-                        </button>
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Account Details</h5>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary me-2" id="export-key-btn">
+                                    <i class="bi bi-key me-1"></i>
+                                    Export Private Key
+                                </button>
+                                <button class="btn btn-sm btn-primary" id="send-from-account-btn">
+                                    <i class="bi bi-send me-1"></i>
+                                    Send
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-3 fw-bold">Address:</div>
+                                <div class="col-md-9">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control font-monospace" value="${account.address}" readonly>
+                                        <button class="btn btn-outline-secondary copy-btn" type="button" data-copy="${account.address}">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3 fw-bold">Balance:</div>
+                                <div class="col-md-9">
+                                    <h3 class="mb-0">${formatAmount(account.balance)}</h3>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-3 fw-bold">Nonce:</div>
+                                <div class="col-md-9">${account.nonce}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 fw-bold">Account Type:</div>
+                                <div class="col-md-9">
+                                    ${account.is_contract ? 
+                                        '<span class="badge bg-info">Contract</span>' : 
+                                        '<span class="badge bg-success">EOA (Externally Owned Account)</span>'}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-3 fw-bold">Address:</div>
-                        <div class="col-md-9 font-monospace">${account.address}</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-3 fw-bold">Balance:</div>
-                        <div class="col-md-9">${formatAmount(account.balance)}</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-3 fw-bold">Nonce:</div>
-                        <div class="col-md-9">${account.nonce}</div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-3 fw-bold">QR Code:</div>
-                        <div class="col-md-9">
-                            <div id="account-qrcode"></div>
+                    
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Transaction History</h5>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-secondary active" data-filter="all">All</button>
+                                <button type="button" class="btn btn-outline-secondary" data-filter="sent">Sent</button>
+                                <button type="button" class="btn btn-outline-secondary" data-filter="received">Received</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="account-transactions">
+                                ${transactions.length === 0 ? `
+                                    <div class="alert alert-info" role="alert">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        No transactions found for this account.
+                                    </div>
+                                ` : ''}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Transaction History</h5>
-                </div>
-                <div class="card-body">
-                    <div id="account-transactions">
-                        ${transactions.length === 0 ? `
-                            <div class="alert alert-info" role="alert">
-                                <i class="bi bi-info-circle me-2"></i>
-                                No transactions found for this account.
+                
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">QR Code</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <div id="account-qrcode" class="mb-3"></div>
+                            <p class="text-muted mb-0">Scan to send funds to this account</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary" id="receive-funds-btn">
+                                    <i class="bi bi-download me-1"></i>
+                                    Receive Funds
+                                </button>
+                                <button class="btn btn-outline-primary" id="view-on-explorer-btn">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i>
+                                    View on Explorer
+                                </button>
+                                <button class="btn btn-outline-danger" id="remove-account-btn">
+                                    <i class="bi bi-trash me-1"></i>
+                                    Remove Account
+                                </button>
                             </div>
-                        ` : ''}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -314,6 +422,20 @@ async function showAccountDetails(address) {
             displayAccountTransactions('account-transactions', transactions, address);
         }
         
+        // コピーボタンのイベントリスナーを追加
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const textToCopy = this.getAttribute('data-copy');
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    const originalHtml = this.innerHTML;
+                    this.innerHTML = '<i class="bi bi-check"></i>';
+                    setTimeout(() => {
+                        this.innerHTML = originalHtml;
+                    }, 1500);
+                });
+            });
+        });
+        
         // 秘密鍵エクスポートボタンのイベントリスナーを追加
         document.getElementById('export-key-btn').addEventListener('click', function() {
             handleExportPrivateKey(address);
@@ -322,6 +444,47 @@ async function showAccountDetails(address) {
         // 送金ボタンのイベントリスナーを追加
         document.getElementById('send-from-account-btn').addEventListener('click', function() {
             showSendTransaction(address);
+        });
+        
+        // 入金ボタンのイベントリスナーを追加
+        document.getElementById('receive-funds-btn').addEventListener('click', function() {
+            showReceiveModal(address);
+        });
+        
+        // エクスプローラーで表示ボタンのイベントリスナーを追加
+        document.getElementById('view-on-explorer-btn').addEventListener('click', function() {
+            // テストネットのエクスプローラーURLを使用
+            window.open(`https://testnet.rustorium.org/address/${address}`, '_blank');
+        });
+        
+        // アカウント削除ボタンのイベントリスナーを追加
+        document.getElementById('remove-account-btn').addEventListener('click', function() {
+            if (confirm(`Are you sure you want to remove this account?\n\nAddress: ${formatAddress(address)}\n\nThis action cannot be undone. Make sure you have backed up your private key.`)) {
+                // アカウント削除処理（実際には実装されていない）
+                alert('This feature is not yet implemented. Please back up your private key before removing the account.');
+            }
+        });
+        
+        // トランザクションフィルターボタンのイベントリスナーを追加
+        document.querySelectorAll('[data-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // アクティブクラスを切り替え
+                document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                
+                // フィルターに基づいてトランザクションを表示
+                if (filter === 'all') {
+                    displayAccountTransactions('account-transactions', transactions, address);
+                } else if (filter === 'sent') {
+                    const sentTxs = transactions.filter(tx => tx.sender === address);
+                    displayAccountTransactions('account-transactions', sentTxs, address);
+                } else if (filter === 'received') {
+                    const receivedTxs = transactions.filter(tx => tx.recipient === address);
+                    displayAccountTransactions('account-transactions', receivedTxs, address);
+                }
+            });
         });
         
     } catch (error) {
