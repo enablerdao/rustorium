@@ -1,8 +1,8 @@
 [package]
-name = "web_ui"
+name = "web"
 version = "0.1.0"
 edition = "2021"
-description = "Web UI server for Rustorium"
+description = "Web server for Rustorium"
 authors = ["OpenHands <openhands@all-hands.dev>"]
 
 [dependencies]
