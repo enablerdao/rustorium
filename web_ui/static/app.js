@@ -33,6 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Set up navigation
     setupNavigation();
+    
+    // ウォレットの初期化チェック
+    checkWalletInitialization();
 });
 
 // 拡張ナビゲーションを追加
@@ -1089,6 +1092,136 @@ function formatUptime(seconds) {
 function formatTimestamp(timestamp) {
     const date = new Date(timestamp * 1000);
     return date.toLocaleString();
+}
+
+// ウォレットの初期化チェック
+function checkWalletInitialization() {
+    // ローカルストレージからウォレット情報を確認
+    const walletData = localStorage.getItem('rustorium_wallet');
+    
+    // ウォレットが未初期化の場合、初期設定モーダルを表示
+    if (!walletData) {
+        showWalletSetupModal();
+    }
+}
+
+// ウォレット初期設定モーダルの表示
+function showWalletSetupModal() {
+    // モーダルのHTMLを作成
+    const modalHtml = `
+        <div class="modal fade" id="walletSetupModal" tabindex="-1" aria-labelledby="walletSetupModalLabel" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="walletSetupModalLabel">ウォレットの初期設定</h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>Rustoriumへようこそ！始めるにはウォレットを作成してください。</p>
+                        <div class="alert alert-info" role="alert">
+                            <i class="bi bi-info-circle me-2"></i>
+                            ウォレットを作成すると、ブロックチェーンとやり取りするためのアカウントが生成されます。
+                        </div>
+                        <form id="createWalletForm">
+                            <div class="mb-3">
+                                <label for="accountName" class="form-label">アカウント名（任意）</label>
+                                <input type="text" class="form-control" id="accountName" placeholder="マイアカウント">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="createWalletBtn">ウォレットを作成</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // モーダルをDOMに追加
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // モーダルを表示
+    const modal = new bootstrap.Modal(document.getElementById('walletSetupModal'));
+    modal.show();
+    
+    // ウォレット作成ボタンのイベントリスナー
+    document.getElementById('createWalletBtn').addEventListener('click', async () => {
+        const accountName = document.getElementById('accountName').value;
+        
+        try {
+            // 新規アカウントを作成
+            const newAccount = await createNewAccount();
+            
+            // 成功メッセージとアドレスを表示
+            const modalBody = document.querySelector('#walletSetupModal .modal-body');
+            modalBody.innerHTML = `
+                <div class="alert alert-success" role="alert">
+                    <i class="bi bi-check-circle me-2"></i>
+                    ウォレットが正常に作成されました！
+                </div>
+                <p>あなたのアドレス:</p>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" value="${newAccount.address}" readonly>
+                    <button class="btn btn-outline-secondary copy-btn" type="button" data-copy="${newAccount.address}">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                </div>
+                <p class="text-danger">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    <strong>重要:</strong> 以下の秘密鍵は安全に保管してください。紛失すると資産にアクセスできなくなります。
+                </p>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" value="${newAccount.privateKey}" readonly>
+                    <button class="btn btn-outline-secondary copy-btn" type="button" data-copy="${newAccount.privateKey}">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                </div>
+            `;
+            
+            // コピーボタンのイベントリスナーを追加
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const textToCopy = this.getAttribute('data-copy');
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        const originalHtml = this.innerHTML;
+                        this.innerHTML = '<i class="bi bi-check"></i>';
+                        setTimeout(() => {
+                            this.innerHTML = originalHtml;
+                        }, 1500);
+                    });
+                });
+            });
+            
+            // ボタンのテキストを変更
+            const footerBtn = document.querySelector('#walletSetupModal .modal-footer button');
+            footerBtn.textContent = '完了';
+            footerBtn.addEventListener('click', () => {
+                modal.hide();
+                // ウォレットページを表示
+                showWalletPage();
+            });
+            
+            // ウォレットデータを保存
+            const walletData = {
+                accounts: [
+                    {
+                        name: accountName || 'マイアカウント',
+                        address: newAccount.address,
+                        privateKey: newAccount.privateKey,
+                        balance: '0',
+                        tokens: [],
+                        createdAt: new Date().toISOString()
+                    }
+                ],
+                activeAccount: 0
+            };
+            
+            localStorage.setItem('rustorium_wallet', JSON.stringify(walletData));
+            
+        } catch (error) {
+            console.error('Error creating wallet:', error);
+            alert('ウォレットの作成に失敗しました: ' + error.message);
+        }
+    });
 }
 
 // Format amount
