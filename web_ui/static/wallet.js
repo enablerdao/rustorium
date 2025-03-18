@@ -79,12 +79,28 @@ async function fetchAccountTransactions(address) {
 // 新しいアカウントを作成
 async function createNewAccount() {
     try {
-        // 実際のAPIが実装されるまでダミーデータを使用
-        const randomHex = Array.from({length: 40}, () => 
-            Math.floor(Math.random() * 16).toString(16)
-        ).join('');
+        // APIを使用して新しいアカウントを作成
+        const response = await apiRequest(
+            () => apiClient.createAccount(),
+            // フォールバックデータ（APIが失敗した場合）
+            generateMockAccount()
+        );
         
-        return {
+        return response.account || response;
+    } catch (error) {
+        console.error('Error creating new account:', error);
+        throw error;
+    }
+}
+
+// モック用のアカウントデータを生成（開発中のみ使用）
+function generateMockAccount() {
+    const randomHex = Array.from({length: 40}, () => 
+        Math.floor(Math.random() * 16).toString(16)
+    ).join('');
+    
+    return {
+        account: {
             address: '0x' + randomHex,
             balance: 0,
             nonce: 0,
@@ -92,11 +108,8 @@ async function createNewAccount() {
             privateKey: '0x' + Array.from({length: 64}, () => 
                 Math.floor(Math.random() * 16).toString(16)
             ).join('')
-        };
-    } catch (error) {
-        console.error('Error creating new account:', error);
-        throw error;
-    }
+        }
+    };
 }
 
 // ウォレットページを表示

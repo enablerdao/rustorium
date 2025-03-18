@@ -3,23 +3,34 @@
 // アカウントリストを取得
 async function fetchAccountsList(limit = 10) {
     try {
-        // 実際のAPIが実装されるまでダミーデータを使用
-        const accounts = [];
-        for (let i = 0; i < limit; i++) {
-            accounts.push({
-                address: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
-                balance: Math.floor(Math.random() * 10000000) + 1000,
-                nonce: Math.floor(Math.random() * 100),
-                is_contract: Math.random() > 0.8,
-                transaction_count: Math.floor(Math.random() * 1000),
-                last_activity: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 86400 * 30)
-            });
-        }
-        return accounts;
+        // APIを使用してアカウントリストを取得
+        const response = await apiRequest(
+            () => apiClient.getAccounts(limit),
+            // フォールバックデータ（APIが失敗した場合）
+            generateMockAccountsList(limit)
+        );
+        
+        return response.accounts || response;
     } catch (error) {
         console.error('Error fetching accounts list:', error);
         return [];
     }
+}
+
+// モック用のアカウントリストデータを生成（開発中のみ使用）
+function generateMockAccountsList(limit = 10) {
+    const accounts = [];
+    for (let i = 0; i < limit; i++) {
+        accounts.push({
+            address: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
+            balance: Math.floor(Math.random() * 10000000) + 1000,
+            nonce: Math.floor(Math.random() * 100),
+            is_contract: Math.random() > 0.8,
+            transaction_count: Math.floor(Math.random() * 1000),
+            last_activity: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 86400 * 30)
+        });
+    }
+    return { accounts };
 }
 
 // アカウントページを表示

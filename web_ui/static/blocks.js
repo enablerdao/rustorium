@@ -3,37 +3,64 @@
 // ブロックリストを取得
 async function fetchBlocks(limit = 10) {
     try {
-        // 実際のAPIが実装されるまでダミーデータを使用
-        const blocks = [];
-        for (let i = 10; i > 0; i--) {
-            blocks.push({
-                number: i,
-                hash: `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
-                timestamp: Math.floor(Date.now() / 1000) - i * 12,
-                transactions: Array.from({length: Math.floor(Math.random() * 5) + 1}, () => 
-                    `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`
-                ),
-                size: Math.floor(Math.random() * 5000) + 1000,
-                gas_used: Math.floor(Math.random() * 8000000) + 2000000,
-                gas_limit: 10000000,
-                validator: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`
-            });
-        }
-        return blocks;
+        // APIを使用してブロックリストを取得
+        const response = await apiRequest(
+            () => apiClient.getBlocks(limit),
+            // フォールバックデータ（APIが失敗した場合）
+            generateMockBlocks(limit)
+        );
+        
+        return response.blocks || response;
     } catch (error) {
         console.error('Error fetching blocks:', error);
         return [];
     }
 }
 
+// モック用のブロックデータを生成（開発中のみ使用）
+function generateMockBlocks(limit = 10) {
+    const blocks = [];
+    for (let i = limit; i > 0; i--) {
+        blocks.push({
+            number: i,
+            hash: `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
+            timestamp: Math.floor(Date.now() / 1000) - i * 12,
+            transactions: Array.from({length: Math.floor(Math.random() * 5) + 1}, () => 
+                `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`
+            ),
+            size: Math.floor(Math.random() * 5000) + 1000,
+            gas_used: Math.floor(Math.random() * 8000000) + 2000000,
+            gas_limit: 10000000,
+            validator: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`
+        });
+    }
+    return { blocks };
+}
+
 // ブロック詳細を取得
 async function fetchBlockDetails(blockId) {
     try {
-        // 実際のAPIが実装されるまでダミーデータを使用
-        const isHash = blockId.startsWith('0x');
-        const blockNumber = isHash ? Math.floor(Math.random() * 10) + 1 : parseInt(blockId);
+        // APIを使用してブロック詳細を取得
+        const response = await apiRequest(
+            () => apiClient.getBlockByNumberOrHash(blockId),
+            // フォールバックデータ（APIが失敗した場合）
+            generateMockBlockDetails(blockId)
+        );
         
-        return {
+        return response.block || response;
+    } catch (error) {
+        console.error('Error fetching block details:', error);
+        throw error;
+    }
+}
+
+// モック用のブロック詳細データを生成（開発中のみ使用）
+function generateMockBlockDetails(blockId) {
+    const isHash = blockId.startsWith('0x');
+    const blockNumber = isHash ? Math.floor(Math.random() * 10) + 1 : parseInt(blockId);
+    
+    return {
+        block: {
             number: blockNumber,
             hash: isHash ? blockId : `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
             parent_hash: `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
@@ -46,40 +73,48 @@ async function fetchBlockDetails(blockId) {
             gas_limit: 10000000,
             difficulty: Math.floor(Math.random() * 1000) + 100,
             validator: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`
-        };
-    } catch (error) {
-        console.error('Error fetching block details:', error);
-        throw error;
-    }
+        }
+    };
 }
 
 // ブロックのトランザクションを取得
 async function fetchBlockTransactions(blockId) {
     try {
-        // 実際のAPIが実装されるまでダミーデータを使用
-        const transactions = [];
-        const count = Math.floor(Math.random() * 5) + 1;
+        // APIを使用してブロックのトランザクションを取得
+        const response = await apiRequest(
+            () => apiClient.getBlockTransactions(blockId),
+            // フォールバックデータ（APIが失敗した場合）
+            generateMockBlockTransactions(blockId)
+        );
         
-        for (let i = 0; i < count; i++) {
-            const txId = `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`;
-            transactions.push({
-                id: txId,
-                sender: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
-                recipient: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
-                amount: Math.floor(Math.random() * 1000000) + 1000,
-                fee: Math.floor(Math.random() * 100) + 10,
-                nonce: Math.floor(Math.random() * 10),
-                timestamp: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 3600),
-                data: '',
-                status: 'Confirmed'
-            });
-        }
-        
-        return transactions;
+        return response.transactions || response;
     } catch (error) {
         console.error('Error fetching block transactions:', error);
         return [];
     }
+}
+
+// モック用のブロックトランザクションデータを生成（開発中のみ使用）
+function generateMockBlockTransactions(blockId) {
+    const transactions = [];
+    const count = Math.floor(Math.random() * 5) + 1;
+    
+    for (let i = 0; i < count; i++) {
+        const txId = `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`;
+        transactions.push({
+            id: txId,
+            sender: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
+            recipient: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
+            amount: Math.floor(Math.random() * 1000000) + 1000,
+            fee: Math.floor(Math.random() * 100) + 10,
+            nonce: Math.floor(Math.random() * 10),
+            timestamp: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 3600),
+            data: '',
+            status: 'Confirmed'
+        });
+    }
+    
+    return { transactions };
 }
 
 // ブロックページを表示

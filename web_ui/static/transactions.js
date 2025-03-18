@@ -3,36 +3,63 @@
 // トランザクションリストを取得
 async function fetchTransactions(limit = 10) {
     try {
-        // 実際のAPIが実装されるまでダミーデータを使用
-        const transactions = [];
-        for (let i = 0; i < limit; i++) {
-            transactions.push({
-                id: `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
-                sender: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
-                recipient: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
-                amount: Math.floor(Math.random() * 1000000) + 1000,
-                fee: Math.floor(Math.random() * 100) + 10,
-                nonce: Math.floor(Math.random() * 10),
-                timestamp: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 3600),
-                block_number: Math.floor(Math.random() * 10) + 1,
-                gas_used: Math.floor(Math.random() * 100000) + 21000,
-                gas_price: Math.floor(Math.random() * 10) + 1,
-                data: '',
-                status: ['Confirmed', 'Pending', 'Failed'][Math.floor(Math.random() * 3)]
-            });
-        }
-        return transactions;
+        // APIを使用してトランザクションリストを取得
+        const response = await apiRequest(
+            () => apiClient.getTransactions(limit),
+            // フォールバックデータ（APIが失敗した場合）
+            generateMockTransactions(limit)
+        );
+        
+        return response.transactions || response;
     } catch (error) {
         console.error('Error fetching transactions:', error);
         return [];
     }
 }
 
+// モック用のトランザクションデータを生成（開発中のみ使用）
+function generateMockTransactions(limit = 10) {
+    const transactions = [];
+    for (let i = 0; i < limit; i++) {
+        transactions.push({
+            id: `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
+            sender: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
+            recipient: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
+            amount: Math.floor(Math.random() * 1000000) + 1000,
+            fee: Math.floor(Math.random() * 100) + 10,
+            nonce: Math.floor(Math.random() * 10),
+            timestamp: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 3600),
+            block_number: Math.floor(Math.random() * 10) + 1,
+            gas_used: Math.floor(Math.random() * 100000) + 21000,
+            gas_price: Math.floor(Math.random() * 10) + 1,
+            data: '',
+            status: ['Confirmed', 'Pending', 'Failed'][Math.floor(Math.random() * 3)]
+        });
+    }
+    return { transactions };
+}
+
 // トランザクション詳細を取得
 async function fetchTransactionDetails(txId) {
     try {
-        // 実際のAPIが実装されるまでダミーデータを使用
-        return {
+        // APIを使用してトランザクション詳細を取得
+        const response = await apiRequest(
+            () => apiClient.getTransaction(txId),
+            // フォールバックデータ（APIが失敗した場合）
+            generateMockTransactionDetails(txId)
+        );
+        
+        return response.transaction || response;
+    } catch (error) {
+        console.error('Error fetching transaction details:', error);
+        throw error;
+    }
+}
+
+// モック用のトランザクション詳細データを生成（開発中のみ使用）
+function generateMockTransactionDetails(txId) {
+    return {
+        transaction: {
             id: txId,
             sender: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
             recipient: `0x${Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
@@ -47,11 +74,8 @@ async function fetchTransactionDetails(txId) {
             data: Math.random() > 0.5 ? `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}` : '',
             status: ['Confirmed', 'Pending', 'Failed'][Math.floor(Math.random() * 3)],
             error: null
-        };
-    } catch (error) {
-        console.error('Error fetching transaction details:', error);
-        throw error;
-    }
+        }
+    };
 }
 
 // トランザクションページを表示
