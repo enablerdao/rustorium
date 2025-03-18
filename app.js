@@ -93,39 +93,70 @@ function addExtendedNavigation() {
 // Load dashboard data
 async function loadDashboardData() {
     try {
-        // APIからネットワーク統計情報を取得
-        const response = await fetch('http://localhost:57620/network/status');
-        const data = await response.json();
-        
-        if (data.success) {
-            const stats = data.data;
+        // WebSocketが接続されている場合はWebSocketを使用
+        if (wsClient && wsClient.isConnected) {
+            // WebSocketでネットワーク状態を取得
+            wsClient.getStatus();
             
-            // Update stats with real data
-            latestBlockEl.textContent = stats.block_count || 0;
-            connectedPeersEl.textContent = 5; // 現在のAPIでは取得できないのでデフォルト値
-            pendingTxsEl.textContent = stats.pending_transactions || 0;
-            
-            // 起動時間を計算（現在のAPIでは取得できないのでデフォルト値）
-            const uptime_seconds = 45;
-            uptimeEl.textContent = formatUptime(uptime_seconds);
-            
-            // TPS、ブロック時間などの更新
-            if (stats.tps) {
-                document.querySelector('.network-status .progress-bar:nth-child(1)').style.width = `${Math.min(stats.tps * 2, 100)}%`;
-                document.querySelector('.network-status small:nth-child(2)').textContent = `${stats.tps.toFixed(1)} TPS`;
-            }
-            
-            if (stats.average_block_time) {
-                const blockTimePercent = Math.max(0, 100 - (stats.average_block_time * 10));
-                document.querySelector('.network-status .progress-bar:nth-child(3)').style.width = `${blockTimePercent}%`;
-                document.querySelector('.network-status small:nth-child(5)').textContent = `${stats.average_block_time.toFixed(1)}s`;
-            }
+            // WebSocketからのレスポンスを処理するリスナーを設定
+            wsClient.on('onStatus', (stats) => {
+                updateDashboardStats(stats);
+            });
         } else {
-            console.error('Failed to fetch network status:', data.error);
+            // フォールバック: APIからネットワーク統計情報を取得
+            const response = await fetch('http://localhost:57620/network/status');
+            const data = await response.json();
+            
+            if (data.success) {
+                updateDashboardStats(data.data);
+            } else {
+                console.error('Failed to fetch network status:', data.error);
+            }
         }
         
         // ローディング表示を非表示にする
         document.querySelector('.page-loader').style.display = 'none';
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        document.querySelector('.page-loader').style.display = 'none';
+    }
+}
+
+// ダッシュボードの統計情報を更新する関数
+function updateDashboardStats(stats) {
+    // Update stats with real data
+    latestBlockEl.textContent = stats.block_count || 0;
+    connectedPeersEl.textContent = 5; // 現在のAPIでは取得できないのでデフォルト値
+    pendingTxsEl.textContent = stats.pending_transactions || 0;
+    
+    // 起動時間を計算（現在のAPIでは取得できないのでデフォルト値）
+    const uptime_seconds = Math.floor(Date.now() / 1000) % 3600; // 1時間以内のランダムな秒数
+    uptimeEl.textContent = formatUptime(uptime_seconds);
+    
+    // TPS、ブロック時間などの更新
+    if (stats.tps !== undefined) {
+        const tpsValue = stats.tps || 0;
+        const tpsPercent = Math.min(tpsValue * 5, 100); // TPSを0-20の間でスケール
+        document.querySelector('.network-status .progress-bar:nth-child(1)').style.width = `${tpsPercent}%`;
+        document.querySelector('.network-status small:nth-child(2)').textContent = `${tpsValue.toFixed(1)} TPS`;
+    }
+    
+    if (stats.average_block_time !== undefined) {
+        const blockTime = stats.average_block_time || 0;
+        // ブロック時間が短いほど良いので、逆スケール（10秒が0%、0秒が100%）
+        const blockTimePercent = Math.max(0, 100 - (blockTime * 10));
+        document.querySelector('.network-status .progress-bar:nth-child(3)').style.width = `${blockTimePercent}%`;
+        document.querySelector('.network-status small:nth-child(5)').textContent = `${blockTime.toFixed(1)}s`;
+    }
+    
+    // ネットワーク負荷（ブロック数に基づいて計算）
+    const networkLoad = Math.min(stats.block_count * 15, 100);
+    document.querySelector('.network-status .progress-bar:nth-child(5)').style.width = `${networkLoad}%`;
+    document.querySelector('.network-status small:nth-child(7)').textContent = `${Math.round(networkLoad)}%`;
+    
+    // シャード数（固定値）
+    document.querySelector('.network-status small:nth-child(10)').textContent = `4 active`;
+}
         
         /* 
         // 本来のAPI呼び出しコード（現在は無効化）
@@ -159,20 +190,33 @@ async function loadDashboardData() {
 // Load recent transactions
 async function loadRecentTransactions() {
     try {
-        // APIからトランザクション情報を取得
-        const response = await fetch('http://localhost:57620/transactions');
-        const data = await response.json();
-        
-        if (data.success && data.data) {
-            // 最新の5件のみ表示
-            const transactions = data.data.slice(0, 5);
+        // WebSocketが接続されている場合はWebSocketを使用
+        if (wsClient && wsClient.isConnected) {
+            // WebSocketでトランザクション情報を取得
+            wsClient.getTransactions();
             
-            // Display transactions
-            displayTransactions(transactions);
+            // WebSocketからのレスポンスを処理するリスナーを設定
+            wsClient.on('onTransactions', (transactions) => {
+                // 最新の5件のみ表示
+                const recentTransactions = transactions.slice(0, 5);
+                displayTransactions(recentTransactions);
+            });
         } else {
-            // エラーの場合は空のリストを表示
-            displayTransactions([]);
-            console.error('Failed to fetch transactions:', data.error);
+            // フォールバック: APIからトランザクション情報を取得
+            const response = await fetch('http://localhost:57620/transactions');
+            const data = await response.json();
+            
+            if (data.success && data.data) {
+                // 最新の5件のみ表示
+                const transactions = data.data.slice(0, 5);
+                
+                // Display transactions
+                displayTransactions(transactions);
+            } else {
+                // エラーの場合は空のリストを表示
+                displayTransactions([]);
+                console.error('Failed to fetch transactions:', data.error);
+            }
         }
         
         // ローディング表示を非表示にする

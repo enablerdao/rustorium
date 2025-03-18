@@ -277,6 +277,106 @@ async fn get_account_transactions(
     (StatusCode::OK, Json(ApiResponse::success(transactions)))
 }
 
+use axum::extract::ws::{Message, WebSocket, WebSocketUpgrade};
+use axum::response::Response;
+use std::time::Duration;
+use tokio::time::interval;
+use futures_util::{StreamExt, SinkExt};
+
+// WebSocketハンドラー
+async fn ws_handler(
+    ws: WebSocketUpgrade,
+    State(state): State<Arc<Mutex<AppState>>>,
+) -> Response {
+    ws.on_upgrade(|socket| handle_socket(socket, state))
+}
+
+async fn handle_socket(socket: WebSocket, state: Arc<Mutex<AppState>>) {
+    // ソケットを送信と受信に分割
+    let (mut sender, mut receiver) = socket.split();
+    
+    // クライアントからのメッセージを処理
+    while let Some(Ok(message)) = receiver.next().await {
+        if let Message::Text(text) = message {
+            match text.as_str() {
+                "get_status" => {
+                    // ネットワーク状態を取得して送信
+                    let stats = {
+                        let app_state = state.lock().unwrap();
+                        let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+                        blockchain.get_network_stats()
+                    }; // ロックをここで解放
+                    
+                    if let Ok(json) = serde_json::to_string(&ApiResponse::success(stats)) {
+                        if sender.send(Message::Text(json)).await.is_err() {
+                            break;
+                        }
+                    }
+                },
+                "get_transactions" => {
+                    // 最新のトランザクションを取得して送信
+                    let result = {
+                        let app_state = state.lock().unwrap();
+                        let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+                        
+                        // すべてのトランザクションを収集
+                        let mut all_transactions = Vec::new();
+                        
+                        // ペンディングトランザクション
+                        for tx in &blockchain.pending_transactions {
+                            all_transactions.push(tx.clone());
+                        }
+                        
+                        // 確認済みトランザクション
+                        for block in &blockchain.chain {
+                            for tx in &block.transactions {
+                                all_transactions.push(tx.clone());
+                            }
+                        }
+                        
+                        // タイムスタンプの降順でソート
+                        all_transactions.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+                        
+                        // 最新の10件を取得
+                        all_transactions.into_iter().take(10).collect::<Vec<_>>()
+                    }; // ロックをここで解放
+                    
+                    if let Ok(json) = serde_json::to_string(&ApiResponse::success(result)) {
+                        if sender.send(Message::Text(json)).await.is_err() {
+                            break;
+                        }
+                    }
+                },
+                _ => {
+                    // 不明なコマンド
+                    if sender.send(Message::Text(format!("{{\"success\":false,\"error\":\"Unknown command: {}\"}}", text))).await.is_err() {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    // 定期的なステータス更新（5秒ごと）
+    let mut update_interval = interval(Duration::from_secs(5));
+    loop {
+        update_interval.tick().await;
+        
+        // ネットワーク状態を取得して送信
+        let stats = {
+            let app_state = state.lock().unwrap();
+            let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+            blockchain.get_network_stats()
+        }; // ロックをここで解放
+        
+        if let Ok(json) = serde_json::to_string(&ApiResponse::success(stats)) {
+            if sender.send(Message::Text(json)).await.is_err() {
+                break;
+            }
+        }
+    }
+}
+
 pub async fn start_integrated_server(port: u16) -> anyhow::Result<()> {
     // ブロックチェーンの初期化
     let blockchain_state = BlockchainState::new();
@@ -314,6 +414,8 @@ pub async fn start_integrated_server(port: u16) -> anyhow::Result<()> {
         .route("/accounts/:address", get(get_account))
         .route("/accounts/:address/transactions", get(get_account_transactions))
         .route("/network/status", get(get_status))
+        // WebSocket エンドポイント
+        .route("/ws", get(ws_handler))
         // 静的ファイル
         .nest_service("/", static_service.clone())
         .fallback_service(static_service)
