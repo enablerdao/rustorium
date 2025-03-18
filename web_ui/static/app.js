@@ -364,23 +364,10 @@ function showDashboard() {
 }
 
 // Show blocks
+// 古い実装（blocks.jsに移行済み）
 function showBlocks() {
-    contentArea.innerHTML = `
-        <h1 class="mb-4">Blocks</h1>
-        <div class="card">
-            <div class="card-body">
-                <div id="blocks-list">
-                    <div class="d-flex justify-content-center my-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    loadBlocks();
+    // 新しい実装を使用
+    showBlocksPage();
 }
 
 // Load blocks
@@ -464,23 +451,10 @@ function displayBlocks(blocks) {
 }
 
 // Show transactions
+// 古い実装（transactions.jsに移行済み）
 function showTransactions() {
-    contentArea.innerHTML = `
-        <h1 class="mb-4">Transactions</h1>
-        <div class="card">
-            <div class="card-body">
-                <div id="transactions-list">
-                    <div class="d-flex justify-content-center my-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    loadTransactions();
+    // 新しい実装を使用
+    showTransactionsPage();
 }
 
 // Load transactions
@@ -588,32 +562,10 @@ async function loadTransactions() {
 }
 
 // Show accounts
+// 古い実装（accounts.jsに移行済み）
 function showAccounts() {
-    contentArea.innerHTML = `
-        <h1 class="mb-4">Accounts</h1>
-        
-        <div class="card mb-4">
-            <div class="card-body">
-                <form id="account-search-form">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="account-address" placeholder="Enter account address (0x...)" required>
-                        <button class="btn btn-primary" type="submit">
-                            Search
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <div id="account-details"></div>
-    `;
-    
-    // Add event listener to form
-    document.getElementById('account-search-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const address = document.getElementById('account-address').value;
-        loadAccountDetails(address);
-    });
+    // 新しい実装を使用
+    showAccountsPage();
 }
 
 // Load account details
