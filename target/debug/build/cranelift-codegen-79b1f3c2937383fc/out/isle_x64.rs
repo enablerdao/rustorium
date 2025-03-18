@@ -5,7 +5,7 @@
 // - src/prelude_lower.isle
 // - src/isa/x64/inst.isle
 // - src/isa/x64/lower.isle
-// - /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_lower.isle
+// - /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_lower.isle
 
 use super::*; // Pulls in all external types.
 use std::marker::PhantomData;

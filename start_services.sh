@@ -30,12 +30,12 @@ WEB_PORT=57620
 # Webサーバーを起動
 echo "Starting Web server..."
 cd /workspace/Rustorium/web
-nohup python -m http.server $WEB_PORT > /workspace/Rustorium/logs/web_server.log 2>&1 &
+nohup cargo run > /workspace/Rustorium/logs/web_server.log 2>&1 &
 WEB_PID=$!
 echo $WEB_PID > /workspace/Rustorium/logs/web_server.pid
 
 # 少し待機
-sleep 1
+sleep 3
 
 echo "Web server detected on port: $WEB_PORT"
 

@@ -12,7 +12,7 @@ cargo:rerun-if-env-changed=CARGO_CFG_TARGET_OS
 cargo:rerun-if-env-changed=CARGO_CFG_TARGET_ENV
 cargo:rerun-if-env-changed=CARGO_CFG_TARGET_ENDIAN
 OPT_LEVEL = Some(0)
-OUT_DIR = Some(/workspace/RustLedger/RustLedger/target/debug/build/ring-18c3e67bbe8e44f4/out)
+OUT_DIR = Some(/workspace/Rustorium/target/debug/build/ring-18c3e67bbe8e44f4/out)
 TARGET = Some(aarch64-unknown-linux-gnu)
 HOST = Some(aarch64-unknown-linux-gnu)
 cargo:rerun-if-env-changed=CC_aarch64-unknown-linux-gnu
@@ -63,7 +63,7 @@ exit status: 0
 exit status: 0
 cargo:rustc-link-lib=static=ring_core_0_17_14_
 OPT_LEVEL = Some(0)
-OUT_DIR = Some(/workspace/RustLedger/RustLedger/target/debug/build/ring-18c3e67bbe8e44f4/out)
+OUT_DIR = Some(/workspace/Rustorium/target/debug/build/ring-18c3e67bbe8e44f4/out)
 TARGET = Some(aarch64-unknown-linux-gnu)
 HOST = Some(aarch64-unknown-linux-gnu)
 cargo:rerun-if-env-changed=CC_aarch64-unknown-linux-gnu
@@ -90,7 +90,7 @@ cargo:rerun-if-env-changed=CFLAGS_aarch64-unknown-linux-gnu
 CFLAGS_aarch64-unknown-linux-gnu = None
 CARGO_ENCODED_RUSTFLAGS = Some()
 cargo:rustc-link-lib=static=ring_core_0_17_14__test
-cargo:rustc-link-search=native=/workspace/RustLedger/RustLedger/target/debug/build/ring-18c3e67bbe8e44f4/out
+cargo:rustc-link-search=native=/workspace/Rustorium/target/debug/build/ring-18c3e67bbe8e44f4/out
 cargo:rerun-if-changed=crypto/crypto.c
 cargo:rerun-if-changed=crypto/fipsmodule/sha/asm/sha512-x86_64.pl
 cargo:rerun-if-changed=crypto/fipsmodule/sha/asm/sha256-armv4.pl

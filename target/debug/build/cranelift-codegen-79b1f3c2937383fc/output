@@ -21,4 +21,4 @@ cargo:rerun-if-changed=src/prelude.isle
 cargo:rerun-if-changed=src/prelude_lower.isle
 cargo:rerun-if-changed=src/isa/riscv64/inst.isle
 cargo:rerun-if-changed=src/isa/riscv64/lower.isle
-cargo:rustc-env=ISLE_DIR=/workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out
+cargo:rustc-env=ISLE_DIR=/workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out
