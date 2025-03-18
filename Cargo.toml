@@ -6,7 +6,7 @@ description = "Web server for Rustorium"
 authors = ["OpenHands <openhands@all-hands.dev>"]
 
 [dependencies]
-axum = "0.7.4"
+axum = { version = "0.7.4", features = ["ws"] }
 tokio = { version = "1.36.0", features = ["full"] }
 tower-http = { version = "0.5.1", features = ["fs", "cors", "trace"] }
 tracing = "0.1.40"
@@ -18,3 +18,5 @@ chrono = { version = "0.4.40", features = ["serde"] }
 sha2 = "0.10.8"
 uuid = { version = "1.16.0", features = ["v4", "serde"] }
 serde = { version = "1.0.219", features = ["derive"] }
+futures-util = "0.3.31"
+tokio-tungstenite = "0.26.2"
