@@ -1,127 +1,79 @@
-# RustLedger
+# Rustorium
 
-RustLedgerは、Rustで実装された高性能な分散型台帳システムです。シャーディング、Avalanche型ゴシッププロトコル、マルチVM実行環境、DAGベース並列処理、AI処理層などの先進的な機能を備えています。
+Rustoriumは、Rustで実装された高性能なブロックチェーンプラットフォームです。シャーディング、Avalanche型コンセンサス、マルチVM実行環境などの先進的な機能を備えた次世代分散台帳システムです。
 
-## 主な機能
+![Rustorium Dashboard](docs/images/dashboard.png)
 
-- **シャーディング**: 一貫性ハッシュリングを使用したトランザクションの効率的な分散処理
-- **Avalanche型ゴシッププロトコル**: 高速なコンセンサスと耐障害性
-- **マルチVM実行環境**: EVM、WASM対応の柔軟な実行環境
-- **ストレージエンジン**: RocksDBベースの高性能ストレージ
-- **DAGベース並列処理**: 依存関係を考慮した効率的なトランザクション処理
-- **AI処理層**: 異常検出と予測機能
-- **Webインターフェース**: Rustで実装されたモダンなUI
+## 主な特徴
 
-## 必要条件
+- **モダンなWebインターフェース**: ダークモード対応の直感的なUI
+- **高性能APIサーバー**: 外部アプリケーションとの連携
+- **拡張性の高いアーキテクチャ**: 将来の機能追加に対応
+
+## 現在の機能
+
+- ✅ WebUI基本インターフェース
+- ✅ APIサーバー基本構造
+- ✅ テーマ切り替え機能
+- ✅ レスポンシブデザイン
+- ✅ ダッシュボードUI
+
+## 開発中の機能
+
+- 🔄 スタンドアロンAPIサーバーの完全実装
+- 🔄 トランザクション送信機能
+- 🔄 アカウント管理機能
+- 🔄 ネットワーク可視化
+- 🔄 スマートコントラクト管理
+
+## 今後実装予定の機能
+
+- ⏳ シャーディング実装
+- ⏳ Avalancheコンセンサス
+- ⏳ マルチVM実行環境
+- ⏳ DAGベース並列処理
+- ⏳ AI処理層
+- ⏳ 分散ストレージ
+
+## クイックスタート
+
+### 必要条件
 
 - Rust 1.70以上
 - Cargo
-- wasm-pack (WebUI用)
-- libclang-dev (RocksDB依存)
 
-## インストール
+### 実行方法
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/yourusername/rustledger.git
-cd rustledger
+git clone https://github.com/enablerdao/rustorium.git
+cd rustorium
 
-# ビルド
-cargo build --release
-
-# WebUIをビルド
-./build_web.sh
+# すべてのサービスを起動
+./run_all.sh
 ```
 
-## 使用方法
+これにより、以下のサービスが起動します：
+- APIサーバー: http://localhost:51055
+- WebUI: http://localhost:57620
 
-### 新しい台帳の初期化
+## ドキュメント
 
-```bash
-cargo run -- init --path ./data
-```
+詳細なドキュメントは以下のリンクから参照できます：
 
-### フルノードの起動
+- [プロジェクト構造](docs/project-structure.md)
+- [アーキテクチャ概要](docs/architecture/overview.md)
+- [APIリファレンス](docs/api/reference.md)
+- [インストールガイド](docs/guides/installation.md)
+- [基本的な使い方](docs/guides/basic-usage.md)
 
-```bash
-cargo run -- node --config config.toml
-```
+## 機能詳細
 
-### APIサーバーのみ起動
-
-```bash
-cargo run -- api --port 8080
-```
-
-### Webインターフェースのみ起動
-
-```bash
-cargo run -- web --port 8081 --api-url http://localhost:8080
-```
-
-### カスタム起動オプション
-
-```bash
-# APIサーバーなしでノードを起動
-cargo run -- node --config config.toml --api false
-
-# WebUIなしでノードを起動
-cargo run -- node --config config.toml --web false
-
-# カスタムポートでノードを起動
-cargo run -- node --config config.toml --api-port 9090 --web-port 9091
-```
-
-### トランザクションの送信
-
-```bash
-cargo run -- send-tx --from 0x1234567890abcdef1234567890abcdef12345678 --to 0xabcdef1234567890abcdef1234567890abcdef12 --amount 1000 --fee 10
-```
-
-## 設定
-
-`config.toml`ファイルで以下の設定が可能です：
-
-```toml
-[node]
-id = "node-1"
-data_dir = "./data"
-log_level = "info"
-
-[network]
-listen_addr = "0.0.0.0"
-listen_port = 30333
-bootstrap_nodes = []
-max_peers = 50
-
-[sharding]
-shard_count = 4
-rebalance_interval_sec = 3600
-
-[consensus]
-algorithm = "avalanche"
-block_time_ms = 2000
-validators = []
-min_validators = 4
-threshold_percentage = 67
-
-[api]
-enabled = true
-listen_addr = "0.0.0.0"
-listen_port = 8080
-```
-
-## アーキテクチャ
-
-RustLedgerは以下のコンポーネントで構成されています：
-
-1. **シャーディング層**: トランザクションを複数のシャードに分散
-2. **ネットワーク層**: P2P通信とゴシッププロトコル
-3. **コンセンサス層**: Avalancheベースのコンセンサスアルゴリズム
-4. **実行層**: マルチVM対応のトランザクション実行環境
-5. **ストレージ層**: 効率的なデータ永続化
-6. **API層**: RESTful APIとWebインターフェース
-7. **AI層**: 異常検出と予測機能
+- [シャーディング実装](docs/features/sharding.md)
+- [Avalancheコンセンサス](docs/features/consensus.md)
+- [マルチVM実行環境](docs/features/multi-vm.md)
+- [DAGベース並列処理](docs/features/dag-execution.md)
+- [AI処理層](docs/features/ai-layer.md)
 
 ## ライセンス
 
