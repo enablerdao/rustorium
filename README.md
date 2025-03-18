@@ -51,12 +51,12 @@ git clone https://github.com/enablerdao/rustorium.git
 cd rustorium
 
 # すべてのサービスを起動
-./run_all.sh
+cargo run
 ```
 
 これにより、以下のサービスが起動します：
-- APIサーバー: http://localhost:51055
-- WebUI: http://localhost:57620
+- APIサーバー: http://localhost:50128
+- WebUI: http://localhost:55560
 
 ## ドキュメント
 

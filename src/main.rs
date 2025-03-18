@@ -1,47 +1,99 @@
+use std::process::{Command, Stdio};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use anyhow::Result;
-use clap::{Parser, Subcommand};
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
-mod blockchain;
-mod integrated_server;
-
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-struct Cli {
-    /// Sets the log level
-    #[arg(short, long, default_value = "info")]
-    log_level: String,
-
-    /// Port to listen on
-    #[arg(short, long, default_value_t = 57620)]
-    port: u16,
-}
-
 #[tokio::main]
 async fn main() -> Result<()> {
-    let cli = Cli::parse();
-    
-    // Set up logging
-    let log_level = match cli.log_level.to_lowercase().as_str() {
-        "debug" => Level::DEBUG,
-        "info" => Level::INFO,
-        "warn" => Level::WARN,
-        "error" => Level::ERROR,
-        "trace" => Level::TRACE,
-        _ => Level::INFO,
-    };
-    
+    // ロギングの設定
     let subscriber = FmtSubscriber::builder()
-        .with_max_level(log_level)
+        .with_max_level(Level::INFO)
         .finish();
     
     tracing::subscriber::set_global_default(subscriber)
         .expect("Failed to set tracing subscriber");
+
+    // 既存のプロセスをクリーンアップ
+    info!("Cleaning up any existing processes...");
+    let _ = Command::new("pkill")
+        .args(["-f", "standalone_api"])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status();
     
-    // 統合サーバーを起動
-    info!("Starting Rustorium integrated server on port {}", cli.port);
-    integrated_server::start_integrated_server(cli.port).await?;
+    let _ = Command::new("pkill")
+        .args(["-f", "web"])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status();
+    
+    tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+
+    // APIサーバーを起動
+    info!("Starting API server...");
+    let api_port = 50128;
+    let _api_process = Command::new("cargo")
+        .current_dir("api")
+        .args(["run"])
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .spawn()?;
+    
+    info!("API server starting on port: {}", api_port);
+    
+    // 少し待機
+    tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+    
+    // WebUIサーバーを起動
+    info!("Starting Web UI server...");
+    let web_port = 55560;
+    let _web_process = Command::new("cargo")
+        .current_dir("web")
+        .args(["run"])
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .spawn()?;
+    
+    info!("Web UI server starting on port: {}", web_port);
+    
+    // 少し待機
+    tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+    
+    info!("All services started!");
+    info!("API server running at http://localhost:{}", api_port);
+    info!("Web UI running at http://localhost:{}", web_port);
+    info!("");
+    info!("Press Ctrl+C to stop all services");
+    
+    // 終了シグナルを待機
+    let running = Arc::new(AtomicBool::new(true));
+    let r = running.clone();
+    
+    tokio::spawn(async move {
+        let _ = tokio::signal::ctrl_c().await;
+        r.store(false, Ordering::SeqCst);
+    });
+    
+    while running.load(Ordering::SeqCst) {
+        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+    }
+    
+    info!("Stopping services...");
+    
+    // プロセスをクリーンアップ
+    let _ = Command::new("pkill")
+        .args(["-f", "standalone_api"])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status();
+    
+    let _ = Command::new("pkill")
+        .args(["-f", "web"])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status();
     
     Ok(())
 }

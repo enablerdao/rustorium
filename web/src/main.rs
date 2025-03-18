@@ -1,6 +1,5 @@
 use axum::{
     http::StatusCode,
-    response::IntoResponse,
     routing::get_service,
     Router,
 };
@@ -43,7 +42,7 @@ async fn main() -> anyhow::Result<()> {
         .layer(cors);
     
     // サーバーの起動
-    let port = 57620;
+    let port = 55560;
     
     // 通常のバインド方法
     let addr = SocketAddr::from(([0, 0, 0, 0], port));

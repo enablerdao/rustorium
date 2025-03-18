@@ -69,40 +69,34 @@ cargo build
 
 ### 5. WebUIのビルド
 
-WebUIをビルドするには、以下のコマンドを実行します：
-
-```bash
-./build_web.sh
-```
+WebUIは自動的にビルドされます。
 
 ## 実行方法
-
-### スタンドアロンモードでの実行
 
 すべてのコンポーネントを一度に起動するには、以下のコマンドを実行します：
 
 ```bash
-./run_all.sh
+cargo run
 ```
 
 これにより、APIサーバーとWebUIの両方が起動します。デフォルトでは、以下のポートが使用されます：
 
-- APIサーバー: http://localhost:51055
-- WebUI: http://localhost:57620
+- APIサーバー: http://localhost:50128
+- WebUI: http://localhost:55560
 
 ### 個別コンポーネントの実行
 
 #### APIサーバーのみ起動
 
 ```bash
-cd standalone_api
+cd api
 cargo run
 ```
 
 #### WebUIのみ起動
 
 ```bash
-cd web_ui
+cd web
 cargo run
 ```
 

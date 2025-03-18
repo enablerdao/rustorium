@@ -357,7 +357,7 @@ impl Blockchain {
     }
 
     // トランザクションを処理
-    fn process_transaction(&mut self, transaction: &Transaction, block_number: u64) {
+    fn process_transaction(&mut self, transaction: &Transaction, _block_number: u64) {
         // システムアドレスからの送金（マイニング報酬など）の場合は残高チェックをスキップ
         if transaction.sender != "0x0000000000000000000000000000000000000000" {
             // 送信者の残高を減少
@@ -545,6 +545,7 @@ impl BlockchainState {
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_instance() -> Self {
         Self::new()
     }

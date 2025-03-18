@@ -146,7 +146,7 @@ async fn create_transaction(
     State(state): State<Arc<Mutex<AppState>>>,
     Json(request): Json<CreateTransactionRequest>,
 ) -> impl IntoResponse {
-    let mut app_state = state.lock().unwrap();
+    let app_state = state.lock().unwrap();
     let mut blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
     let result = blockchain.add_transaction(
@@ -255,7 +255,7 @@ async fn list_accounts(
 async fn create_account(
     State(state): State<Arc<Mutex<AppState>>>,
 ) -> impl IntoResponse {
-    let mut app_state = state.lock().unwrap();
+    let app_state = state.lock().unwrap();
     let mut blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
     let account = blockchain.create_account();
@@ -317,7 +317,7 @@ async fn main() -> anyhow::Result<()> {
         .with_state(app_state);
     
     // サーバーの起動
-    let port = 51055; // APIサーバーのポート
+    let port = 50128; // APIサーバーのポート
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     info!("API server listening on {}", addr);
     println!("API server listening on {}", addr);
