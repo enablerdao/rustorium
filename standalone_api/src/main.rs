@@ -11,7 +11,7 @@ use std::net::SocketAddr;
 use std::sync::{Arc, RwLock};
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
-use tracing::{info, Level};
+use tracing::{info, warn, Level};
 use tracing_subscriber::FmtSubscriber;
 use uuid::Uuid;
 
@@ -323,31 +323,13 @@ async fn main() -> anyhow::Result<()> {
         .with_state(app_state);
     
     // サーバーの起動
-    let mut port = 51055; // APIサーバーのポート
-    let mut attempts = 0;
-    let max_attempts = 10;
+    let port = 51055; // APIサーバーのポート
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    info!("API server listening on {}", addr);
+    println!("API server listening on {}", addr);
     
-    // ポートが使用中の場合は別のポートを試す
-    while attempts < max_attempts {
-        let addr = SocketAddr::from(([0, 0, 0, 0], port));
-        match tokio::net::TcpListener::bind(&addr).await {
-            Ok(listener) => {
-                info!("API server listening on {}", addr);
-                println!("API server listening on {}", addr);
-                return axum::serve(listener, app).await.map_err(Into::into);
-            },
-            Err(e) if e.kind() == std::io::ErrorKind::AddrInUse => {
-                attempts += 1;
-                port += 1;
-                warn!("Port {} is already in use, trying port {}", port - 1, port);
-            },
-            Err(e) => {
-                return Err(e.into());
-            }
-        }
-    }
-    
-    Err(anyhow::anyhow!("Failed to bind to a port after {} attempts", max_attempts))
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+    axum::serve(listener, app).await?;
     
     Ok(())
 }

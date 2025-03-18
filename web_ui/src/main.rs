@@ -7,7 +7,7 @@ use axum::{
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use tower_http::services::ServeDir;
-use tracing::{info, Level};
+use tracing::{info, warn, Level};
 use tracing_subscriber::FmtSubscriber;
 
 #[tokio::main]
@@ -38,31 +38,15 @@ async fn main() -> anyhow::Result<()> {
         .fallback_service(static_service);
     
     // サーバーの起動
-    let mut port = 57620; // 外部からアクセス可能なポートに変更
-    let mut attempts = 0;
-    let max_attempts = 10;
+    let port = 57620; // 外部からアクセス可能なポートに変更
     
-    // ポートが使用中の場合は別のポートを試す
-    while attempts < max_attempts {
-        let addr = SocketAddr::from(([0, 0, 0, 0], port));
-        match tokio::net::TcpListener::bind(&addr).await {
-            Ok(listener) => {
-                info!("Web UI server listening on {}", addr);
-                println!("Web UI server listening on {}", addr);
-                return axum::serve(listener, app).await.map_err(Into::into);
-            },
-            Err(e) if e.kind() == std::io::ErrorKind::AddrInUse => {
-                attempts += 1;
-                port += 1;
-                warn!("Port {} is already in use, trying port {}", port - 1, port);
-            },
-            Err(e) => {
-                return Err(e.into());
-            }
-        }
-    }
+    // 通常のバインド方法
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    info!("Web UI server listening on {}", addr);
+    println!("Web UI server listening on {}", addr);
     
-    Err(anyhow::anyhow!("Failed to bind to a port after {} attempts", max_attempts))
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+    axum::serve(listener, app).await?;
     
     Ok(())
 }
