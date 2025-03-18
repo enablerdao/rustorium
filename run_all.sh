@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# 既存のゾンビプロセスをクリーンアップ
+echo "Cleaning up any existing processes..."
+pkill -f "standalone_api" || true
+pkill -f "web_ui" || true
+sleep 1
+
 # APIサーバーを起動
 echo "Starting API server..."
 cd /workspace/Rustorium/standalone_api
@@ -34,7 +40,13 @@ echo ""
 echo "Press Ctrl+C to stop all services"
 
 # 終了時に子プロセスを終了
-trap "kill $API_PID $WEB_PID; exit" INT TERM EXIT
+cleanup() {
+    echo "Stopping services..."
+    kill $API_PID $WEB_PID 2>/dev/null || true
+    exit
+}
+
+trap cleanup INT TERM EXIT
 
 # 親プロセスが終了するまで待機
 wait
