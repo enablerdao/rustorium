@@ -279,21 +279,21 @@ function setupNavigation() {
     blocksLink.addEventListener('click', (e) => {
         e.preventDefault();
         setActiveLink(blocksLink);
-        showBlocks();
+        showBlocksPage();
     });
     
     // Transactions link
     transactionsLink.addEventListener('click', (e) => {
         e.preventDefault();
         setActiveLink(transactionsLink);
-        showTransactions();
+        showTransactionsPage();
     });
     
     // Accounts link
     accountsLink.addEventListener('click', (e) => {
         e.preventDefault();
         setActiveLink(accountsLink);
-        showAccounts();
+        showAccountsPage();
     });
     
     // Send Transaction link
@@ -342,7 +342,7 @@ function setupNavigation() {
     viewAllTxsLink.addEventListener('click', (e) => {
         e.preventDefault();
         setActiveLink(transactionsLink);
-        showTransactions();
+        showTransactionsPage();
     });
 }
 
