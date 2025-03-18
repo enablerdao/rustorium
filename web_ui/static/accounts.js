@@ -24,6 +24,7 @@ async function fetchAccountsList(limit = 10) {
 
 // アカウントページを表示
 function showAccountsPage() {
+    const contentArea = document.getElementById('content-area');
     contentArea.innerHTML = `
         <h1 class="mb-4">Accounts</h1>
         

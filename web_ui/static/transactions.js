@@ -56,6 +56,7 @@ async function fetchTransactionDetails(txId) {
 
 // トランザクションページを表示
 function showTransactionsPage() {
+    const contentArea = document.getElementById('content-area');
     contentArea.innerHTML = `
         <h1 class="mb-4">Transactions</h1>
         
@@ -375,6 +376,7 @@ async function showTransactionDetails(txId) {
 
 // 送金ページを表示
 function showSendTransaction(fromAddress = null) {
+    const contentArea = document.getElementById('content-area');
     contentArea.innerHTML = `
         <h1 class="mb-4">Send Transaction</h1>
         

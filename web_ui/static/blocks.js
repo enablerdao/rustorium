@@ -84,6 +84,7 @@ async function fetchBlockTransactions(blockId) {
 
 // ブロックページを表示
 function showBlocksPage() {
+    const contentArea = document.getElementById('content-area');
     contentArea.innerHTML = `
         <h1 class="mb-4">Blocks</h1>
         
