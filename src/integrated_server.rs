@@ -449,7 +449,7 @@ pub async fn start_integrated_server(port: u16) -> anyhow::Result<()> {
     }));
     
     // 静的ファイルのディレクトリ
-    let static_dir = PathBuf::from("./web");
+    let static_dir = PathBuf::from("./frontend");
     
     // 静的ファイルを提供するサービス
     let static_service = get_service(ServeDir::new(&static_dir))
