@@ -6,14 +6,15 @@ use axum::{
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tower_http::cors::CorsLayer;
 use tower_http::services::ServeDir;
 use tower_http::trace::TraceLayer;
-use tracing::{info, Level};
-use tracing_subscriber::FmtSubscriber;
+use tracing::info;
+use serde_json;
 
 use crate::blockchain::{BlockchainState, Transaction};
 
@@ -71,7 +72,7 @@ pub struct AppState {
 }
 
 // ハンドラー関数
-async fn get_status(State(state): State<Arc<Mutex<AppState>>>) -> impl IntoResponse {
+async fn get_status(State(state): State<Arc<Mutex<AppState>>>) -> (StatusCode, Json<ApiResponse<HashMap<String, serde_json::Value>>>) {
     let app_state = state.lock().unwrap();
     let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
@@ -83,7 +84,7 @@ async fn get_status(State(state): State<Arc<Mutex<AppState>>>) -> impl IntoRespo
 async fn get_block(
     State(state): State<Arc<Mutex<AppState>>>,
     Path(block_id): Path<String>,
-) -> impl IntoResponse {
+) -> (StatusCode, Json<ApiResponse<crate::blockchain::Block>>) {
     let app_state = state.lock().unwrap();
     let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
@@ -108,7 +109,7 @@ async fn get_block(
 async fn get_transaction(
     State(state): State<Arc<Mutex<AppState>>>,
     Path(tx_id): Path<String>,
-) -> impl IntoResponse {
+) -> (StatusCode, Json<ApiResponse<Transaction>>) {
     let app_state = state.lock().unwrap();
     let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
@@ -127,7 +128,7 @@ async fn get_transaction(
 async fn get_account(
     State(state): State<Arc<Mutex<AppState>>>,
     Path(address): Path<String>,
-) -> impl IntoResponse {
+) -> (StatusCode, Json<ApiResponse<crate::blockchain::Account>>) {
     let app_state = state.lock().unwrap();
     let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
@@ -146,7 +147,7 @@ async fn get_account(
 async fn create_transaction(
     State(state): State<Arc<Mutex<AppState>>>,
     Json(request): Json<CreateTransactionRequest>,
-) -> impl IntoResponse {
+) -> (StatusCode, Json<ApiResponse<String>>) {
     let app_state = state.lock().unwrap();
     let mut blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
@@ -185,7 +186,7 @@ pub struct ListBlocksQuery {
 async fn list_blocks(
     State(state): State<Arc<Mutex<AppState>>>,
     Query(params): Query<ListBlocksQuery>,
-) -> impl IntoResponse {
+) -> (StatusCode, Json<ApiResponse<Vec<crate::blockchain::Block>>>) {
     let app_state = state.lock().unwrap();
     let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
@@ -208,7 +209,7 @@ async fn list_blocks(
 async fn list_transactions(
     State(state): State<Arc<Mutex<AppState>>>,
     Query(params): Query<ListBlocksQuery>,
-) -> impl IntoResponse {
+) -> (StatusCode, Json<ApiResponse<Vec<Transaction>>>) {
     let app_state = state.lock().unwrap();
     let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
@@ -244,7 +245,7 @@ async fn list_transactions(
 
 async fn list_accounts(
     State(state): State<Arc<Mutex<AppState>>>,
-) -> impl IntoResponse {
+) -> (StatusCode, Json<ApiResponse<Vec<crate::blockchain::Account>>>) {
     let app_state = state.lock().unwrap();
     let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
@@ -255,7 +256,7 @@ async fn list_accounts(
 
 async fn create_account(
     State(state): State<Arc<Mutex<AppState>>>,
-) -> impl IntoResponse {
+) -> (StatusCode, Json<ApiResponse<crate::blockchain::Account>>) {
     let app_state = state.lock().unwrap();
     let mut blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
@@ -267,7 +268,7 @@ async fn create_account(
 async fn get_account_transactions(
     State(state): State<Arc<Mutex<AppState>>>,
     Path(address): Path<String>,
-) -> impl IntoResponse {
+) -> (StatusCode, Json<ApiResponse<Vec<Transaction>>>) {
     let app_state = state.lock().unwrap();
     let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     

@@ -4,6 +4,7 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
+use serde_json;
 
 // ブロック構造体
 #[derive(Clone, Debug, Serialize, Deserialize)]

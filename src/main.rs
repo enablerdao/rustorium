@@ -1,57 +1,47 @@
-use axum::{
-    http::StatusCode,
-    response::IntoResponse,
-    routing::get_service,
-    Router,
-};
-use std::net::SocketAddr;
-use std::path::PathBuf;
-use tower_http::services::ServeDir;
-use tower_http::cors::CorsLayer;
+use anyhow::Result;
+use clap::{Parser, Subcommand};
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
+mod blockchain;
+mod integrated_server;
+
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+struct Cli {
+    /// Sets the log level
+    #[arg(short, long, default_value = "info")]
+    log_level: String,
+
+    /// Port to listen on
+    #[arg(short, long, default_value_t = 57620)]
+    port: u16,
+}
+
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    // ロギングの設定
+async fn main() -> Result<()> {
+    let cli = Cli::parse();
+    
+    // Set up logging
+    let log_level = match cli.log_level.to_lowercase().as_str() {
+        "debug" => Level::DEBUG,
+        "info" => Level::INFO,
+        "warn" => Level::WARN,
+        "error" => Level::ERROR,
+        "trace" => Level::TRACE,
+        _ => Level::INFO,
+    };
+    
     let subscriber = FmtSubscriber::builder()
-        .with_max_level(Level::INFO)
+        .with_max_level(log_level)
         .finish();
     
     tracing::subscriber::set_global_default(subscriber)
         .expect("Failed to set tracing subscriber");
     
-    // 静的ファイルのディレクトリ
-    let static_dir = PathBuf::from(".");
-    
-    // 静的ファイルを提供するサービス
-    let static_service = get_service(ServeDir::new(&static_dir))
-        .handle_error(|error| async move {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Unhandled internal error: {}", error),
-            )
-        });
-    
-    // CORSの設定
-    let cors = CorsLayer::permissive();
-    
-    // ルーターの構築
-    let app = Router::new()
-        .nest_service("/", static_service.clone())
-        .fallback_service(static_service)
-        .layer(cors);
-    
-    // サーバーの起動
-    let port = 57620;
-    
-    // 通常のバインド方法
-    let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    info!("Web server listening on {}", addr);
-    println!("Web server listening on {}", addr);
-    
-    let listener = tokio::net::TcpListener::bind(addr).await?;
-    axum::serve(listener, app).await?;
+    // 統合サーバーを起動
+    info!("Starting Rustorium integrated server on port {}", cli.port);
+    integrated_server::start_integrated_server(cli.port).await?;
     
     Ok(())
 }
