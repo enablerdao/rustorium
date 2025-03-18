@@ -67,6 +67,7 @@ cd rustorium
 - [インストールガイド](docs/guides/installation.md)
 - [基本的な使い方](docs/guides/basic-usage.md)
 - [サービス管理](docs/guides/service-management.md)
+- [ネットワーク選択](docs/guides/network-selection.md)
 
 ## 機能詳細
 
