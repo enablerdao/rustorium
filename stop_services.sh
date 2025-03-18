@@ -14,27 +14,27 @@ if [ -f /workspace/Rustorium/logs/api_server.pid ]; then
     rm -f /workspace/Rustorium/logs/api_server.pid
 else
     echo "API server PID file not found."
-    pkill -f "standalone_api" || true
+    pkill -f "api" || true
 fi
 
-# WebUIサーバーの停止
-if [ -f /workspace/Rustorium/logs/web_ui.pid ]; then
-    WEB_PID=$(cat /workspace/Rustorium/logs/web_ui.pid)
+# Webサーバーの停止
+if [ -f /workspace/Rustorium/logs/web_server.pid ]; then
+    WEB_PID=$(cat /workspace/Rustorium/logs/web_server.pid)
     if ps -p $WEB_PID > /dev/null; then
-        echo "Stopping Web UI server (PID: $WEB_PID)..."
+        echo "Stopping Web server (PID: $WEB_PID)..."
         kill $WEB_PID 2>/dev/null || true
     else
-        echo "Web UI server is not running."
+        echo "Web server is not running."
     fi
-    rm -f /workspace/Rustorium/logs/web_ui.pid
+    rm -f /workspace/Rustorium/logs/web_server.pid
 else
-    echo "Web UI server PID file not found."
-    pkill -f "web_ui" || true
+    echo "Web server PID file not found."
+    pkill -f "python -m http.server" || true
 fi
 
 # 念のため、関連プロセスをすべて終了
 echo "Cleaning up any remaining processes..."
-pkill -f "standalone_api" || true
-pkill -f "web_ui" || true
+pkill -f "api" || true
+pkill -f "python -m http.server" || true
 
 echo "All services stopped."

@@ -1,0 +1,13 @@
+warning: unused import: `warn`
+  --> src/main.rs:14:21
+   |
+14 | use tracing::{info, warn, Level};
+   |                     ^^^^
+   |
+   = note: `#[warn(unused_imports)]` on by default
+
+warning: `standalone_api` (bin "standalone_api") generated 1 warning (run `cargo fix --bin "standalone_api"` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running `target/debug/standalone_api`
+[2m2025-03-18T15:24:05.512774Z[0m [32m INFO[0m [2mstandalone_api[0m[2m:[0m API server listening on 0.0.0.0:51055
+API server listening on 0.0.0.0:51055
