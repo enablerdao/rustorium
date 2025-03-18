@@ -1,6 +1,27 @@
 // ネットワークビジュアライゼーション用のスクリプト
 let networkChart = null;
 
+// CSS for network page
+const networkStyles = `
+.network-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+}
+`;
+
+// スタイルを追加
+(function() {
+    const style = document.createElement('style');
+    style.textContent = networkStyles;
+    document.head.appendChild(style);
+})();
+
 // ネットワークデータを取得
 async function fetchNetworkData() {
     try {

@@ -28,6 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 拡張ナビゲーションを追加
     addExtendedNavigation();
     
+    // ネットワーク情報を表示
+    updateNetworkDisplay();
+    
+    // ネットワーク切り替えドロップダウンの設定
+    setupNetworkDropdown();
+    
     // Load dashboard data
     loadDashboardData();
     

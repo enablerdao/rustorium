@@ -3,10 +3,55 @@
 // API基本URL
 const API_BASE_URL = 'http://localhost:51055';
 
+// ネットワーク設定
+const NETWORKS = {
+    mainnet: {
+        name: 'Mainnet',
+        url: 'http://localhost:51055',
+        icon: 'bi-globe',
+        color: '#ff6b4a',
+        badge: 'danger'
+    },
+    testnet: {
+        name: 'Testnet',
+        url: 'http://localhost:51055',
+        icon: 'bi-globe-americas',
+        color: '#5468ff',
+        badge: 'primary'
+    },
+    local: {
+        name: 'Local Network',
+        url: 'http://localhost:51055',
+        icon: 'bi-laptop',
+        color: '#00c9a7',
+        badge: 'success'
+    }
+};
+
+// 現在のネットワーク（デフォルトはメインネット）
+let currentNetwork = localStorage.getItem('network') || 'mainnet';
+
 // APIクライアントクラス
 class RustoriumApiClient {
-    constructor(baseUrl = API_BASE_URL) {
-        this.baseUrl = baseUrl;
+    constructor(network = currentNetwork) {
+        this.network = network;
+        this.baseUrl = NETWORKS[network].url;
+    }
+    
+    // ネットワークを切り替える
+    switchNetwork(network) {
+        if (NETWORKS[network]) {
+            this.network = network;
+            this.baseUrl = NETWORKS[network].url;
+            localStorage.setItem('network', network);
+            return true;
+        }
+        return false;
+    }
+    
+    // 現在のネットワーク情報を取得
+    getCurrentNetworkInfo() {
+        return NETWORKS[this.network];
     }
 
     // 共通のフェッチメソッド
