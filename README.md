@@ -61,6 +61,7 @@ cd rustorium
 
 詳細なドキュメントは以下のリンクから参照できます：
 
+### 基本ガイド
 - [プロジェクト構造](docs/project-structure.md)
 - [アーキテクチャ概要](docs/architecture/overview.md)
 - [APIリファレンス](docs/api/reference.md)
@@ -68,6 +69,14 @@ cd rustorium
 - [基本的な使い方](docs/guides/basic-usage.md)
 - [サービス管理](docs/guides/service-management.md)
 - [ネットワーク選択](docs/guides/network-selection.md)
+
+### 機能ガイド
+- [ブロックエクスプローラー](docs/guides/blocks-explorer.md)
+- [トランザクション管理](docs/guides/transactions.md)
+- [アカウント管理](docs/guides/accounts.md)
+- [スマートコントラクト](docs/guides/smart-contracts.md)
+- [ウォレット機能](docs/guides/wallet.md)
+- [AI分析機能](docs/guides/ai-insights.md)
 
 ## 機能詳細
 
