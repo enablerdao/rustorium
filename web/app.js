@@ -93,9 +93,6 @@ function addExtendedNavigation() {
 // Load dashboard data
 async function loadDashboardData() {
     try {
-        // ローディング表示を非表示にする（最初に実行）
-        document.querySelector('.page-loader').style.display = 'none';
-        
         // 初期データをAPIから取得
         const response = await fetch('http://localhost:57620/network/status');
         const data = await response.json();
@@ -113,6 +110,17 @@ async function loadDashboardData() {
                 tps: 0.5
             });
         }
+        
+        // データが読み込まれたらローディング表示を非表示にする
+        setTimeout(() => {
+            const loader = document.querySelector('.page-loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500); // フェードアウト後に非表示
+            }
+        }, 1000); // 1秒後にフェードアウト開始
         
         // WebSocketリスナーを設定（リアルタイム更新用）
         if (wsClient) {
