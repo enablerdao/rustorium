@@ -1,8 +1,8 @@
 [package]
-name = "standalone_api"
+name = "api"
 version = "0.1.0"
 edition = "2021"
-description = "Standalone API server for Rustorium"
+description = "API server for Rustorium"
 authors = ["OpenHands <openhands@all-hands.dev>"]
 
 [dependencies]

@@ -56,7 +56,7 @@ cargo run
 
 これにより、以下のサービスが起動します：
 - APIサーバー: http://localhost:50128
-- WebUI: http://localhost:55560
+- フロントエンド: http://localhost:55560
 
 ## ドキュメント
 

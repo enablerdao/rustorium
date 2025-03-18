@@ -1,8 +1,8 @@
 [package]
-name = "web"
+name = "frontend"
 version = "0.1.0"
 edition = "2021"
-description = "Web server for Rustorium"
+description = "Frontend server for Rustorium"
 authors = ["OpenHands <openhands@all-hands.dev>"]
 
 [dependencies]

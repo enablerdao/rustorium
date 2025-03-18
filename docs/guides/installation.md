@@ -79,10 +79,10 @@ WebUIは自動的にビルドされます。
 cargo run
 ```
 
-これにより、APIサーバーとWebUIの両方が起動します。デフォルトでは、以下のポートが使用されます：
+これにより、APIサーバーとフロントエンドの両方が起動します。デフォルトでは、以下のポートが使用されます：
 
 - APIサーバー: http://localhost:50128
-- WebUI: http://localhost:55560
+- フロントエンド: http://localhost:55560
 
 ### 個別コンポーネントの実行
 
@@ -93,10 +93,10 @@ cd api
 cargo run
 ```
 
-#### WebUIのみ起動
+#### フロントエンドのみ起動
 
 ```bash
-cd web
+cd frontend
 cargo run
 ```
 
@@ -113,7 +113,7 @@ docker build -t rustorium .
 ### Dockerコンテナの実行
 
 ```bash
-docker run -p 51055:51055 -p 57620:57620 rustorium
+docker run -p 50128:50128 -p 55560:55560 rustorium
 ```
 
 ## トラブルシューティング

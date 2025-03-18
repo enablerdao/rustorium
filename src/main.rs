@@ -18,13 +18,13 @@ async fn main() -> Result<()> {
     // 既存のプロセスをクリーンアップ
     info!("Cleaning up any existing processes...");
     let _ = Command::new("pkill")
-        .args(["-f", "target/debug/standalone_api"])
+        .args(["-f", "target/debug/api"])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status();
     
     let _ = Command::new("pkill")
-        .args(["-f", "target/debug/web"])
+        .args(["-f", "target/debug/frontend"])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status();
@@ -48,7 +48,7 @@ async fn main() -> Result<()> {
     let api_port = 50128;
     let _api_process = Command::new("cargo")
         .current_dir("api")
-        .args(["run"])
+        .args(["run", "--bin", "api"])
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .spawn()?;
@@ -58,24 +58,24 @@ async fn main() -> Result<()> {
     // 少し待機
     tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
     
-    // WebUIサーバーを起動
-    info!("Starting Web UI server...");
-    let web_port = 55560;
-    let _web_process = Command::new("cargo")
-        .current_dir("web")
-        .args(["run"])
+    // フロントエンドサーバーを起動
+    info!("Starting Frontend server...");
+    let frontend_port = 55560;
+    let _frontend_process = Command::new("cargo")
+        .current_dir("frontend")
+        .args(["run", "--bin", "frontend"])
         .stdout(Stdio::inherit())
         .stderr(Stdio::inherit())
         .spawn()?;
     
-    info!("Web UI server starting on port: {}", web_port);
+    info!("Frontend server starting on port: {}", frontend_port);
     
     // 少し待機
     tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
     
     info!("All services started!");
     info!("API server running at http://localhost:{}", api_port);
-    info!("Web UI running at http://localhost:{}", web_port);
+    info!("Frontend running at http://localhost:{}", frontend_port);
     info!("");
     info!("Press Ctrl+C to stop all services");
     
@@ -96,13 +96,13 @@ async fn main() -> Result<()> {
     
     // プロセスをクリーンアップ
     let _ = Command::new("pkill")
-        .args(["-f", "target/debug/standalone_api"])
+        .args(["-f", "target/debug/api"])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status();
     
     let _ = Command::new("pkill")
-        .args(["-f", "target/debug/web"])
+        .args(["-f", "target/debug/frontend"])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status();
