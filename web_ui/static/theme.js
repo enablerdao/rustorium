@@ -1,7 +1,24 @@
 // Rustorium テーマ管理とUI拡張
 
 // テーマ設定
-let currentTheme = localStorage.getItem('theme') || 'light';
+// ユーザーの環境設定を確認
+function getPreferredTheme() {
+  // ローカルストレージに保存されている場合はそれを使用
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    return savedTheme;
+  }
+  
+  // ユーザーのシステム設定を確認
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return 'dark';
+  }
+  
+  // デフォルトはライトモード
+  return 'light';
+}
+
+let currentTheme = getPreferredTheme();
 
 // テーマ切り替え関数
 function toggleTheme() {
@@ -18,6 +35,21 @@ function applyTheme() {
   const themeIcon = document.getElementById('theme-toggle-icon');
   if (themeIcon) {
     themeIcon.className = currentTheme === 'light' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+  }
+  
+  // テーマ切り替えボタンのツールチップを更新
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.setAttribute('title', currentTheme === 'light' ? 'ダークモードに切り替え' : 'ライトモードに切り替え');
+    
+    // Bootstrapのツールチップが初期化されている場合は更新
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+      const tooltip = bootstrap.Tooltip.getInstance(themeToggle);
+      if (tooltip) {
+        tooltip.dispose();
+      }
+      new bootstrap.Tooltip(themeToggle);
+    }
   }
 }
 
@@ -60,6 +92,36 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // サイドバー状態の適用
   applySidebarState();
+  
+  // システムのカラースキーム変更を監視
+  if (window.matchMedia) {
+    const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    // 変更イベントのリスナーを追加
+    try {
+      // Chrome & Firefox
+      colorSchemeQuery.addEventListener('change', (e) => {
+        // ユーザーが手動で設定していない場合のみ自動的に変更
+        if (!localStorage.getItem('theme')) {
+          currentTheme = e.matches ? 'dark' : 'light';
+          applyTheme();
+        }
+      });
+    } catch (e1) {
+      try {
+        // Safari
+        colorSchemeQuery.addListener((e) => {
+          // ユーザーが手動で設定していない場合のみ自動的に変更
+          if (!localStorage.getItem('theme')) {
+            currentTheme = e.matches ? 'dark' : 'light';
+            applyTheme();
+          }
+        });
+      } catch (e2) {
+        console.error('Could not add color scheme change listener:', e2);
+      }
+    }
+  }
 });
 
 // UI拡張関数
@@ -187,7 +249,16 @@ function addHeader() {
   // テーマ切り替えボタンのイベントリスナー
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {
-    themeToggle.addEventListener('click', toggleTheme);
+    themeToggle.addEventListener('click', function() {
+      toggleTheme();
+      // ユーザーが手動で設定したことを記録
+      localStorage.setItem('theme', currentTheme);
+    });
+    
+    // ツールチップを初期化
+    themeToggle.setAttribute('title', currentTheme === 'light' ? 'ダークモードに切り替え' : 'ライトモードに切り替え');
+    themeToggle.setAttribute('data-bs-toggle', 'tooltip');
+    themeToggle.setAttribute('data-bs-placement', 'bottom');
   }
 }
 
