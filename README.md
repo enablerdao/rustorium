@@ -66,6 +66,7 @@ cd rustorium
 - [APIリファレンス](docs/api/reference.md)
 - [インストールガイド](docs/guides/installation.md)
 - [基本的な使い方](docs/guides/basic-usage.md)
+- [サービス管理](docs/guides/service-management.md)
 
 ## 機能詳細
 
