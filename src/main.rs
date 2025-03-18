@@ -28,9 +28,15 @@ async fn main() -> Result<()> {
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status();
-        
-    let _ = Command::new("pkill")
-        .args(["-f", "target/debug/rustorium"])
+    
+    // 自分自身のプロセスIDを取得して除外する
+    let current_pid = std::process::id();
+    info!("Current process ID: {}", current_pid);
+    
+    // 自分自身以外のrustoriumプロセスを終了
+    let _ = Command::new("sh")
+        .arg("-c")
+        .arg(format!("ps -ef | grep target/debug/rustorium | grep -v {} | grep -v grep | awk '{{print $2}}' | xargs -r kill", current_pid))
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status();
