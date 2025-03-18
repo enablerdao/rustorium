@@ -93,20 +93,36 @@ function addExtendedNavigation() {
 // Load dashboard data
 async function loadDashboardData() {
     try {
-        // デモデータを使用（APIサーバーが利用できない場合）
-        // 実際のAPIが利用可能になったら、この部分を元のコードに戻す
-        const demoData = {
-            latest_block_height: 10,
-            connected_peers: 5,
-            pending_transactions: 1,
-            uptime_seconds: 45
-        };
+        // APIからネットワーク統計情報を取得
+        const response = await fetch('http://localhost:51055/network/status');
+        const data = await response.json();
         
-        // Update stats with demo data
-        latestBlockEl.textContent = demoData.latest_block_height;
-        connectedPeersEl.textContent = demoData.connected_peers;
-        pendingTxsEl.textContent = demoData.pending_transactions;
-        uptimeEl.textContent = formatUptime(demoData.uptime_seconds);
+        if (data.success) {
+            const stats = data.data;
+            
+            // Update stats with real data
+            latestBlockEl.textContent = stats.block_count || 0;
+            connectedPeersEl.textContent = 5; // 現在のAPIでは取得できないのでデフォルト値
+            pendingTxsEl.textContent = stats.pending_transactions || 0;
+            
+            // 起動時間を計算（現在のAPIでは取得できないのでデフォルト値）
+            const uptime_seconds = 45;
+            uptimeEl.textContent = formatUptime(uptime_seconds);
+            
+            // TPS、ブロック時間などの更新
+            if (stats.tps) {
+                document.querySelector('.network-status .progress-bar:nth-child(1)').style.width = `${Math.min(stats.tps * 2, 100)}%`;
+                document.querySelector('.network-status small:nth-child(2)').textContent = `${stats.tps.toFixed(1)} TPS`;
+            }
+            
+            if (stats.average_block_time) {
+                const blockTimePercent = Math.max(0, 100 - (stats.average_block_time * 10));
+                document.querySelector('.network-status .progress-bar:nth-child(3)').style.width = `${blockTimePercent}%`;
+                document.querySelector('.network-status small:nth-child(5)').textContent = `${stats.average_block_time.toFixed(1)}s`;
+            }
+        } else {
+            console.error('Failed to fetch network status:', data.error);
+        }
         
         // ローディング表示を非表示にする
         document.querySelector('.page-loader').style.display = 'none';
@@ -143,11 +159,21 @@ async function loadDashboardData() {
 // Load recent transactions
 async function loadRecentTransactions() {
     try {
-        // デモデータを使用（APIサーバーが利用できない場合）
-        const transactions = [];
+        // APIからトランザクション情報を取得
+        const response = await fetch('http://localhost:51055/transactions');
+        const data = await response.json();
         
-        // Display transactions (empty for now)
-        displayTransactions(transactions);
+        if (data.success && data.data) {
+            // 最新の5件のみ表示
+            const transactions = data.data.slice(0, 5);
+            
+            // Display transactions
+            displayTransactions(transactions);
+        } else {
+            // エラーの場合は空のリストを表示
+            displayTransactions([]);
+            console.error('Failed to fetch transactions:', data.error);
+        }
         
         // ローディング表示を非表示にする
         const loader = document.querySelector('.page-loader');
