@@ -18,13 +18,19 @@ async fn main() -> Result<()> {
     // 既存のプロセスをクリーンアップ
     info!("Cleaning up any existing processes...");
     let _ = Command::new("pkill")
-        .args(["-f", "standalone_api"])
+        .args(["-f", "target/debug/standalone_api"])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status();
     
     let _ = Command::new("pkill")
-        .args(["-f", "web"])
+        .args(["-f", "target/debug/web"])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status();
+        
+    let _ = Command::new("pkill")
+        .args(["-f", "target/debug/rustorium"])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status();
@@ -84,13 +90,13 @@ async fn main() -> Result<()> {
     
     // プロセスをクリーンアップ
     let _ = Command::new("pkill")
-        .args(["-f", "standalone_api"])
+        .args(["-f", "target/debug/standalone_api"])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status();
     
     let _ = Command::new("pkill")
-        .args(["-f", "web"])
+        .args(["-f", "target/debug/web"])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status();
