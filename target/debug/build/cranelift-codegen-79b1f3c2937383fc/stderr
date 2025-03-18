@@ -1,0 +1,20 @@
+Writing generated file: /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/settings.rs
+Writing generated file: /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/types.rs
+Writing generated file: /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/opcodes.rs
+Writing generated file: /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle
+Writing generated file: /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_lower.isle
+Writing generated file: /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/inst_builder.rs
+Writing generated file: /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/settings-x86.rs
+Writing generated file: /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/settings-arm64.rs
+Writing generated file: /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/settings-riscv64.rs
+Rebuilding /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/isle_opt.rs
+Writing ISLE-generated Rust code to /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/isle_opt.rs
+Rebuilding /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/isle_x64.rs
+Writing ISLE-generated Rust code to /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/isle_x64.rs
+Rebuilding /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/isle_aarch64.rs
+Writing ISLE-generated Rust code to /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/isle_aarch64.rs
+Rebuilding /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/isle_s390x.rs
+Writing ISLE-generated Rust code to /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/isle_s390x.rs
+Rebuilding /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/isle_riscv64.rs
+Writing ISLE-generated Rust code to /workspace/RustLedger/RustLedger/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/isle_riscv64.rs
+fatal: not a git repository (or any of the parent directories): .git
