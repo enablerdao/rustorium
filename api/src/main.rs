@@ -327,10 +327,8 @@ async fn deploy_contract(
     let chain_len = blockchain.chain.len() as u64;
     
     // コントラクトのデプロイ
-    let contract_address = blockchain.contract_manager.deploy_contract(
-        request.from.clone(),
-        request.bytecode.clone(),
-        request.abi.clone(),
+    let contract_address = blockchain.contract_manager.deploy_special_contract(
+        &request,
         tx_id.clone(),
         Some(chain_len),
     );
@@ -431,19 +429,42 @@ async fn call_contract(
     // トランザクションの作成
     let tx_id = format!("0x{}", hex::encode(Uuid::new_v4().as_bytes())[..32].to_string());
     
-    // コントラクトの呼び出し
-    let result = match blockchain.contract_manager.call_contract(
-        &address,
-        &request.method,
-        request.args.as_deref(),
-        &request.from,
-    ) {
-        Ok(result) => result,
-        Err(err) => {
-            return (
-                StatusCode::BAD_REQUEST,
-                Json(ApiResponse::<CallContractResult>::error(err)),
-            );
+    // デバッグモードが有効かどうかを確認
+    let debug_mode = request.debug_mode.unwrap_or(false);
+    
+    // コントラクトの呼び出し（デバッグモードに応じて処理を分岐）
+    let (result, debug_info) = if debug_mode {
+        // デバッグモードでの呼び出し
+        match blockchain.contract_manager.call_contract_with_debug(
+            &address,
+            &request.method,
+            request.args.as_deref(),
+            &request.from,
+            &tx_id,
+        ) {
+            Ok((result, debug_info)) => (result, Some(debug_info)),
+            Err(err) => {
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(ApiResponse::<CallContractResult>::error(err)),
+                );
+            }
+        }
+    } else {
+        // 通常モードでの呼び出し
+        match blockchain.contract_manager.call_contract(
+            &address,
+            &request.method,
+            request.args.as_deref(),
+            &request.from,
+        ) {
+            Ok(result) => (result, None),
+            Err(err) => {
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(ApiResponse::<CallContractResult>::error(err)),
+                );
+            }
         }
     };
     
@@ -458,14 +479,140 @@ async fn call_contract(
         contract_account.balance += request.value;
     }
     
+    // コントラクトのイベントを取得
+    let events = if debug_mode {
+        Some(blockchain.contract_manager.get_contract_events(&address)
+            .into_iter()
+            .cloned()
+            .collect())
+    } else {
+        None
+    };
+    
     // レスポンスの作成
     let response = CallContractResult {
         transaction_id: tx_id,
         result: Some(result),
         gas_used: request.gas_limit,
+        events,
+        debug_info,
     };
     
     (StatusCode::OK, Json(ApiResponse::success(response)))
+}
+
+// コントラクト検証
+async fn verify_contract(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Path(address): Path<String>,
+    Json(request): Json<VerifyContractRequest>,
+) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let mut blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    // コントラクトの存在確認
+    if blockchain.contract_manager.get_contract(&address).is_none() {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(ApiResponse::<String>::error(format!(
+                "Contract not found: {}",
+                address
+            ))),
+        );
+    }
+    
+    // コントラクトの検証
+    match blockchain.contract_manager.verify_contract(
+        &address,
+        request.source_code,
+        &request.compiler_version,
+        request.optimization,
+    ) {
+        Ok(()) => (
+            StatusCode::OK,
+            Json(ApiResponse::success("Contract verified successfully".to_string())),
+        ),
+        Err(err) => (
+            StatusCode::BAD_REQUEST,
+            Json(ApiResponse::<String>::error(err)),
+        ),
+    }
+}
+
+// コントラクトイベントの取得
+async fn get_contract_events(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Path(address): Path<String>,
+) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    // コントラクトの存在確認
+    if blockchain.contract_manager.get_contract(&address).is_none() {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(ApiResponse::<Vec<ContractEvent>>::error(format!(
+                "Contract not found: {}",
+                address
+            ))),
+        );
+    }
+    
+    // コントラクトのイベントを取得
+    let events = blockchain.contract_manager.get_contract_events(&address)
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>();
+    
+    (StatusCode::OK, Json(ApiResponse::success(events)))
+}
+
+// トークンコントラクトの作成
+async fn create_token_contract(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Json(mut request): Json<DeployContractRequest>,
+) -> impl IntoResponse {
+    // コントラクトタイプをトークンに設定
+    request.contract_type = Some(ContractType::Token);
+    
+    // 通常のデプロイ処理を呼び出し
+    deploy_contract(State(state), Json(request)).await
+}
+
+// NFTコントラクトの作成
+async fn create_nft_contract(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Json(mut request): Json<DeployContractRequest>,
+) -> impl IntoResponse {
+    // コントラクトタイプをNFTに設定
+    request.contract_type = Some(ContractType::NFT);
+    
+    // 通常のデプロイ処理を呼び出し
+    deploy_contract(State(state), Json(request)).await
+}
+
+// デバッグ情報の取得
+async fn get_debug_info(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Path(tx_id): Path<String>,
+) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    // デバッグ情報の取得
+    match blockchain.contract_manager.get_debug_info(&tx_id) {
+        Some(debug_info) => (
+            StatusCode::OK,
+            Json(ApiResponse::success(debug_info.clone())),
+        ),
+        None => (
+            StatusCode::NOT_FOUND,
+            Json(ApiResponse::<DebugInfo>::error(format!(
+                "Debug info not found for transaction: {}",
+                tx_id
+            ))),
+        ),
+    }
 }
 
 #[tokio::main]
@@ -510,6 +657,11 @@ async fn main() -> anyhow::Result<()> {
         .route("/contracts", post(deploy_contract))
         .route("/contracts/:address", get(get_contract))
         .route("/contracts/:address/call", post(call_contract))
+        .route("/contracts/:address/verify", post(verify_contract))
+        .route("/contracts/:address/events", get(get_contract_events))
+        .route("/contracts/token/create", post(create_token_contract))
+        .route("/contracts/nft/create", post(create_nft_contract))
+        .route("/debug/transactions/:tx_id", get(get_debug_info))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(app_state);
