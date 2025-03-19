@@ -5,7 +5,7 @@
 // - src/prelude_opt.isle
 // - src/opts/algebraic.isle
 // - src/opts/cprop.isle
-// - /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle
+// - /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle
 
 use super::*; // Pulls in all external types.
 use std::marker::PhantomData;
@@ -2795,7 +2795,7 @@ pub fn constructor_br_table<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 352.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 352.
     let expr0_0 = Opcode::BrTable;
     let expr1_0 = InstructionImms::BranchTable {
         opcode: expr0_0,
@@ -2810,7 +2810,7 @@ pub fn constructor_br_table<C: Context>(
 // Generated as internal constructor for term debugtrap.
 pub fn constructor_debugtrap<C: Context>(ctx: &mut C, arg0: Type) -> Option<Id> {
     let pattern0_0 = arg0;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 361.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 361.
     let expr0_0 = Opcode::Debugtrap;
     let expr1_0 = InstructionImms::NullAry { opcode: expr0_0 };
     let expr2_0 = C::id_array_0_ctor(ctx);
@@ -2822,7 +2822,7 @@ pub fn constructor_debugtrap<C: Context>(ctx: &mut C, arg0: Type) -> Option<Id> 
 pub fn constructor_trap<C: Context>(ctx: &mut C, arg0: Type, arg1: &TrapCode) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 370.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 370.
     let expr0_0 = Opcode::Trap;
     let expr1_0 = InstructionImms::Trap {
         opcode: expr0_0,
@@ -2843,7 +2843,7 @@ pub fn constructor_trapz<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 379.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 379.
     let expr0_0 = Opcode::Trapz;
     let expr1_0 = InstructionImms::CondTrap {
         opcode: expr0_0,
@@ -2862,7 +2862,7 @@ pub fn constructor_resumable_trap<C: Context>(
 ) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 388.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 388.
     let expr0_0 = Opcode::ResumableTrap;
     let expr1_0 = InstructionImms::Trap {
         opcode: expr0_0,
@@ -2883,7 +2883,7 @@ pub fn constructor_trapnz<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 397.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 397.
     let expr0_0 = Opcode::Trapnz;
     let expr1_0 = InstructionImms::CondTrap {
         opcode: expr0_0,
@@ -2904,7 +2904,7 @@ pub fn constructor_resumable_trapnz<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 406.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 406.
     let expr0_0 = Opcode::ResumableTrapnz;
     let expr1_0 = InstructionImms::CondTrap {
         opcode: expr0_0,
@@ -2919,7 +2919,7 @@ pub fn constructor_resumable_trapnz<C: Context>(
 pub fn constructor_func_addr<C: Context>(ctx: &mut C, arg0: Type, arg1: FuncRef) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 415.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 415.
     let expr0_0 = Opcode::FuncAddr;
     let expr1_0 = InstructionImms::FuncAddr {
         opcode: expr0_0,
@@ -2934,7 +2934,7 @@ pub fn constructor_func_addr<C: Context>(ctx: &mut C, arg0: Type, arg1: FuncRef)
 pub fn constructor_splat<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 424.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 424.
     let expr0_0 = Opcode::Splat;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -2947,7 +2947,7 @@ pub fn constructor_swizzle<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: 
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 433.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 433.
     let expr0_0 = Opcode::Swizzle;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -2967,7 +2967,7 @@ pub fn constructor_insertlane<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 442.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 442.
     let expr0_0 = Opcode::Insertlane;
     let expr1_0 = InstructionImms::TernaryImm8 {
         opcode: expr0_0,
@@ -2988,7 +2988,7 @@ pub fn constructor_extractlane<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 451.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 451.
     let expr0_0 = Opcode::Extractlane;
     let expr1_0 = InstructionImms::BinaryImm8 {
         opcode: expr0_0,
@@ -3004,7 +3004,7 @@ pub fn constructor_smin<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 460.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 460.
     let expr0_0 = Opcode::Smin;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -3017,7 +3017,7 @@ pub fn constructor_umin<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 469.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 469.
     let expr0_0 = Opcode::Umin;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -3030,7 +3030,7 @@ pub fn constructor_smax<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 478.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 478.
     let expr0_0 = Opcode::Smax;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -3043,7 +3043,7 @@ pub fn constructor_umax<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 487.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 487.
     let expr0_0 = Opcode::Umax;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -3061,7 +3061,7 @@ pub fn constructor_avg_round<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 496.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 496.
     let expr0_0 = Opcode::AvgRound;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -3074,7 +3074,7 @@ pub fn constructor_uadd_sat<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2:
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 505.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 505.
     let expr0_0 = Opcode::UaddSat;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -3087,7 +3087,7 @@ pub fn constructor_sadd_sat<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2:
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 514.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 514.
     let expr0_0 = Opcode::SaddSat;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -3100,7 +3100,7 @@ pub fn constructor_usub_sat<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2:
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 523.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 523.
     let expr0_0 = Opcode::UsubSat;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -3113,7 +3113,7 @@ pub fn constructor_ssub_sat<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2:
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 532.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 532.
     let expr0_0 = Opcode::SsubSat;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -3133,7 +3133,7 @@ pub fn constructor_load<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 541.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 541.
     let expr0_0 = Opcode::Load;
     let expr1_0 = InstructionImms::Load {
         opcode: expr0_0,
@@ -3159,7 +3159,7 @@ pub fn constructor_store<C: Context>(
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
     let pattern4_0 = arg4;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 550.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 550.
     let expr0_0 = Opcode::Store;
     let expr1_0 = InstructionImms::Store {
         opcode: expr0_0,
@@ -3183,7 +3183,7 @@ pub fn constructor_uload8<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 559.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 559.
     let expr0_0 = Opcode::Uload8;
     let expr1_0 = InstructionImms::Load {
         opcode: expr0_0,
@@ -3207,7 +3207,7 @@ pub fn constructor_sload8<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 568.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 568.
     let expr0_0 = Opcode::Sload8;
     let expr1_0 = InstructionImms::Load {
         opcode: expr0_0,
@@ -3233,7 +3233,7 @@ pub fn constructor_istore8<C: Context>(
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
     let pattern4_0 = arg4;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 577.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 577.
     let expr0_0 = Opcode::Istore8;
     let expr1_0 = InstructionImms::Store {
         opcode: expr0_0,
@@ -3257,7 +3257,7 @@ pub fn constructor_uload16<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 586.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 586.
     let expr0_0 = Opcode::Uload16;
     let expr1_0 = InstructionImms::Load {
         opcode: expr0_0,
@@ -3281,7 +3281,7 @@ pub fn constructor_sload16<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 595.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 595.
     let expr0_0 = Opcode::Sload16;
     let expr1_0 = InstructionImms::Load {
         opcode: expr0_0,
@@ -3307,7 +3307,7 @@ pub fn constructor_istore16<C: Context>(
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
     let pattern4_0 = arg4;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 604.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 604.
     let expr0_0 = Opcode::Istore16;
     let expr1_0 = InstructionImms::Store {
         opcode: expr0_0,
@@ -3331,7 +3331,7 @@ pub fn constructor_uload32<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 613.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 613.
     let expr0_0 = Opcode::Uload32;
     let expr1_0 = InstructionImms::Load {
         opcode: expr0_0,
@@ -3355,7 +3355,7 @@ pub fn constructor_sload32<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 622.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 622.
     let expr0_0 = Opcode::Sload32;
     let expr1_0 = InstructionImms::Load {
         opcode: expr0_0,
@@ -3381,7 +3381,7 @@ pub fn constructor_istore32<C: Context>(
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
     let pattern4_0 = arg4;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 631.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 631.
     let expr0_0 = Opcode::Istore32;
     let expr1_0 = InstructionImms::Store {
         opcode: expr0_0,
@@ -3405,7 +3405,7 @@ pub fn constructor_uload8x8<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 640.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 640.
     let expr0_0 = Opcode::Uload8x8;
     let expr1_0 = InstructionImms::Load {
         opcode: expr0_0,
@@ -3429,7 +3429,7 @@ pub fn constructor_sload8x8<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 649.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 649.
     let expr0_0 = Opcode::Sload8x8;
     let expr1_0 = InstructionImms::Load {
         opcode: expr0_0,
@@ -3453,7 +3453,7 @@ pub fn constructor_uload16x4<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 658.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 658.
     let expr0_0 = Opcode::Uload16x4;
     let expr1_0 = InstructionImms::Load {
         opcode: expr0_0,
@@ -3477,7 +3477,7 @@ pub fn constructor_sload16x4<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 667.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 667.
     let expr0_0 = Opcode::Sload16x4;
     let expr1_0 = InstructionImms::Load {
         opcode: expr0_0,
@@ -3501,7 +3501,7 @@ pub fn constructor_uload32x2<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 676.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 676.
     let expr0_0 = Opcode::Uload32x2;
     let expr1_0 = InstructionImms::Load {
         opcode: expr0_0,
@@ -3525,7 +3525,7 @@ pub fn constructor_sload32x2<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 685.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 685.
     let expr0_0 = Opcode::Sload32x2;
     let expr1_0 = InstructionImms::Load {
         opcode: expr0_0,
@@ -3547,7 +3547,7 @@ pub fn constructor_stack_load<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 694.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 694.
     let expr0_0 = Opcode::StackLoad;
     let expr1_0 = InstructionImms::StackLoad {
         opcode: expr0_0,
@@ -3571,7 +3571,7 @@ pub fn constructor_stack_store<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 703.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 703.
     let expr0_0 = Opcode::StackStore;
     let expr1_0 = InstructionImms::StackStore {
         opcode: expr0_0,
@@ -3593,7 +3593,7 @@ pub fn constructor_stack_addr<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 712.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 712.
     let expr0_0 = Opcode::StackAddr;
     let expr1_0 = InstructionImms::StackLoad {
         opcode: expr0_0,
@@ -3613,7 +3613,7 @@ pub fn constructor_dynamic_stack_load<C: Context>(
 ) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 721.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 721.
     let expr0_0 = Opcode::DynamicStackLoad;
     let expr1_0 = InstructionImms::DynamicStackLoad {
         opcode: expr0_0,
@@ -3634,7 +3634,7 @@ pub fn constructor_dynamic_stack_store<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 730.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 730.
     let expr0_0 = Opcode::DynamicStackStore;
     let expr1_0 = InstructionImms::DynamicStackStore {
         opcode: expr0_0,
@@ -3653,7 +3653,7 @@ pub fn constructor_dynamic_stack_addr<C: Context>(
 ) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 739.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 739.
     let expr0_0 = Opcode::DynamicStackAddr;
     let expr1_0 = InstructionImms::DynamicStackLoad {
         opcode: expr0_0,
@@ -3672,7 +3672,7 @@ pub fn constructor_global_value<C: Context>(
 ) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 748.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 748.
     let expr0_0 = Opcode::GlobalValue;
     let expr1_0 = InstructionImms::UnaryGlobalValue {
         opcode: expr0_0,
@@ -3691,7 +3691,7 @@ pub fn constructor_symbol_value<C: Context>(
 ) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 757.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 757.
     let expr0_0 = Opcode::SymbolValue;
     let expr1_0 = InstructionImms::UnaryGlobalValue {
         opcode: expr0_0,
@@ -3706,7 +3706,7 @@ pub fn constructor_symbol_value<C: Context>(
 pub fn constructor_tls_value<C: Context>(ctx: &mut C, arg0: Type, arg1: GlobalValue) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 766.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 766.
     let expr0_0 = Opcode::TlsValue;
     let expr1_0 = InstructionImms::UnaryGlobalValue {
         opcode: expr0_0,
@@ -3731,7 +3731,7 @@ pub fn constructor_heap_addr<C: Context>(
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
     let pattern4_0 = arg4;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 775.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 775.
     let expr0_0 = Opcode::HeapAddr;
     let expr1_0 = InstructionImms::HeapAddr {
         opcode: expr0_0,
@@ -3754,7 +3754,7 @@ pub fn constructor_heap_load<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 784.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 784.
     let expr0_0 = Opcode::HeapLoad;
     let expr1_0 = InstructionImms::HeapLoad {
         opcode: expr0_0,
@@ -3777,7 +3777,7 @@ pub fn constructor_heap_store<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 793.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 793.
     let expr0_0 = Opcode::HeapStore;
     let expr1_0 = InstructionImms::HeapStore {
         opcode: expr0_0,
@@ -3791,7 +3791,7 @@ pub fn constructor_heap_store<C: Context>(
 // Generated as internal constructor for term get_pinned_reg.
 pub fn constructor_get_pinned_reg<C: Context>(ctx: &mut C, arg0: Type) -> Option<Id> {
     let pattern0_0 = arg0;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 802.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 802.
     let expr0_0 = Opcode::GetPinnedReg;
     let expr1_0 = InstructionImms::NullAry { opcode: expr0_0 };
     let expr2_0 = C::id_array_0_ctor(ctx);
@@ -3803,7 +3803,7 @@ pub fn constructor_get_pinned_reg<C: Context>(ctx: &mut C, arg0: Type) -> Option
 pub fn constructor_set_pinned_reg<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 811.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 811.
     let expr0_0 = Opcode::SetPinnedReg;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -3814,7 +3814,7 @@ pub fn constructor_set_pinned_reg<C: Context>(ctx: &mut C, arg0: Type, arg1: Id)
 // Generated as internal constructor for term get_frame_pointer.
 pub fn constructor_get_frame_pointer<C: Context>(ctx: &mut C, arg0: Type) -> Option<Id> {
     let pattern0_0 = arg0;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 820.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 820.
     let expr0_0 = Opcode::GetFramePointer;
     let expr1_0 = InstructionImms::NullAry { opcode: expr0_0 };
     let expr2_0 = C::id_array_0_ctor(ctx);
@@ -3825,7 +3825,7 @@ pub fn constructor_get_frame_pointer<C: Context>(ctx: &mut C, arg0: Type) -> Opt
 // Generated as internal constructor for term get_stack_pointer.
 pub fn constructor_get_stack_pointer<C: Context>(ctx: &mut C, arg0: Type) -> Option<Id> {
     let pattern0_0 = arg0;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 829.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 829.
     let expr0_0 = Opcode::GetStackPointer;
     let expr1_0 = InstructionImms::NullAry { opcode: expr0_0 };
     let expr2_0 = C::id_array_0_ctor(ctx);
@@ -3836,7 +3836,7 @@ pub fn constructor_get_stack_pointer<C: Context>(ctx: &mut C, arg0: Type) -> Opt
 // Generated as internal constructor for term get_return_address.
 pub fn constructor_get_return_address<C: Context>(ctx: &mut C, arg0: Type) -> Option<Id> {
     let pattern0_0 = arg0;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 838.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 838.
     let expr0_0 = Opcode::GetReturnAddress;
     let expr1_0 = InstructionImms::NullAry { opcode: expr0_0 };
     let expr2_0 = C::id_array_0_ctor(ctx);
@@ -3856,7 +3856,7 @@ pub fn constructor_table_addr<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 847.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 847.
     let expr0_0 = Opcode::TableAddr;
     let expr1_0 = InstructionImms::TableAddr {
         opcode: expr0_0,
@@ -3872,7 +3872,7 @@ pub fn constructor_table_addr<C: Context>(
 pub fn constructor_iconst<C: Context>(ctx: &mut C, arg0: Type, arg1: Imm64) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 856.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 856.
     let expr0_0 = Opcode::Iconst;
     let expr1_0 = InstructionImms::UnaryImm {
         opcode: expr0_0,
@@ -3887,7 +3887,7 @@ pub fn constructor_iconst<C: Context>(ctx: &mut C, arg0: Type, arg1: Imm64) -> O
 pub fn constructor_f32const<C: Context>(ctx: &mut C, arg0: Type, arg1: Ieee32) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 865.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 865.
     let expr0_0 = Opcode::F32const;
     let expr1_0 = InstructionImms::UnaryIeee32 {
         opcode: expr0_0,
@@ -3902,7 +3902,7 @@ pub fn constructor_f32const<C: Context>(ctx: &mut C, arg0: Type, arg1: Ieee32) -
 pub fn constructor_f64const<C: Context>(ctx: &mut C, arg0: Type, arg1: Ieee64) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 874.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 874.
     let expr0_0 = Opcode::F64const;
     let expr1_0 = InstructionImms::UnaryIeee64 {
         opcode: expr0_0,
@@ -3917,7 +3917,7 @@ pub fn constructor_f64const<C: Context>(ctx: &mut C, arg0: Type, arg1: Ieee64) -
 pub fn constructor_vconst<C: Context>(ctx: &mut C, arg0: Type, arg1: Constant) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 883.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 883.
     let expr0_0 = Opcode::Vconst;
     let expr1_0 = InstructionImms::UnaryConst {
         opcode: expr0_0,
@@ -3940,7 +3940,7 @@ pub fn constructor_shuffle<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 892.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 892.
     let expr0_0 = Opcode::Shuffle;
     let expr1_0 = InstructionImms::Shuffle {
         opcode: expr0_0,
@@ -3954,7 +3954,7 @@ pub fn constructor_shuffle<C: Context>(
 // Generated as internal constructor for term null.
 pub fn constructor_null<C: Context>(ctx: &mut C, arg0: Type) -> Option<Id> {
     let pattern0_0 = arg0;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 901.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 901.
     let expr0_0 = Opcode::Null;
     let expr1_0 = InstructionImms::NullAry { opcode: expr0_0 };
     let expr2_0 = C::id_array_0_ctor(ctx);
@@ -3965,7 +3965,7 @@ pub fn constructor_null<C: Context>(ctx: &mut C, arg0: Type) -> Option<Id> {
 // Generated as internal constructor for term nop.
 pub fn constructor_nop<C: Context>(ctx: &mut C, arg0: Type) -> Option<Id> {
     let pattern0_0 = arg0;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 910.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 910.
     let expr0_0 = Opcode::Nop;
     let expr1_0 = InstructionImms::NullAry { opcode: expr0_0 };
     let expr2_0 = C::id_array_0_ctor(ctx);
@@ -3985,7 +3985,7 @@ pub fn constructor_select<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 919.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 919.
     let expr0_0 = Opcode::Select;
     let expr1_0 = InstructionImms::Ternary { opcode: expr0_0 };
     let expr2_0 = C::id_array_3_ctor(ctx, pattern1_0, pattern2_0, pattern3_0);
@@ -4005,7 +4005,7 @@ pub fn constructor_select_spectre_guard<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 928.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 928.
     let expr0_0 = Opcode::SelectSpectreGuard;
     let expr1_0 = InstructionImms::Ternary { opcode: expr0_0 };
     let expr2_0 = C::id_array_3_ctor(ctx, pattern1_0, pattern2_0, pattern3_0);
@@ -4025,7 +4025,7 @@ pub fn constructor_bitselect<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 937.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 937.
     let expr0_0 = Opcode::Bitselect;
     let expr1_0 = InstructionImms::Ternary { opcode: expr0_0 };
     let expr2_0 = C::id_array_3_ctor(ctx, pattern1_0, pattern2_0, pattern3_0);
@@ -4037,7 +4037,7 @@ pub fn constructor_bitselect<C: Context>(
 pub fn constructor_vsplit<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 946.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 946.
     let expr0_0 = Opcode::Vsplit;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -4050,7 +4050,7 @@ pub fn constructor_vconcat<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: 
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 955.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 955.
     let expr0_0 = Opcode::Vconcat;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4070,7 +4070,7 @@ pub fn constructor_vselect<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 964.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 964.
     let expr0_0 = Opcode::Vselect;
     let expr1_0 = InstructionImms::Ternary { opcode: expr0_0 };
     let expr2_0 = C::id_array_3_ctor(ctx, pattern1_0, pattern2_0, pattern3_0);
@@ -4082,7 +4082,7 @@ pub fn constructor_vselect<C: Context>(
 pub fn constructor_vany_true<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 973.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 973.
     let expr0_0 = Opcode::VanyTrue;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -4094,7 +4094,7 @@ pub fn constructor_vany_true<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> O
 pub fn constructor_vall_true<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 982.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 982.
     let expr0_0 = Opcode::VallTrue;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -4106,7 +4106,7 @@ pub fn constructor_vall_true<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> O
 pub fn constructor_vhigh_bits<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 991.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 991.
     let expr0_0 = Opcode::VhighBits;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -4126,7 +4126,7 @@ pub fn constructor_icmp<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1000.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1000.
     let expr0_0 = Opcode::Icmp;
     let expr1_0 = InstructionImms::IntCompare {
         opcode: expr0_0,
@@ -4149,7 +4149,7 @@ pub fn constructor_icmp_imm<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1009.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1009.
     let expr0_0 = Opcode::IcmpImm;
     let expr1_0 = InstructionImms::IntCompareImm {
         opcode: expr0_0,
@@ -4166,7 +4166,7 @@ pub fn constructor_ifcmp<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1018.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1018.
     let expr0_0 = Opcode::Ifcmp;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4184,7 +4184,7 @@ pub fn constructor_ifcmp_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1027.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1027.
     let expr0_0 = Opcode::IfcmpImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -4200,7 +4200,7 @@ pub fn constructor_iadd<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1036.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1036.
     let expr0_0 = Opcode::Iadd;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4213,7 +4213,7 @@ pub fn constructor_isub<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1045.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1045.
     let expr0_0 = Opcode::Isub;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4225,7 +4225,7 @@ pub fn constructor_isub<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
 pub fn constructor_ineg<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1054.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1054.
     let expr0_0 = Opcode::Ineg;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -4237,7 +4237,7 @@ pub fn constructor_ineg<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option
 pub fn constructor_iabs<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1063.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1063.
     let expr0_0 = Opcode::Iabs;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -4250,7 +4250,7 @@ pub fn constructor_imul<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1072.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1072.
     let expr0_0 = Opcode::Imul;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4263,7 +4263,7 @@ pub fn constructor_umulhi<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: I
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1081.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1081.
     let expr0_0 = Opcode::Umulhi;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4276,7 +4276,7 @@ pub fn constructor_smulhi<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: I
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1090.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1090.
     let expr0_0 = Opcode::Smulhi;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4294,7 +4294,7 @@ pub fn constructor_sqmul_round_sat<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1099.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1099.
     let expr0_0 = Opcode::SqmulRoundSat;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4307,7 +4307,7 @@ pub fn constructor_udiv<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1108.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1108.
     let expr0_0 = Opcode::Udiv;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4320,7 +4320,7 @@ pub fn constructor_sdiv<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1117.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1117.
     let expr0_0 = Opcode::Sdiv;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4333,7 +4333,7 @@ pub fn constructor_urem<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1126.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1126.
     let expr0_0 = Opcode::Urem;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4346,7 +4346,7 @@ pub fn constructor_srem<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1135.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1135.
     let expr0_0 = Opcode::Srem;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4364,7 +4364,7 @@ pub fn constructor_iadd_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1144.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1144.
     let expr0_0 = Opcode::IaddImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -4385,7 +4385,7 @@ pub fn constructor_imul_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1153.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1153.
     let expr0_0 = Opcode::ImulImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -4406,7 +4406,7 @@ pub fn constructor_udiv_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1162.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1162.
     let expr0_0 = Opcode::UdivImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -4427,7 +4427,7 @@ pub fn constructor_sdiv_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1171.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1171.
     let expr0_0 = Opcode::SdivImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -4448,7 +4448,7 @@ pub fn constructor_urem_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1180.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1180.
     let expr0_0 = Opcode::UremImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -4469,7 +4469,7 @@ pub fn constructor_srem_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1189.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1189.
     let expr0_0 = Opcode::SremImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -4490,7 +4490,7 @@ pub fn constructor_irsub_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1198.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1198.
     let expr0_0 = Opcode::IrsubImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -4513,7 +4513,7 @@ pub fn constructor_iadd_cin<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1207.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1207.
     let expr0_0 = Opcode::IaddCin;
     let expr1_0 = InstructionImms::Ternary { opcode: expr0_0 };
     let expr2_0 = C::id_array_3_ctor(ctx, pattern1_0, pattern2_0, pattern3_0);
@@ -4533,7 +4533,7 @@ pub fn constructor_iadd_ifcin<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1216.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1216.
     let expr0_0 = Opcode::IaddIfcin;
     let expr1_0 = InstructionImms::Ternary { opcode: expr0_0 };
     let expr2_0 = C::id_array_3_ctor(ctx, pattern1_0, pattern2_0, pattern3_0);
@@ -4551,7 +4551,7 @@ pub fn constructor_iadd_cout<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1225.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1225.
     let expr0_0 = Opcode::IaddCout;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4569,7 +4569,7 @@ pub fn constructor_iadd_ifcout<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1234.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1234.
     let expr0_0 = Opcode::IaddIfcout;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4589,7 +4589,7 @@ pub fn constructor_iadd_carry<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1243.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1243.
     let expr0_0 = Opcode::IaddCarry;
     let expr1_0 = InstructionImms::Ternary { opcode: expr0_0 };
     let expr2_0 = C::id_array_3_ctor(ctx, pattern1_0, pattern2_0, pattern3_0);
@@ -4609,7 +4609,7 @@ pub fn constructor_iadd_ifcarry<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1252.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1252.
     let expr0_0 = Opcode::IaddIfcarry;
     let expr1_0 = InstructionImms::Ternary { opcode: expr0_0 };
     let expr2_0 = C::id_array_3_ctor(ctx, pattern1_0, pattern2_0, pattern3_0);
@@ -4629,7 +4629,7 @@ pub fn constructor_uadd_overflow_trap<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1261.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1261.
     let expr0_0 = Opcode::UaddOverflowTrap;
     let expr1_0 = InstructionImms::IntAddTrap {
         opcode: expr0_0,
@@ -4652,7 +4652,7 @@ pub fn constructor_isub_bin<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1270.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1270.
     let expr0_0 = Opcode::IsubBin;
     let expr1_0 = InstructionImms::Ternary { opcode: expr0_0 };
     let expr2_0 = C::id_array_3_ctor(ctx, pattern1_0, pattern2_0, pattern3_0);
@@ -4672,7 +4672,7 @@ pub fn constructor_isub_ifbin<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1279.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1279.
     let expr0_0 = Opcode::IsubIfbin;
     let expr1_0 = InstructionImms::Ternary { opcode: expr0_0 };
     let expr2_0 = C::id_array_3_ctor(ctx, pattern1_0, pattern2_0, pattern3_0);
@@ -4690,7 +4690,7 @@ pub fn constructor_isub_bout<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1288.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1288.
     let expr0_0 = Opcode::IsubBout;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4708,7 +4708,7 @@ pub fn constructor_isub_ifbout<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1297.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1297.
     let expr0_0 = Opcode::IsubIfbout;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4728,7 +4728,7 @@ pub fn constructor_isub_borrow<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1306.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1306.
     let expr0_0 = Opcode::IsubBorrow;
     let expr1_0 = InstructionImms::Ternary { opcode: expr0_0 };
     let expr2_0 = C::id_array_3_ctor(ctx, pattern1_0, pattern2_0, pattern3_0);
@@ -4748,7 +4748,7 @@ pub fn constructor_isub_ifborrow<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1315.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1315.
     let expr0_0 = Opcode::IsubIfborrow;
     let expr1_0 = InstructionImms::Ternary { opcode: expr0_0 };
     let expr2_0 = C::id_array_3_ctor(ctx, pattern1_0, pattern2_0, pattern3_0);
@@ -4761,7 +4761,7 @@ pub fn constructor_band<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1324.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1324.
     let expr0_0 = Opcode::Band;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4774,7 +4774,7 @@ pub fn constructor_bor<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id) 
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1333.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1333.
     let expr0_0 = Opcode::Bor;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4787,7 +4787,7 @@ pub fn constructor_bxor<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1342.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1342.
     let expr0_0 = Opcode::Bxor;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4799,7 +4799,7 @@ pub fn constructor_bxor<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
 pub fn constructor_bnot<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1351.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1351.
     let expr0_0 = Opcode::Bnot;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -4812,7 +4812,7 @@ pub fn constructor_band_not<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2:
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1360.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1360.
     let expr0_0 = Opcode::BandNot;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4825,7 +4825,7 @@ pub fn constructor_bor_not<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: 
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1369.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1369.
     let expr0_0 = Opcode::BorNot;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4838,7 +4838,7 @@ pub fn constructor_bxor_not<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2:
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1378.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1378.
     let expr0_0 = Opcode::BxorNot;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4856,7 +4856,7 @@ pub fn constructor_band_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1387.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1387.
     let expr0_0 = Opcode::BandImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -4877,7 +4877,7 @@ pub fn constructor_bor_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1396.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1396.
     let expr0_0 = Opcode::BorImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -4898,7 +4898,7 @@ pub fn constructor_bxor_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1405.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1405.
     let expr0_0 = Opcode::BxorImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -4914,7 +4914,7 @@ pub fn constructor_rotl<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1414.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1414.
     let expr0_0 = Opcode::Rotl;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4927,7 +4927,7 @@ pub fn constructor_rotr<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1423.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1423.
     let expr0_0 = Opcode::Rotr;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4945,7 +4945,7 @@ pub fn constructor_rotl_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1432.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1432.
     let expr0_0 = Opcode::RotlImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -4966,7 +4966,7 @@ pub fn constructor_rotr_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1441.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1441.
     let expr0_0 = Opcode::RotrImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -4982,7 +4982,7 @@ pub fn constructor_ishl<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1450.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1450.
     let expr0_0 = Opcode::Ishl;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -4995,7 +4995,7 @@ pub fn constructor_ushr<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1459.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1459.
     let expr0_0 = Opcode::Ushr;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5008,7 +5008,7 @@ pub fn constructor_sshr<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1468.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1468.
     let expr0_0 = Opcode::Sshr;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5026,7 +5026,7 @@ pub fn constructor_ishl_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1477.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1477.
     let expr0_0 = Opcode::IshlImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -5047,7 +5047,7 @@ pub fn constructor_ushr_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1486.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1486.
     let expr0_0 = Opcode::UshrImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -5068,7 +5068,7 @@ pub fn constructor_sshr_imm<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1495.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1495.
     let expr0_0 = Opcode::SshrImm;
     let expr1_0 = InstructionImms::BinaryImm64 {
         opcode: expr0_0,
@@ -5083,7 +5083,7 @@ pub fn constructor_sshr_imm<C: Context>(
 pub fn constructor_bitrev<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1504.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1504.
     let expr0_0 = Opcode::Bitrev;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5095,7 +5095,7 @@ pub fn constructor_bitrev<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Opti
 pub fn constructor_clz<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1513.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1513.
     let expr0_0 = Opcode::Clz;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5107,7 +5107,7 @@ pub fn constructor_clz<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<
 pub fn constructor_cls<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1522.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1522.
     let expr0_0 = Opcode::Cls;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5119,7 +5119,7 @@ pub fn constructor_cls<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<
 pub fn constructor_ctz<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1531.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1531.
     let expr0_0 = Opcode::Ctz;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5131,7 +5131,7 @@ pub fn constructor_ctz<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<
 pub fn constructor_bswap<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1540.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1540.
     let expr0_0 = Opcode::Bswap;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5143,7 +5143,7 @@ pub fn constructor_bswap<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Optio
 pub fn constructor_popcnt<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1549.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1549.
     let expr0_0 = Opcode::Popcnt;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5163,7 +5163,7 @@ pub fn constructor_fcmp<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1558.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1558.
     let expr0_0 = Opcode::Fcmp;
     let expr1_0 = InstructionImms::FloatCompare {
         opcode: expr0_0,
@@ -5179,7 +5179,7 @@ pub fn constructor_ffcmp<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1567.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1567.
     let expr0_0 = Opcode::Ffcmp;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5192,7 +5192,7 @@ pub fn constructor_fadd<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1576.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1576.
     let expr0_0 = Opcode::Fadd;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5205,7 +5205,7 @@ pub fn constructor_fsub<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1585.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1585.
     let expr0_0 = Opcode::Fsub;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5218,7 +5218,7 @@ pub fn constructor_fmul<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1594.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1594.
     let expr0_0 = Opcode::Fmul;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5231,7 +5231,7 @@ pub fn constructor_fdiv<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1603.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1603.
     let expr0_0 = Opcode::Fdiv;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5243,7 +5243,7 @@ pub fn constructor_fdiv<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
 pub fn constructor_sqrt<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1612.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1612.
     let expr0_0 = Opcode::Sqrt;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5263,7 +5263,7 @@ pub fn constructor_fma<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1621.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1621.
     let expr0_0 = Opcode::Fma;
     let expr1_0 = InstructionImms::Ternary { opcode: expr0_0 };
     let expr2_0 = C::id_array_3_ctor(ctx, pattern1_0, pattern2_0, pattern3_0);
@@ -5275,7 +5275,7 @@ pub fn constructor_fma<C: Context>(
 pub fn constructor_fneg<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1630.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1630.
     let expr0_0 = Opcode::Fneg;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5287,7 +5287,7 @@ pub fn constructor_fneg<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option
 pub fn constructor_fabs<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1639.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1639.
     let expr0_0 = Opcode::Fabs;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5305,7 +5305,7 @@ pub fn constructor_fcopysign<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1648.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1648.
     let expr0_0 = Opcode::Fcopysign;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5318,7 +5318,7 @@ pub fn constructor_fmin<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1657.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1657.
     let expr0_0 = Opcode::Fmin;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5336,7 +5336,7 @@ pub fn constructor_fmin_pseudo<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1666.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1666.
     let expr0_0 = Opcode::FminPseudo;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5349,7 +5349,7 @@ pub fn constructor_fmax<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: Id)
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1675.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1675.
     let expr0_0 = Opcode::Fmax;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5367,7 +5367,7 @@ pub fn constructor_fmax_pseudo<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1684.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1684.
     let expr0_0 = Opcode::FmaxPseudo;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5379,7 +5379,7 @@ pub fn constructor_fmax_pseudo<C: Context>(
 pub fn constructor_ceil<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1693.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1693.
     let expr0_0 = Opcode::Ceil;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5391,7 +5391,7 @@ pub fn constructor_ceil<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option
 pub fn constructor_floor<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1702.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1702.
     let expr0_0 = Opcode::Floor;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5403,7 +5403,7 @@ pub fn constructor_floor<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Optio
 pub fn constructor_trunc<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1711.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1711.
     let expr0_0 = Opcode::Trunc;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5415,7 +5415,7 @@ pub fn constructor_trunc<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Optio
 pub fn constructor_nearest<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1720.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1720.
     let expr0_0 = Opcode::Nearest;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5427,7 +5427,7 @@ pub fn constructor_nearest<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Opt
 pub fn constructor_is_null<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1729.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1729.
     let expr0_0 = Opcode::IsNull;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5439,7 +5439,7 @@ pub fn constructor_is_null<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Opt
 pub fn constructor_is_invalid<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1738.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1738.
     let expr0_0 = Opcode::IsInvalid;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5457,7 +5457,7 @@ pub fn constructor_bitcast<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1747.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1747.
     let expr0_0 = Opcode::Bitcast;
     let expr1_0 = InstructionImms::LoadNoOffset {
         opcode: expr0_0,
@@ -5472,7 +5472,7 @@ pub fn constructor_bitcast<C: Context>(
 pub fn constructor_scalar_to_vector<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1756.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1756.
     let expr0_0 = Opcode::ScalarToVector;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5484,7 +5484,7 @@ pub fn constructor_scalar_to_vector<C: Context>(ctx: &mut C, arg0: Type, arg1: I
 pub fn constructor_bmask<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1765.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1765.
     let expr0_0 = Opcode::Bmask;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5496,7 +5496,7 @@ pub fn constructor_bmask<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Optio
 pub fn constructor_ireduce<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1774.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1774.
     let expr0_0 = Opcode::Ireduce;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5509,7 +5509,7 @@ pub fn constructor_snarrow<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: 
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1783.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1783.
     let expr0_0 = Opcode::Snarrow;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5522,7 +5522,7 @@ pub fn constructor_unarrow<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: 
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1792.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1792.
     let expr0_0 = Opcode::Unarrow;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5535,7 +5535,7 @@ pub fn constructor_uunarrow<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2:
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1801.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1801.
     let expr0_0 = Opcode::Uunarrow;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5547,7 +5547,7 @@ pub fn constructor_uunarrow<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2:
 pub fn constructor_swiden_low<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1810.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1810.
     let expr0_0 = Opcode::SwidenLow;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5559,7 +5559,7 @@ pub fn constructor_swiden_low<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> 
 pub fn constructor_swiden_high<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1819.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1819.
     let expr0_0 = Opcode::SwidenHigh;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5571,7 +5571,7 @@ pub fn constructor_swiden_high<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) ->
 pub fn constructor_uwiden_low<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1828.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1828.
     let expr0_0 = Opcode::UwidenLow;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5583,7 +5583,7 @@ pub fn constructor_uwiden_low<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> 
 pub fn constructor_uwiden_high<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1837.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1837.
     let expr0_0 = Opcode::UwidenHigh;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5601,7 +5601,7 @@ pub fn constructor_iadd_pairwise<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1846.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1846.
     let expr0_0 = Opcode::IaddPairwise;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5619,7 +5619,7 @@ pub fn constructor_widening_pairwise_dot_product_s<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1855.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1855.
     let expr0_0 = Opcode::WideningPairwiseDotProductS;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5631,7 +5631,7 @@ pub fn constructor_widening_pairwise_dot_product_s<C: Context>(
 pub fn constructor_uextend<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1864.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1864.
     let expr0_0 = Opcode::Uextend;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5643,7 +5643,7 @@ pub fn constructor_uextend<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Opt
 pub fn constructor_sextend<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1873.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1873.
     let expr0_0 = Opcode::Sextend;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5655,7 +5655,7 @@ pub fn constructor_sextend<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Opt
 pub fn constructor_fpromote<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1882.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1882.
     let expr0_0 = Opcode::Fpromote;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5667,7 +5667,7 @@ pub fn constructor_fpromote<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Op
 pub fn constructor_fdemote<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1891.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1891.
     let expr0_0 = Opcode::Fdemote;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5679,7 +5679,7 @@ pub fn constructor_fdemote<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Opt
 pub fn constructor_fvdemote<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1900.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1900.
     let expr0_0 = Opcode::Fvdemote;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5691,7 +5691,7 @@ pub fn constructor_fvdemote<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Op
 pub fn constructor_fvpromote_low<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1909.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1909.
     let expr0_0 = Opcode::FvpromoteLow;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5703,7 +5703,7 @@ pub fn constructor_fvpromote_low<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) 
 pub fn constructor_fcvt_to_uint<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1918.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1918.
     let expr0_0 = Opcode::FcvtToUint;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5715,7 +5715,7 @@ pub fn constructor_fcvt_to_uint<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -
 pub fn constructor_fcvt_to_sint<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1927.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1927.
     let expr0_0 = Opcode::FcvtToSint;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5727,7 +5727,7 @@ pub fn constructor_fcvt_to_sint<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -
 pub fn constructor_fcvt_to_uint_sat<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1936.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1936.
     let expr0_0 = Opcode::FcvtToUintSat;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5739,7 +5739,7 @@ pub fn constructor_fcvt_to_uint_sat<C: Context>(ctx: &mut C, arg0: Type, arg1: I
 pub fn constructor_fcvt_to_sint_sat<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1945.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1945.
     let expr0_0 = Opcode::FcvtToSintSat;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5751,7 +5751,7 @@ pub fn constructor_fcvt_to_sint_sat<C: Context>(ctx: &mut C, arg0: Type, arg1: I
 pub fn constructor_fcvt_from_uint<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1954.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1954.
     let expr0_0 = Opcode::FcvtFromUint;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5763,7 +5763,7 @@ pub fn constructor_fcvt_from_uint<C: Context>(ctx: &mut C, arg0: Type, arg1: Id)
 pub fn constructor_fcvt_from_sint<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1963.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1963.
     let expr0_0 = Opcode::FcvtFromSint;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5775,7 +5775,7 @@ pub fn constructor_fcvt_from_sint<C: Context>(ctx: &mut C, arg0: Type, arg1: Id)
 pub fn constructor_fcvt_low_from_sint<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1972.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1972.
     let expr0_0 = Opcode::FcvtLowFromSint;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5787,7 +5787,7 @@ pub fn constructor_fcvt_low_from_sint<C: Context>(ctx: &mut C, arg0: Type, arg1:
 pub fn constructor_isplit<C: Context>(ctx: &mut C, arg0: Type, arg1: Id) -> Option<Id> {
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1981.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1981.
     let expr0_0 = Opcode::Isplit;
     let expr1_0 = InstructionImms::Unary { opcode: expr0_0 };
     let expr2_0 = C::id_array_1_ctor(ctx, pattern1_0);
@@ -5800,7 +5800,7 @@ pub fn constructor_iconcat<C: Context>(ctx: &mut C, arg0: Type, arg1: Id, arg2: 
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1990.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1990.
     let expr0_0 = Opcode::Iconcat;
     let expr1_0 = InstructionImms::Binary { opcode: expr0_0 };
     let expr2_0 = C::id_array_2_ctor(ctx, pattern1_0, pattern2_0);
@@ -5822,7 +5822,7 @@ pub fn constructor_atomic_rmw<C: Context>(
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
     let pattern4_0 = arg4;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1999.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 1999.
     let expr0_0 = Opcode::AtomicRmw;
     let expr1_0 = InstructionImms::AtomicRmw {
         opcode: expr0_0,
@@ -5848,7 +5848,7 @@ pub fn constructor_atomic_cas<C: Context>(
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
     let pattern4_0 = arg4;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 2008.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 2008.
     let expr0_0 = Opcode::AtomicCas;
     let expr1_0 = InstructionImms::AtomicCas {
         opcode: expr0_0,
@@ -5869,7 +5869,7 @@ pub fn constructor_atomic_load<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 2017.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 2017.
     let expr0_0 = Opcode::AtomicLoad;
     let expr1_0 = InstructionImms::LoadNoOffset {
         opcode: expr0_0,
@@ -5892,7 +5892,7 @@ pub fn constructor_atomic_store<C: Context>(
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
     let pattern3_0 = arg3;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 2026.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 2026.
     let expr0_0 = Opcode::AtomicStore;
     let expr1_0 = InstructionImms::StoreNoOffset {
         opcode: expr0_0,
@@ -5906,7 +5906,7 @@ pub fn constructor_atomic_store<C: Context>(
 // Generated as internal constructor for term fence.
 pub fn constructor_fence<C: Context>(ctx: &mut C, arg0: Type) -> Option<Id> {
     let pattern0_0 = arg0;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 2035.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 2035.
     let expr0_0 = Opcode::Fence;
     let expr1_0 = InstructionImms::NullAry { opcode: expr0_0 };
     let expr2_0 = C::id_array_0_ctor(ctx);
@@ -5924,7 +5924,7 @@ pub fn constructor_extract_vector<C: Context>(
     let pattern0_0 = arg0;
     let pattern1_0 = arg1;
     let pattern2_0 = arg2;
-    // Rule at /workspace/Rustorium/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 2044.
+    // Rule at /workspace/Rustorium/target/debug/build/cranelift-codegen-79b1f3c2937383fc/out/clif_opt.isle line 2044.
     let expr0_0 = Opcode::ExtractVector;
     let expr1_0 = InstructionImms::BinaryImm8 {
         opcode: expr0_0,
