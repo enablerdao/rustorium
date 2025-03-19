@@ -124,4 +124,57 @@ impl StorageEngine for RocksDBStorage {
 }
 
 #[async_trait]
-impl TypedStorage for RocksDBStorage {}
+impl TypedStorage for RocksDBStorage {
+    async fn put<K, V>(&self, cf: &str, key: K, value: &V) -> Result<()>
+    where
+        K: AsRef<[u8]> + Send + Sync,
+        V: serde::Serialize + Send + Sync,
+    {
+        let value_bytes = bincode::serialize(value)?;
+        self.put_bytes(cf, key.as_ref(), &value_bytes).await
+    }
+
+    async fn get<K, V>(&self, cf: &str, key: K) -> Result<Option<V>>
+    where
+        K: AsRef<[u8]> + Send + Sync,
+        V: serde::de::DeserializeOwned + Send + Sync,
+    {
+        if let Some(bytes) = self.get_bytes(cf, key.as_ref()).await? {
+            Ok(Some(bincode::deserialize(&bytes)?))
+        } else {
+            Ok(None)
+        }
+    }
+
+    async fn scan_prefix<K, V>(&self, cf: &str, prefix: K) -> Result<Vec<(Vec<u8>, V)>>
+    where
+        K: AsRef<[u8]> + Send + Sync,
+        V: serde::de::DeserializeOwned + Send + Sync,
+    {
+        let pairs = self.scan_prefix_bytes(cf, prefix.as_ref()).await?;
+        let mut results = Vec::with_capacity(pairs.len());
+        
+        for (key, value) in pairs {
+            results.push((key, bincode::deserialize(&value)?));
+        }
+        
+        Ok(results)
+    }
+
+    async fn batch_write<K, V>(&self, cf: &str, pairs: &[(K, &V)]) -> Result<()>
+    where
+        K: AsRef<[u8]> + Send + Sync,
+        V: serde::Serialize + Send + Sync,
+    {
+        let mut bytes_pairs = Vec::with_capacity(pairs.len());
+        let mut value_bytes_vec = Vec::with_capacity(pairs.len());
+
+        for (key, value) in pairs {
+            let value_bytes = bincode::serialize(value)?;
+            value_bytes_vec.push(value_bytes);
+            bytes_pairs.push((key.as_ref(), value_bytes_vec.last().unwrap().as_slice()));
+        }
+
+        self.batch_write_bytes(cf, &bytes_pairs).await
+    }
+}

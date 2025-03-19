@@ -80,25 +80,21 @@ pub trait TypedStorage: StorageEngine {
     }
 
     /// 型付きのバッチ書き込み
-    async fn batch_write<K, V>(&self, cf: &str, pairs: &[(K, V)]) -> Result<()>
+    async fn batch_write<K, V>(&self, cf: &str, pairs: &[(K, &V)]) -> Result<()>
     where
         K: AsRef<[u8]> + Send + Sync,
         V: Serialize + Send + Sync,
     {
-        let mut bytes_pairs: Vec<(&[u8], &[u8])> = Vec::with_capacity(pairs.len());
+        let mut bytes_pairs = Vec::with_capacity(pairs.len());
         let mut value_bytes_vec = Vec::with_capacity(pairs.len());
 
         for (key, value) in pairs {
             let value_bytes = bincode::serialize(value)?;
             value_bytes_vec.push(value_bytes);
+            bytes_pairs.push((key.as_ref(), value_bytes_vec.last().unwrap().as_slice()));
         }
 
-        let mut refs = Vec::with_capacity(pairs.len());
-        for (i, (key, _)) in pairs.iter().enumerate() {
-            refs.push((key.as_ref(), value_bytes_vec[i].as_slice()));
-        }
-
-        self.batch_write_bytes(cf, &refs).await
+        self.batch_write_bytes(cf, &bytes_pairs).await
     }
 }
 

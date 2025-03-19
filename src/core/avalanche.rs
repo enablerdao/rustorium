@@ -143,7 +143,7 @@ impl AvalancheEngine {
     }
     
     /// 投票応答を待機
-    async fn wait_for_vote(&self, tx_id: TxId) -> anyhow::Result<Vote> {
+    async fn wait_for_vote(&mut self, tx_id: TxId) -> anyhow::Result<Vote> {
         use tokio::time::timeout;
         
         // タイムアウト付きで応答を待機
