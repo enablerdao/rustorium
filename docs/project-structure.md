@@ -1,202 +1,205 @@
-# Rustorium プロジェクト構造
+# Rustorium Project Structure
 
-このドキュメントでは、Rustoriumプロジェクトのディレクトリ構造と各コンポーネントの役割について説明します。
+## Overview
 
-## ディレクトリ構造
+Rustorium is a modular blockchain platform built in Rust, featuring:
+- DAG-based transaction processing
+- Avalanche consensus protocol
+- Dynamic sharding
+- P2P networking with libp2p
+- Multi-language support
+- Development tools for testing
+
+## Directory Structure
 
 ```
 rustorium/
-├── benches/                  # ベンチマークテスト
-├── docs/                     # ドキュメント
-│   ├── api/                  # APIドキュメント
-│   ├── architecture/         # アーキテクチャドキュメント
-│   ├── features/             # 機能詳細ドキュメント
-│   └── guides/               # ユーザーガイド
-├── src/                      # ソースコード
-│   ├── ai/                   # AI処理層
-│   ├── api/                  # APIサーバー
-│   ├── common/               # 共通ユーティリティ
-│   ├── consensus/            # コンセンサスアルゴリズム
-│   ├── dag/                  # DAGベース並列処理
-│   ├── gossip/               # ゴシッププロトコル
-│   ├── sharding/             # シャーディング実装
-│   ├── storage/              # ストレージエンジン
-│   ├── vm/                   # 仮想マシン実装
-│   ├── lib.rs                # ライブラリエントリポイント
-│   ├── main.rs               # メインエントリポイント
-│   └── node.rs               # ノード実装
-├── standalone_api/           # スタンドアロンAPIサーバー
-│   ├── src/                  # APIサーバーソースコード
-│   └── Cargo.toml            # APIサーバー設定
-├── tests/                    # 統合テスト
-├── web/                      # Yewベースのフロントエンド（開発中）
-│   ├── src/                  # Webフロントエンドソースコード
-│   └── Cargo.toml            # Webフロントエンド設定
-├── web_ui/                   # 現行WebUI実装
-│   ├── src/                  # WebUIサーバーソースコード
-│   ├── static/               # 静的ファイル（HTML, CSS, JS）
-│   └── Cargo.toml            # WebUI設定
-├── .gitignore                # Gitの除外ファイル設定
-├── build_web.sh              # Webビルドスクリプト
-├── Cargo.lock                # 依存関係ロックファイル
-├── Cargo.toml                # プロジェクト設定
-├── config.toml               # アプリケーション設定
-├── README.md                 # プロジェクト概要
-└── run_all.sh                # 全サービス起動スクリプト
+├── src/
+│   ├── cli/                    # CLI and interactive console
+│   │   ├── console.rs          # Interactive console UI
+│   │   ├── help.rs            # Help message display
+│   │   ├── options.rs         # Command-line options
+│   │   ├── server.rs          # Server management
+│   │   └── mod.rs             # CLI module entry point
+│   │
+│   ├── core/                   # Core blockchain components
+│   │   ├── dag.rs             # DAG implementation
+│   │   ├── avalanche.rs       # Consensus protocol
+│   │   ├── sharding.rs        # Sharding management
+│   │   ├── engine.rs          # Blockchain engine
+│   │   └── storage/           # Storage layer
+│   │       ├── rocksdb.rs     # RocksDB implementation
+│   │       ├── shard.rs       # Shard state storage
+│   │       └── mod.rs         # Storage traits
+│   │
+│   ├── network/                # P2P networking
+│   │   ├── p2p.rs             # libp2p implementation
+│   │   ├── types.rs           # Network message types
+│   │   └── mod.rs             # Network module entry
+│   │
+│   ├── dev/                    # Development tools
+│   │   └── mod.rs             # Test node management
+│   │
+│   ├── i18n/                   # Internationalization
+│   │   └── mod.rs             # Language support
+│   │
+│   └── main.rs                 # Application entry point
+│
+├── api/                        # API server
+├── frontend/                   # Frontend application
+└── docs/                       # Documentation
 ```
 
-## 主要コンポーネント
+## Component Interaction
 
-### src/ - コアライブラリ
+### 1. Startup Flow
+1. Parse command-line options (`cli/options.rs`)
+2. Set up logging and configuration
+3. Choose operation mode:
+   - Development mode: Start test nodes
+   - Normal mode: Start API and frontend servers
 
-Rustoriumのコア機能を実装するライブラリコードが含まれています。
+### 2. Development Mode
+```mermaid
+graph TD
+    A[Start] --> B[Parse --dev options]
+    B --> C[Create TestNodeManager]
+    C --> D[Add N test nodes]
+    D --> E[Start nodes]
+    E --> F[Display node URLs]
+    F --> G[Wait for Ctrl+C]
+    G --> H[Stop nodes]
+```
 
-#### src/ai/ - AI処理層
+### 3. Normal Mode
+```mermaid
+graph TD
+    A[Start] --> B[Find available ports]
+    B --> C[Start servers]
+    C --> D[Show interactive console]
+    D --> E[Handle user commands]
+    E --> F[Stop servers]
+```
 
-- **detector.rs**: 異常検出エンジン
-- **predictor.rs**: 予測モデル
-- **mod.rs**: AIモジュールのエントリポイント
+### 4. Server Components
+- **API Server**: Handles blockchain operations
+  - Port: Auto-selected from 8001, 3001, 5001, etc.
+  - Environment: `PORT` variable for configuration
 
-#### src/api/ - API実装
+- **Frontend Server**: User interface
+  - Port: Auto-selected from 8000, 3000, 5000, etc.
+  - Environment: `PORT` variable for configuration
 
-- **handlers.rs**: APIリクエストハンドラ
-- **models.rs**: APIリクエスト/レスポンスモデル
-- **server.rs**: APIサーバー実装
-- **standalone.rs**: スタンドアロンAPIサーバー
-- **web.rs**: WebUI API連携
-- **mod.rs**: APIモジュールのエントリポイント
+### 5. Core Components
 
-#### src/common/ - 共通ユーティリティ
+#### DAG Engine
+- Manages transaction graph
+- Handles dependencies
+- Schedules parallel execution
 
-- **config.rs**: 設定管理
-- **errors.rs**: エラー定義
-- **types.rs**: 共通型定義
-- **utils.rs**: ユーティリティ関数
-- **mod.rs**: 共通モジュールのエントリポイント
+#### Avalanche Protocol
+- Sampling-based voting
+- Confidence tracking
+- Metastability detection
 
-#### src/consensus/ - コンセンサス実装
+#### Sharding Manager
+- Dynamic shard allocation
+- Cross-shard transactions
+- State synchronization
 
-- **avalanche.rs**: Avalancheコンセンサスプロトコル
-- **validator.rs**: バリデータ管理
-- **mod.rs**: コンセンサスモジュールのエントリポイント
+#### P2P Network
+- libp2p-based networking
+- Gossipsub for messages
+- Kademlia for peer discovery
 
-#### src/dag/ - DAG実装
+## Usage Examples
 
-- **executor.rs**: DAGベーストランザクション実行
-- **graph.rs**: 依存関係グラフ
-- **mod.rs**: DAGモジュールのエントリポイント
+### 1. Development Mode
+```bash
+# Start 10 test nodes
+cargo run -- --dev
 
-#### src/gossip/ - ゴシッププロトコル
+# Custom configuration
+cargo run -- --dev --nodes 5 --base-port 50000 --data-dir /path/to/data
+```
 
-- **message.rs**: メッセージ定義
-- **network.rs**: ネットワーク通信
-- **peer.rs**: ピア管理
-- **protocol.rs**: プロトコル実装
-- **mod.rs**: ゴシッププロトコルモジュールのエントリポイント
+### 2. Server Options
+```bash
+# Start API server only
+cargo run -- --api-only
 
-#### src/sharding/ - シャーディング
+# Start frontend only
+cargo run -- --frontend-only
 
-- **cross_shard.rs**: クロスシャードトランザクション
-- **manager.rs**: シャード管理
-- **rebalancer.rs**: シャードリバランシング
-- **ring.rs**: 一貫性ハッシュリング
-- **mod.rs**: シャーディングモジュールのエントリポイント
+# Fast development mode
+cargo run -- --fast
 
-#### src/storage/ - ストレージ
+# Release mode
+cargo run -- --release
+```
 
-- **cache.rs**: メモリキャッシュ
-- **db.rs**: RocksDBバックエンド
-- **init.rs**: ストレージ初期化
-- **state.rs**: 状態管理
-- **mod.rs**: ストレージモジュールのエントリポイント
+### 3. Port Configuration
+```bash
+# Specify ports manually
+cargo run -- --api-port 8001 --frontend-port 8000
 
-#### src/vm/ - 仮想マシン
+# Auto port selection (default)
+cargo run
+```
 
-- **evm.rs**: Ethereum Virtual Machine実装
-- **wasm.rs**: WebAssembly実装
-- **executor.rs**: VM実行エンジン
-- **mod.rs**: VMモジュールのエントリポイント
+## Development Tools
 
-### standalone_api/ - スタンドアロンAPIサーバー
+### Test Node Features
+- Multiple node instances
+- Automatic peer discovery
+- Individual data directories
+- Separate API and Frontend endpoints
+- Automatic port allocation
 
-APIサーバーを単独で実行するためのコードが含まれています。
+### Port Allocation
+Each node gets three consecutive ports:
+```
+Node 1: base_port,     base_port+1,     base_port+2
+Node 2: base_port+3,   base_port+4,     base_port+5
+Node 3: base_port+6,   base_port+7,     base_port+8
+...
+```
 
-- **src/main.rs**: APIサーバーのエントリポイント
+### Node Information Display
+Each node shows:
+- API URL: `http://localhost:<port>`
+- Frontend URL: `http://localhost:<port>`
+- P2P address: `/ip4/127.0.0.1/tcp/<port>`
+- Peer ID
 
-### web_ui/ - WebUI
+## Internationalization
 
-ウェブインターフェースを提供するコードが含まれています。
+Supported languages:
+- English (en)
+- Japanese (ja)
+- Chinese (zh)
+- Korean (ko)
 
-- **src/main.rs**: WebUIサーバーのエントリポイント
-- **static/**: 静的ファイル（HTML, CSS, JavaScript）
-  - **index.html**: メインHTMLファイル
-  - **style.css**: スタイルシート
-  - **theme.css**: テーマ定義
-  - **animations.css**: アニメーション定義
-  - **app.js**: メインアプリケーションロジック
-  - **network.js**: ネットワーク可視化
-  - **analytics.js**: 分析ダッシュボード
-  - **wallet.js**: ウォレット機能
-  - **contracts.js**: スマートコントラクト管理
-  - **ai.js**: AI分析機能
-  - **components.js**: UIコンポーネント
-  - **theme.js**: テーマ管理
-  - **logo.svg**: ロゴ
-  - **favicon.svg**: ファビコン
+Language selection is available through the interactive console.
 
-### web/ - Yewベースのフロントエンド（開発中）
+## Storage Layer
 
-Rust/Wasm（Yew）を使用した新しいフロントエンドの開発コードが含まれています。
+### RocksDB Implementation
+- Column families for data separation
+- Snappy compression
+- Atomic batch operations
+- Type-safe storage traits
 
-### benches/ - ベンチマーク
+### Sharding
+- Shard state management
+- Cross-shard transaction handling
+- State synchronization
+- Load balancing
 
-パフォーマンス測定用のベンチマークコードが含まれています。
+## Contributing
 
-- **consensus_bench.rs**: コンセンサスアルゴリズムのベンチマーク
-- **sharding_bench.rs**: シャーディングのベンチマーク
-- **storage_bench.rs**: ストレージエンジンのベンチマーク
-
-### tests/ - テスト
-
-統合テストコードが含まれています。
-
-### docs/ - ドキュメント
-
-プロジェクトのドキュメントが含まれています。
-
-## 実装状況
-
-### 現在実装されている機能
-
-- ✅ WebUI基本インターフェース
-- ✅ APIサーバー基本構造
-- ✅ テーマ切り替え機能
-- ✅ レスポンシブデザイン
-- ✅ ダッシュボードUI
-
-### 開発中の機能
-
-- 🔄 スタンドアロンAPIサーバーの完全実装
-- 🔄 トランザクション送信機能
-- 🔄 アカウント管理機能
-- 🔄 ネットワーク可視化
-- 🔄 スマートコントラクト管理
-
-### 今後実装予定の機能
-
-- ⏳ シャーディング実装
-- ⏳ Avalancheコンセンサス
-- ⏳ マルチVM実行環境
-- ⏳ DAGベース並列処理
-- ⏳ AI処理層
-- ⏳ 分散ストレージ
-
-## ビルドスクリプト
-
-### run_all.sh
-
-すべてのサービス（APIサーバーとWebUI）を一度に起動するスクリプトです。
-
-### build_web.sh
-
-WebUIをビルドするスクリプトです。
+See [CONTRIBUTING.md](contributing.md) for:
+- Development setup
+- Coding guidelines
+- Testing instructions
+- Pull request process
