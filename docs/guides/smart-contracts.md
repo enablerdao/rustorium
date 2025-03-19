@@ -2,6 +2,142 @@
 
 Rustoriumでのスマートコントラクトのデプロイ、呼び出し、管理方法について説明します。
 
+## スマートコントラクト機能の概要
+
+Rustoriumは、基本的なスマートコントラクト機能をサポートしています。現在実装されている機能は以下の通りです：
+
+- コントラクトのデプロイ
+- コントラクトの呼び出し
+- コントラクト情報の取得
+- コントラクト状態の管理
+
+## APIエンドポイント
+
+### コントラクトのデプロイ
+
+```
+POST /contracts
+```
+
+**リクエスト例**:
+```json
+{
+  "from": "0x1234567890abcdef1234567890abcdef12345678",
+  "bytecode": "608060405234801561001057600080fd5b50610150806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c80632e64cec11461003b5780636057361d14610059575b600080fd5b610043610075565b60405161005091906100a1565b60405180910390f35b610073600480360381019061006e91906100ed565b61007e565b005b60008054905090565b8060008190555050565b6000819050919050565b61009b81610088565b82525050565b60006020820190506100b66000830184610092565b92915050565b600080fd5b6100ca81610088565b81146100d557600080fd5b50565b6000813590506100e7816100c1565b92915050565b600060208284031215610103576101026100bc565b5b6000610111848285016100d8565b9150509291505056fea2646970667358221220ec5ef79ea9c3f806626466c24f736c1a5a5e3b8bc2fb7c814fa4ecc6ff3a9c4d64736f6c63430008120033",
+  "abi": [...],
+  "gas_limit": 1000000,
+  "gas_price": 10
+}
+```
+
+**レスポンス例**:
+```json
+{
+  "success": true,
+  "data": {
+    "address": "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b",
+    "transaction_id": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+    "gas_used": 1000000,
+    "gas_cost": 0.01
+  },
+  "error": null
+}
+```
+
+### コントラクトの呼び出し
+
+```
+POST /contracts/{address}/call
+```
+
+**リクエスト例**:
+```json
+{
+  "from": "0x1234567890abcdef1234567890abcdef12345678",
+  "method": "store",
+  "args": "42",
+  "gas_limit": 100000,
+  "gas_price": 10,
+  "value": 0
+}
+```
+
+**レスポンス例**:
+```json
+{
+  "success": true,
+  "data": {
+    "transaction_id": "0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "result": "success",
+    "gas_used": 100000
+  },
+  "error": null
+}
+```
+
+### コントラクト情報の取得
+
+```
+GET /contracts/{address}
+```
+
+**レスポンス例**:
+```json
+{
+  "success": true,
+  "data": {
+    "address": "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b",
+    "creator": "0x1234567890abcdef1234567890abcdef12345678",
+    "bytecode": "608060405234801561001057600080fd5b50610150806100206000396000f3fe...",
+    "abi": [...],
+    "creation_transaction": "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+    "creation_block": 10,
+    "state": {
+      "store": "42"
+    },
+    "created_at": "2025-03-19T00:00:00Z",
+    "last_activity": "2025-03-19T00:05:00Z"
+  },
+  "error": null
+}
+```
+
+## サンプルコントラクト
+
+### SimpleStorage
+
+以下は、値を保存して取得する簡単なコントラクトの例です：
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SimpleStorage {
+    uint256 private value;
+    
+    // 値を設定する関数
+    function store(uint256 newValue) public {
+        value = newValue;
+    }
+    
+    // 値を取得する関数
+    function retrieve() public view returns (uint256) {
+        return value;
+    }
+}
+```
+
+## テストスクリプト
+
+`examples`ディレクトリには、スマートコントラクトをテストするためのスクリプトが含まれています：
+
+```bash
+cd examples
+./test_contract.sh
+```
+
+このスクリプトは、SimpleStorageコントラクトをデプロイし、値を保存して取得するデモを実行します。
+
 ## スマートコントラクトの表示
 
 ### コントラクトリストの表示

@@ -566,9 +566,10 @@ GET /api/ai/predictions
 ### 今後実装予定のAPI
 
 #### スマートコントラクト関連
-- ⏳ `POST /contracts` - コントラクトのデプロイ
-- ⏳ `POST /contracts/{address}/call` - コントラクトの呼び出し
-- ⏳ `GET /contracts/{address}` - コントラクト情報の取得
+- ✅ `POST /contracts` - コントラクトのデプロイ
+- ✅ `POST /contracts/{address}/call` - コントラクトの呼び出し
+- ✅ `GET /contracts/{address}` - コントラクト情報の取得
+- ✅ `GET /contracts` - コントラクト一覧の取得
 
 #### 拡張ネットワーク関連
 - ⏳ `GET /network/peers` - ピア情報の取得

@@ -33,7 +33,7 @@ Rustoriumは、Rustで実装された高性能なブロックチェーンプラ�
 ## 開発中の機能
 
 ### コア機能の拡張
-- 🔄 [スマートコントラクト実行](docs/guides/smart-contracts.md): 基本的なスマートコントラクト機能
+- ✅ [スマートコントラクト実行](docs/guides/smart-contracts.md): 基本的なスマートコントラクト機能
 - 🔄 [改良版コンセンサスアルゴリズム](docs/features/consensus.md): より効率的なブロック生成
 - 🔄 [トークン規格](docs/guides/tokens.md): カスタムトークンの作成と管理
 
