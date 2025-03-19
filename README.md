@@ -121,22 +121,26 @@ Rustoriumは様々な起動オプションをサポートしています:
 
 ## 🔮 ロードマップ
 
+### ✅ 実装済みの機能
+| 機能 | 説明 | 状態 | 詳細 |
+|------|------|------|------|
+| 持続可能なコンセンサス | リソース効率の良いProof of Stakeベースのコンセンサス | ✅ 実装済み | [詳細](docs/features/consensus.md) |
+| 動的報酬システム | ノード数に応じて報酬を調整する仕組み | ✅ 実装済み | [詳細](docs/features/rewards.md) |
+| リソース使用効率モニタリング | ネットワーク全体のリソース使用状況の監視と最適化 | ✅ 実装済み | [詳細](docs/features/resource-monitoring.md) |
+| 適応型スケーリング | ノード数に応じて自動的にスケールする仕組み | ✅ 基盤実装済み | [詳細](docs/features/adaptive-scaling.md) |
+
 ### 🔄 開発中の機能
 | 機能 | 説明 | 完了予定 | 詳細 |
 |------|------|----------|------|
-| 持続可能なコンセンサス | リソース効率の良いProof of Stakeベースのコンセンサス | 2025年Q2 | [詳細](docs/features/consensus.md) |
-| 動的報酬システム | ノード数に応じて報酬を調整する仕組み | 2025年Q1 | [詳細](docs/features/rewards.md) |
 | トークン規格 | ERC-20/ERC-721互換のトークン規格 | 2025年Q1 | [詳細](docs/guides/tokens.md) |
 | ウォレット機能強化 | 秘密鍵管理、トランザクション署名、マルチシグ | 2025年Q1 | [詳細](docs/guides/wallet.md) |
 | ネットワーク可視化 | ブロックチェーンネットワークの視覚的表現 | 2025年Q2 | [詳細](docs/guides/basic-usage.md#ネットワーク可視化) |
 | 分析ダッシュボード | リアルタイム統計、トレンド分析 | 2025年Q2 | [詳細](docs/guides/basic-usage.md#分析ダッシュボード) |
-| リソース使用効率モニタリング | ネットワーク全体のリソース使用状況の監視と最適化 | 2025年Q2 | [詳細](docs/features/resource-monitoring.md) |
 
 ### 🔍 研究開発中の先進機能
 | 機能 | 説明 | 研究段階 | 詳細 |
 |------|------|----------|------|
-| 適応型スケーリング | ノード数に応じて自動的にスケールする仕組み | 設計段階 | [詳細](docs/features/adaptive-scaling.md) |
-| シャーディング | 水平スケーリングによるスループット向上 | 設計段階 | [詳細](docs/features/sharding.md) |
+| シャーディング拡張 | 水平スケーリングによるさらなるスループット向上 | 設計段階 | [詳細](docs/features/sharding.md) |
 | Avalancheコンセンサス | 高速なファイナリティを実現する確率的合意形成 | プロトタイプ | [詳細](docs/features/consensus.md#avalanche) |
 | マルチVM実行環境 | EVM、WASM、Move VMなど複数の仮想マシン対応 | 研究段階 | [詳細](docs/features/multi-vm.md) |
 | DAGベース並列処理 | 依存関係グラフによるトランザクション並列実行 | 設計段階 | [詳細](docs/features/dag-execution.md) |
