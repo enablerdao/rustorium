@@ -7,6 +7,10 @@ use std::time::Duration;
 use dialoguer::{theme::ColorfulTheme, Select};
 use console::{Term, style};
 use indicatif::{ProgressBar, ProgressStyle};
+use structopt::StructOpt;
+
+mod dev;
+use dev::TestNodeManager;
 
 // コマンドラインオプションの定義
 #[derive(Debug, Clone)]
@@ -98,73 +102,45 @@ impl LocaleConfig {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(StructOpt, Debug)]
+#[structopt(name = "rustorium")]
 struct AppOptions {
+    /// API server port
+    #[structopt(long, env = "API_PORT")]
     api_port: Option<u16>,
+
+    /// Frontend server port
+    #[structopt(long, env = "FRONTEND_PORT")]
     frontend_port: Option<u16>,
+
+    /// Log level (debug, info, warn, error)
+    #[structopt(long, env = "LOG_LEVEL")]
     log_level: Option<String>,
+
+    /// CORS origin
+    #[structopt(long, env = "CORS_ORIGIN")]
     cors_origin: Option<String>,
+
+    /// Development mode: Start multiple test nodes
+    #[structopt(long)]
+    dev: bool,
+
+    /// Number of test nodes to start (in dev mode)
+    #[structopt(long, default_value = "10")]
+    nodes: u8,
+
+    /// Base port for test nodes (in dev mode)
+    #[structopt(long, default_value = "40000")]
+    base_port: u16,
+
+    /// Data directory for test nodes (in dev mode)
+    #[structopt(long, default_value = "/tmp/rustorium_test")]
+    data_dir: String,
 }
 
 impl AppOptions {
     fn new() -> Self {
-        Self {
-            api_port: None,
-            frontend_port: None,
-            log_level: None,
-            cors_origin: None,
-        }
-    }
-
-    fn parse_args() -> Self {
-        let args: Vec<String> = env::args().collect();
-        let mut options = Self::new();
-        let mut i = 1;
-        
-        while i < args.len() {
-            match args[i].as_str() {
-                "--api-port" => {
-                    i += 1;
-                    if i < args.len() {
-                        if let Ok(port) = args[i].parse() {
-                            options.api_port = Some(port);
-                        }
-                    }
-                }
-                "--frontend-port" => {
-                    i += 1;
-                    if i < args.len() {
-                        if let Ok(port) = args[i].parse() {
-                            options.frontend_port = Some(port);
-                        }
-                    }
-                }
-                "--log-level" => {
-                    i += 1;
-                    if i < args.len() {
-                        options.log_level = Some(args[i].clone());
-                    }
-                }
-                "--cors-origin" => {
-                    i += 1;
-                    if i < args.len() {
-                        options.cors_origin = Some(args[i].clone());
-                    }
-                }
-                "-h" | "--help" => {
-                    print_help();
-                    std::process::exit(0);
-                }
-                "-v" | "--version" => {
-                    println!("Rustorium v{}", env!("CARGO_PKG_VERSION"));
-                    std::process::exit(0);
-                }
-                _ => {}
-            }
-            i += 1;
-        }
-        
-        options
+        Self::from_args()
     }
 
     fn display_logo() {
@@ -287,7 +263,7 @@ fn print_help() {
 #[tokio::main]
 async fn main() -> Result<()> {
     // コマンドラインオプションの解析
-    let options = AppOptions::parse_args();
+    let options = AppOptions::new();
     
     // ロギングレベルの設定
     let log_level = match options.log_level.as_deref() {
@@ -303,7 +279,41 @@ async fn main() -> Result<()> {
         .with_max_level(log_level)
         .finish();
 
-    // ポート設定
+    tracing::subscriber::set_global_default(subscriber)
+        .expect("Failed to set tracing subscriber");
+
+    // 開発モードの場合はテストノードを起動
+    if options.dev {
+        println!("{}", style("\n🧪 Development Mode: Starting Test Nodes").yellow().bold());
+        println!("{}", style("⚠️  This mode is for development and testing only!").red());
+        println!();
+
+        let mut node_manager = TestNodeManager::new(options.base_port, options.data_dir.into());
+        
+        // テストノードを追加
+        for i in 1..=options.nodes {
+            node_manager.add_node(i)?;
+        }
+
+        // テストノードを起動
+        node_manager.start_nodes(options.nodes).await?;
+
+        // Ctrl+Cを待機
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        ctrlc::set_handler(move || {
+            let _ = tx.send(());
+        })?;
+
+        println!("\n{}", style("Press Ctrl+C to stop all nodes").cyan());
+        let _ = rx.await;
+        
+        println!("\n{}", style("Stopping all test nodes...").yellow());
+        node_manager.stop_nodes().await?;
+        println!("{}", style("✨ All test nodes stopped successfully!").green());
+        return Ok(());
+    }
+
+    // 通常モード: ポート設定
     let api_port = options.api_port.unwrap_or(53036);
     let frontend_port = options.frontend_port.unwrap_or(55938);
 
@@ -315,9 +325,6 @@ async fn main() -> Result<()> {
         api_url: format!("http://localhost:{}", api_port),
         frontend_url: format!("http://localhost:{}", frontend_port),
     };
-    
-    tracing::subscriber::set_global_default(subscriber)
-        .expect("Failed to set tracing subscriber");
 
     // プログレスバーのスタイルを設定
     let spinner_style = ProgressStyle::with_template("{spinner:.green} {msg}")
