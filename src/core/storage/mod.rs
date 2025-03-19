@@ -23,18 +23,24 @@ pub trait StorageEngine: Send + Sync {
 
     /// バッチ書き込み
     async fn batch_write_bytes(&self, cf: &str, pairs: Vec<(&[u8], &[u8])>) -> Result<()>;
+
+    /// スナップショットを作成
+    async fn create_snapshot(&self, path: &Path) -> Result<()>;
+
+    /// スナップショットから復元
+    async fn restore_from_snapshot(&self, path: &Path) -> Result<()>;
 }
 
 /// 型付きストレージ拡張
 #[async_trait]
 pub trait TypedStorage: StorageEngine {
     /// 型付きの値を保存
-    async fn put<K, V>(&self, cf: &str, key: K, value: V) -> Result<()>
+    async fn put<K, V>(&self, cf: &str, key: K, value: &V) -> Result<()>
     where
         K: AsRef<[u8]> + Send + Sync,
         V: Serialize + Send + Sync,
     {
-        let value_bytes = bincode::serialize(&value)?;
+        let value_bytes = bincode::serialize(value)?;
         self.put_bytes(cf, key.as_ref(), &value_bytes).await
     }
 
@@ -74,25 +80,25 @@ pub trait TypedStorage: StorageEngine {
     }
 
     /// 型付きのバッチ書き込み
-    async fn batch_write<K, V>(&self, cf: &str, pairs: Vec<(K, V)>) -> Result<()>
+    async fn batch_write<K, V>(&self, cf: &str, pairs: &[(K, V)]) -> Result<()>
     where
         K: AsRef<[u8]> + Send + Sync,
         V: Serialize + Send + Sync,
     {
         let mut bytes_pairs = Vec::with_capacity(pairs.len());
+        let mut value_bytes_vec = Vec::with_capacity(pairs.len());
+
         for (key, value) in pairs {
-            let value_bytes = bincode::serialize(&value)?;
-            bytes_pairs.push((key.as_ref(), value_bytes.as_slice()));
+            let value_bytes = bincode::serialize(value)?;
+            value_bytes_vec.push(value_bytes);
         }
-        self.batch_write_bytes(cf, bytes_pairs).await
+
+        for (i, (key, _)) in pairs.iter().enumerate() {
+            bytes_pairs.push((key.as_ref(), value_bytes_vec[i].as_slice()));
+        }
+
+        self.batch_write_bytes(cf, &bytes_pairs).await
     }
-}
-
-    /// スナップショットを作成
-    async fn create_snapshot(&self, path: &Path) -> Result<()>;
-
-    /// スナップショットから復元
-    async fn restore_from_snapshot(&self, path: &Path) -> Result<()>;
 }
 
 /// カラムファミリー名の定義

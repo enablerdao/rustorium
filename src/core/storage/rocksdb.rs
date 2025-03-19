@@ -109,7 +109,7 @@ impl StorageEngine for RocksDBStorage {
         Ok(results)
     }
 
-    async fn batch_write_bytes(&self, cf: &str, pairs: Vec<(&[u8], &[u8])>) -> Result<()> {
+    async fn batch_write_bytes(&self, cf: &str, pairs: &[(&[u8], &[u8])]) -> Result<()> {
         let cf_handle = self.db.cf_handle(cf).context("Column family not found")?;
         let mut batch = WriteBatch::default();
 
