@@ -33,7 +33,7 @@ pub trait StorageEngine: Send + Sync {
 
 /// 型付きストレージ拡張
 #[async_trait]
-pub trait TypedStorage: StorageEngine {
+pub trait TypedStorage: StorageEngine + Send + Sync {
     /// 型付きの値を保存
     async fn put<K, V>(&self, cf: &str, key: K, value: &V) -> Result<()>
     where
