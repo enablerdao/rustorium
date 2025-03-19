@@ -48,6 +48,10 @@ tokio = { version = "1.36.0", features = ["full"] }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 anyhow = "1.0.79"
+dialoguer = "0.11.0"
+console = "0.15.8"
+indicatif = "0.17.8"
+colored = "2.1.0"
 
 [[bin]]
 name = "rustorium"

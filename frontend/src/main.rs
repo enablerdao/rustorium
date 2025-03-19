@@ -42,14 +42,18 @@ async fn main() -> anyhow::Result<()> {
         .layer(cors);
     
     // サーバーの起動
-    let port = 55560;
+    // ポートを環境変数から取得するか、0を指定して空いているポートを使用
+    let port = std::env::var("FRONTEND_PORT").unwrap_or_else(|_| "0".to_string()).parse().unwrap_or(0);
     
     // 通常のバインド方法
-    let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    info!("Frontend server listening on {}", addr);
-    println!("Frontend server listening on {}", addr);
-    
+    let addr = SocketAddr::from(([127, 0, 0, 1], port));
     let listener = tokio::net::TcpListener::bind(addr).await?;
+    let actual_addr = listener.local_addr()?;
+    info!("Frontend server listening on {}", actual_addr);
+    println!("Frontend server listening on {}", actual_addr);
+    
+    // 実際のポート番号をファイルに書き込む
+    std::fs::write("/tmp/frontend_port", actual_addr.port().to_string())?;
     axum::serve(listener, app).await?;
     
     Ok(())

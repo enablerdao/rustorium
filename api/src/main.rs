@@ -16,7 +16,10 @@ use tracing_subscriber::FmtSubscriber;
 mod blockchain;
 mod contracts;
 use blockchain::{BlockchainState, Transaction};
-use contracts::{Contract, DeployContractRequest, CallContractRequest, CallContractResult};
+use contracts::{
+    Contract, DeployContractRequest, CallContractRequest, CallContractResult,
+    VerifyContractRequest, ContractEvent, ContractType, DebugInfo,
+};
 use uuid::Uuid;
 
 // トランザクション作成リクエスト
@@ -667,12 +670,17 @@ async fn main() -> anyhow::Result<()> {
         .with_state(app_state);
     
     // サーバーの起動
-    let port = 50128; // APIサーバーのポート
-    let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    info!("API server listening on {}", addr);
-    println!("API server listening on {}", addr);
-    
+    // ポートを環境変数から取得するか、0を指定して空いているポートを使用
+    let port = std::env::var("API_PORT").unwrap_or_else(|_| "0".to_string()).parse().unwrap_or(0);
+    let addr = SocketAddr::from(([127, 0, 0, 1], port));
     let listener = tokio::net::TcpListener::bind(addr).await?;
+    let actual_addr = listener.local_addr()?;
+    info!("API server listening on {}", actual_addr);
+    println!("API server listening on {}", actual_addr);
+    
+    // 実際のポート番号をファイルに書き込む
+    std::fs::write("/tmp/api_port", actual_addr.port().to_string())?;
+    
     axum::serve(listener, app).await?;
     
     Ok(())
