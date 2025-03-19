@@ -6,13 +6,21 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "rustorium")]
 pub struct AppOptions {
+    /// API server host
+    #[structopt(long, env = "API_HOST")]
+    pub api_host: Option<String>,
+
     /// API server port
     #[structopt(long, env = "API_PORT")]
     pub api_port: Option<u16>,
 
-    /// Frontend server port
-    #[structopt(long, env = "FRONTEND_PORT")]
-    pub frontend_port: Option<u16>,
+    /// WebSocket server port
+    #[structopt(long, env = "WS_PORT")]
+    pub ws_port: Option<u16>,
+
+    /// GraphQL server port
+    #[structopt(long, env = "GRAPHQL_PORT")]
+    pub graphql_port: Option<u16>,
 
     /// Log level (debug, info, warn, error)
     #[structopt(long, env = "LOG_LEVEL")]
@@ -21,6 +29,10 @@ pub struct AppOptions {
     /// CORS origin
     #[structopt(long, env = "CORS_ORIGIN")]
     pub cors_origin: Option<String>,
+
+    /// Rate limit (requests per minute)
+    #[structopt(long, env = "RATE_LIMIT")]
+    pub rate_limit: Option<u32>,
 
     /// Development mode: Start multiple test nodes
     #[structopt(long)]
@@ -34,29 +46,9 @@ pub struct AppOptions {
     #[structopt(long, default_value = "40000")]
     pub base_port: u16,
 
-    /// Data directory for test nodes (in dev mode)
-    #[structopt(long, default_value = "/tmp/rustorium_test")]
+    /// Data directory
+    #[structopt(long, default_value = "/tmp/rustorium")]
     pub data_dir: String,
-
-    /// Start API server only
-    #[structopt(long)]
-    pub api_only: bool,
-
-    /// Start frontend server only
-    #[structopt(long)]
-    pub frontend_only: bool,
-
-    /// Fast development mode (lower optimization)
-    #[structopt(long)]
-    pub fast: bool,
-
-    /// Release mode (higher optimization)
-    #[structopt(long)]
-    pub release: bool,
-
-    /// Run sustainable blockchain demo
-    #[structopt(long)]
-    pub sustainable_demo: bool,
 
     /// Node keypair file path
     #[structopt(long, env = "KEYPAIR_PATH")]
