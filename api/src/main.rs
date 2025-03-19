@@ -351,12 +351,15 @@ async fn deploy_contract(
     sender_account.nonce += 1;
     
     // レスポンスの作成
-    let response = serde_json::json!({
-        "address": contract_address,
-        "transaction_id": tx_id,
-        "gas_used": request.gas_limit,
-        "gas_cost": gas_cost
-    });
+    let response = format!(
+        r#"{{
+            "address": "{}",
+            "transaction_id": "{}",
+            "gas_used": {},
+            "gas_cost": {}
+        }}"#,
+        contract_address, tx_id, request.gas_limit, gas_cost
+    );
     
     (StatusCode::CREATED, Json(ApiResponse::success(response)))
 }
