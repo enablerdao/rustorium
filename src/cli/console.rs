@@ -1,15 +1,28 @@
+use std::sync::Arc;
 use anyhow::Result;
 use console::{style, Term};
 use dialoguer::{theme::ColorfulTheme, Select};
-use crate::i18n::LocaleConfig;
+use crate::{
+    core::{
+        dag::DAGManager,
+        avalanche::AvalancheEngine,
+        sharding::ShardManager,
+    },
+    i18n::LocaleConfig,
+    network::P2PNetwork,
+};
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct AppState {
     pub api_port: u16,
     pub frontend_port: u16,
     pub locale: LocaleConfig,
     pub api_url: String,
     pub frontend_url: String,
+    pub dag_manager: Arc<DAGManager>,
+    pub avalanche: Arc<AvalancheEngine>,
+    pub shard_manager: Arc<ShardManager>,
+    pub network: Arc<P2PNetwork>,
 }
 
 pub struct InteractiveConsole;
