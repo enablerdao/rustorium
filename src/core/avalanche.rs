@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use super::dag::{TxId, Transaction, TxStatus};
 
 /// 投票結果
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Vote {
     Accept,
     Reject,
@@ -124,7 +124,7 @@ impl AvalancheEngine {
     }
 
     /// ピアに投票をリクエスト
-    async fn query_peer(&self, peer_id: &str, tx: &Transaction) -> anyhow::Result<Vote> {
+    async fn query_peer(&mut self, peer_id: &str, tx: &Transaction) -> anyhow::Result<Vote> {
         use crate::network::{NetworkMessage, P2PNetwork};
         
         // ネットワークメッセージを作成

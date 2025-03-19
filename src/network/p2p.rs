@@ -18,6 +18,7 @@ use libp2p::{
 use tokio::sync::mpsc;
 use super::types::NetworkMessage;
 
+#[derive(Debug)]
 pub struct P2PNetwork {
     swarm: Swarm<NetworkBehaviour>,
     message_sender: mpsc::UnboundedSender<NetworkMessage>,

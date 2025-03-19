@@ -91,7 +91,10 @@ pub trait TypedStorage: StorageEngine {
         for (key, value) in pairs {
             let value_bytes = bincode::serialize(value)?;
             value_bytes_vec.push(value_bytes);
-            bytes_pairs.push((key.as_ref(), value_bytes_vec.last().unwrap().as_slice()));
+        }
+
+        for (i, (key, _)) in pairs.iter().enumerate() {
+            bytes_pairs.push((key.as_ref(), value_bytes_vec[i].as_slice()));
         }
 
         self.batch_write_bytes(cf, &bytes_pairs).await
