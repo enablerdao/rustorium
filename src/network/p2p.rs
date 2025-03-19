@@ -1,34 +1,28 @@
 use std::sync::Arc;
 use anyhow::Result;
+use futures::StreamExt;
 use libp2p::{
+    core::upgrade,
     identity::Keypair,
+    noise,
+    swarm::{NetworkBehaviour, SwarmEvent},
+    tcp::Config as TcpConfig,
+    yamux,
     PeerId,
-    Swarm,
-    swarm::SwarmBuilder,
-    core::transport::Transport,
-    tcp::TokioTcpConfig,
-    noise::{self, NoiseConfig, X25519Spec},
-    yamux::YamuxConfig,
-    gossipsub::{self, Gossipsub, GossipsubEvent, MessageAuthenticity, ValidationMode, GossipsubConfigBuilder},
+    Transport,
+    gossipsub::{self, Gossipsub, GossipsubEvent, MessageAuthenticity, ValidationMode},
     kad::{store::MemoryStore, Kademlia, KademliaEvent},
     mdns::{Mdns, MdnsEvent},
     ping::{Ping, PingEvent},
     Multiaddr,
-    NetworkBehaviour,
+    Swarm,
 };
 use tokio::sync::mpsc;
 use super::types::NetworkMessage;
 
-#[derive(Debug)]
-pub struct P2PNetwork {
-    swarm: Swarm<NetworkBehaviour>,
-    message_sender: mpsc::UnboundedSender<NetworkMessage>,
-    message_receiver: mpsc::UnboundedReceiver<NetworkMessage>,
-}
-
 #[derive(NetworkBehaviour)]
 #[behaviour(out_event = "NetworkEvent")]
-struct NetworkBehaviour {
+struct RustoriumBehaviour {
     gossipsub: Gossipsub,
     kademlia: Kademlia<MemoryStore>,
     mdns: Mdns,
@@ -43,24 +37,27 @@ enum NetworkEvent {
     Ping(PingEvent),
 }
 
+pub struct P2PNetwork {
+    swarm: Swarm<RustoriumBehaviour>,
+    message_sender: mpsc::UnboundedSender<NetworkMessage>,
+    message_receiver: mpsc::UnboundedReceiver<NetworkMessage>,
+}
+
 impl P2PNetwork {
     pub async fn new(keypair: Keypair) -> Result<Self> {
         let peer_id = PeerId::from(keypair.public());
         let (message_sender, message_receiver) = mpsc::unbounded_channel();
 
         // トランスポートの設定
-        let noise_keys = noise::Keypair::<X25519Spec>::new()
-            .into_authentic(&keypair)?;
-
-        let transport = TokioTcpConfig::new()
+        let transport = TcpConfig::default()
             .nodelay(true)
-            .upgrade(libp2p::core::upgrade::Version::V1)
-            .authenticate(NoiseConfig::xx(noise_keys).into_authenticated())
-            .multiplex(YamuxConfig::default())
+            .upgrade(upgrade::Version::V1)
+            .authenticate(noise::NoiseAuthenticated::xx(&keypair)?)
+            .multiplex(yamux::YamuxConfig::default())
             .boxed();
 
         // Gossipsubの設定
-        let gossipsub_config = GossipsubConfigBuilder::default()
+        let gossipsub_config = gossipsub::ConfigBuilder::default()
             .heartbeat_interval(std::time::Duration::from_secs(1))
             .validation_mode(ValidationMode::Strict)
             .build()
@@ -79,10 +76,10 @@ impl P2PNetwork {
         let mdns = Mdns::new(Default::default()).await?;
 
         // Pingの設定
-        let ping = Ping::new(Default::default());
+        let ping = Ping::default();
 
         // ネットワーク動作の設定
-        let behaviour = NetworkBehaviour {
+        let behaviour = RustoriumBehaviour {
             gossipsub,
             kademlia,
             mdns,
@@ -90,11 +87,7 @@ impl P2PNetwork {
         };
 
         // Swarmの構築
-        let swarm = SwarmBuilder::new(transport, behaviour, peer_id)
-            .executor(Box::new(|fut| {
-                tokio::spawn(fut);
-            }))
-            .build();
+        let swarm = Swarm::new(transport, behaviour, peer_id);
 
         Ok(Self {
             swarm,
@@ -111,18 +104,18 @@ impl P2PNetwork {
         tokio::spawn(async move {
             loop {
                 tokio::select! {
-                    event = self.swarm.select_next_some() => {
+                    event = self.swarm.next() => {
                         match event {
-                            NetworkEvent::Gossipsub(event) => {
+                            Some(SwarmEvent::Behaviour(NetworkEvent::Gossipsub(event))) => {
                                 // Gossipsubイベントの処理
                                 if let GossipsubEvent::Message { message, .. } = event {
                                     // メッセージの処理
                                 }
                             }
-                            NetworkEvent::Kademlia(event) => {
+                            Some(SwarmEvent::Behaviour(NetworkEvent::Kademlia(event))) => {
                                 // Kademliaイベントの処理
                             }
-                            NetworkEvent::Mdns(event) => {
+                            Some(SwarmEvent::Behaviour(NetworkEvent::Mdns(event))) => {
                                 // mDNSイベントの処理
                                 match event {
                                     MdnsEvent::Discovered(list) => {
@@ -137,16 +130,17 @@ impl P2PNetwork {
                                     }
                                 }
                             }
-                            NetworkEvent::Ping(_) => {
+                            Some(SwarmEvent::Behaviour(NetworkEvent::Ping(_))) => {
                                 // Pingイベントの処理
                             }
+                            _ => {}
                         }
                     }
                     msg = self.message_receiver.recv() => {
                         match msg {
                             Some(msg) => {
                                 // メッセージの送信
-                                let topic = gossipsub::IdentTopic::new("rustorium");
+                                let topic = gossipsub::Topic::new("rustorium");
                                 let data = bincode::serialize(&msg)?;
                                 self.swarm.behaviour_mut().gossipsub.publish(topic, data)?;
                             }
