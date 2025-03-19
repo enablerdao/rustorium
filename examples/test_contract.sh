@@ -25,8 +25,11 @@ DEPLOY_RESPONSE=$(curl -s -X POST $API_URL/contracts \
     \"gas_price\": 10
   }")
 
-echo "デプロイレスポンス: $(echo $DEPLOY_RESPONSE | jq .)"
-CONTRACT_ADDRESS=$(echo $DEPLOY_RESPONSE | jq -r '.data.address')
+echo "デプロイレスポンス: $DEPLOY_RESPONSE"
+# 文字列からJSONを抽出して解析
+RESPONSE_JSON=$(echo $DEPLOY_RESPONSE | jq -r '.data' | sed 's/\\n//g' | sed 's/\\//g')
+echo "整形したレスポンス: $RESPONSE_JSON"
+CONTRACT_ADDRESS=$(echo $RESPONSE_JSON | jq -r '.address')
 echo "デプロイされたコントラクトアドレス: $CONTRACT_ADDRESS"
 
 # 値の保存
