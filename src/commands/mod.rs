@@ -11,18 +11,21 @@ pub mod config;
 
 use async_trait::async_trait;
 use anyhow::Result;
-use serde::{Deserialize, Serialize};
 use clap::Parser;
+use std::sync::Arc;
+use tokio::sync::RwLock;
+use crate::core::storage::rocksdb::RocksDBStorage;
+use crate::network::P2PNetwork;
 
 #[async_trait]
 pub trait Command {
     async fn run(&self) -> Result<()>;
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct CommandContext {
-    pub config: crate::core::config::Config,
-    pub state: crate::core::state::AppState,
+    pub storage: Arc<RocksDBStorage>,
+    pub network: Arc<RwLock<P2PNetwork>>,
 }
 
 #[derive(Parser, Debug)]
