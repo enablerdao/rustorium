@@ -2,28 +2,42 @@ use clap::Parser;
 use anyhow::Result;
 
 #[derive(Parser, Debug, Clone)]
-pub struct TxCommands {
+pub struct TransactionCommands {
     #[clap(subcommand)]
-    command: TxSubCommands,
+    command: TransactionSubCommands,
 }
 
 #[derive(Parser, Debug, Clone)]
-pub enum TxSubCommands {
-    #[clap(name = "list", about = "List txs")]
+pub enum TransactionSubCommands {
+    #[clap(name = "send", about = "Send a transaction")]
+    Send {
+        #[clap(long)]
+        to: String,
+        #[clap(long)]
+        amount: u64,
+    },
+    #[clap(name = "list", about = "List transactions")]
     List,
-    #[clap(name = "show", about = "Show tx details")]
-    Show,
+    #[clap(name = "show", about = "Show transaction details")]
+    Show {
+        #[clap(long)]
+        id: String,
+    },
 }
 
-impl TxCommands {
+impl TransactionCommands {
     pub async fn run(&self) -> Result<()> {
         match &self.command {
-            TxSubCommands::List => {
-                println!("Listing txs...");
+            TransactionSubCommands::Send { to, amount } => {
+                println!("Sending {} to {}", amount, to);
                 Ok(())
             }
-            TxSubCommands::Show => {
-                println!("Showing tx details...");
+            TransactionSubCommands::List => {
+                println!("Listing transactions...");
+                Ok(())
+            }
+            TransactionSubCommands::Show { id } => {
+                println!("Showing transaction details for {}", id);
                 Ok(())
             }
         }
