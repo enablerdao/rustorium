@@ -26,7 +26,7 @@ DEPLOY_RESPONSE=$(curl -s -X POST $API_URL/contracts \
   }")
 
 echo "デプロイレスポンス: $(echo $DEPLOY_RESPONSE | jq .)"
-CONTRACT_ADDRESS=$(echo $DEPLOY_RESPONSE | jq -r '.data' | jq -r 'fromjson | .address')
+CONTRACT_ADDRESS=$(echo $DEPLOY_RESPONSE | jq -r '.data.address')
 echo "デプロイされたコントラクトアドレス: $CONTRACT_ADDRESS"
 
 # 値の保存
