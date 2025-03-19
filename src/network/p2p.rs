@@ -7,13 +7,14 @@ use libp2p::{
     swarm::SwarmBuilder,
     core::transport::Transport,
     tcp::TokioTcpConfig,
-    noise,
-    yamux,
-    gossipsub::{self, Gossipsub, GossipsubEvent, MessageAuthenticity, ValidationMode},
+    noise::{self, NoiseConfig, X25519Spec},
+    yamux::YamuxConfig,
+    gossipsub::{self, Gossipsub, GossipsubEvent, MessageAuthenticity, ValidationMode, GossipsubConfigBuilder},
     kad::{store::MemoryStore, Kademlia, KademliaEvent},
     mdns::{Mdns, MdnsEvent},
     ping::{Ping, PingEvent},
     Multiaddr,
+    NetworkBehaviour,
 };
 use tokio::sync::mpsc;
 use super::types::NetworkMessage;
@@ -25,7 +26,7 @@ pub struct P2PNetwork {
     message_receiver: mpsc::UnboundedReceiver<NetworkMessage>,
 }
 
-#[derive(libp2p::NetworkBehaviour)]
+#[derive(NetworkBehaviour)]
 #[behaviour(out_event = "NetworkEvent")]
 struct NetworkBehaviour {
     gossipsub: Gossipsub,
@@ -48,18 +49,18 @@ impl P2PNetwork {
         let (message_sender, message_receiver) = mpsc::unbounded_channel();
 
         // トランスポートの設定
-        let noise_keys = noise::Keypair::<noise::X25519Spec>::new()
+        let noise_keys = noise::Keypair::<X25519Spec>::new()
             .into_authentic(&keypair)?;
 
         let transport = TokioTcpConfig::new()
             .nodelay(true)
             .upgrade(libp2p::core::upgrade::Version::V1)
-            .authenticate(noise::NoiseConfig::xx(noise_keys).into_authenticated())
-            .multiplex(yamux::YamuxConfig::default())
+            .authenticate(NoiseConfig::xx(noise_keys).into_authenticated())
+            .multiplex(YamuxConfig::default())
             .boxed();
 
         // Gossipsubの設定
-        let gossipsub_config = gossipsub::GossipsubConfigBuilder::default()
+        let gossipsub_config = GossipsubConfigBuilder::default()
             .heartbeat_interval(std::time::Duration::from_secs(1))
             .validation_mode(ValidationMode::Strict)
             .build()
