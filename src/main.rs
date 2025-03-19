@@ -139,9 +139,34 @@ async fn main() -> Result<()> {
     
     tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
 
+    // ポート設定（標準的なポートを優先）
+    let api_preferred_ports = vec![8001, 3001, 5001, 8081, 9001, 50128];
+    let frontend_preferred_ports = vec![8000, 3000, 5000, 8080, 9000, 55560];
+    
+    // 使用可能なポートを見つける関数
+    let find_available_port = |preferred_ports: &[u16]| -> u16 {
+        for &port in preferred_ports {
+            // ポートが使用可能かチェック
+            match std::net::TcpListener::bind(format!("0.0.0.0:{}", port)) {
+                Ok(listener) => {
+                    // リスナーをドロップして、ポートを解放
+                    drop(listener);
+                    return port;
+                },
+                Err(_) => continue,
+            }
+        }
+        // すべてのポートが使用中の場合はランダムなポートを使用
+        let listener = std::net::TcpListener::bind("0.0.0.0:0").expect("Failed to bind to random port");
+        let addr = listener.local_addr().expect("Failed to get local address");
+        drop(listener);
+        addr.port()
+    };
+    
+    let api_port = find_available_port(&api_preferred_ports);
+    let frontend_port = find_available_port(&frontend_preferred_ports);
+    
     // 起動モードに応じたコマンドを構築
-    let api_port = 50128;
-    let frontend_port = 55560;
     
     let cargo_command = if options.release {
         "cargo run --release"
@@ -154,14 +179,18 @@ async fn main() -> Result<()> {
     // APIサーバーを起動（フロントエンドのみモードでない場合）
     if !options.frontend_only {
         info!("Starting API server...");
+        
+        // 環境変数でポートを設定
         let api_args = cargo_command.split_whitespace().collect::<Vec<&str>>();
-        let _api_process = Command::new(api_args[0])
-            .current_dir("api")
+        let mut api_cmd = Command::new(api_args[0]);
+        api_cmd.current_dir("api")
             .args(&api_args[1..])
             .args(["--bin", "api"])
+            .env("PORT", api_port.to_string())
             .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit())
-            .spawn()?;
+            .stderr(Stdio::inherit());
+            
+        let _api_process = api_cmd.spawn()?;
         
         info!("API server starting on port: {}", api_port);
         
@@ -173,13 +202,17 @@ async fn main() -> Result<()> {
     if !options.api_only {
         info!("Starting Frontend server...");
         let frontend_args = cargo_command.split_whitespace().collect::<Vec<&str>>();
-        let _frontend_process = Command::new(frontend_args[0])
-            .current_dir("frontend")
+        
+        // 環境変数でポートを設定
+        let mut frontend_cmd = Command::new(frontend_args[0]);
+        frontend_cmd.current_dir("frontend")
             .args(&frontend_args[1..])
             .args(["--bin", "frontend"])
+            .env("PORT", frontend_port.to_string())
             .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit())
-            .spawn()?;
+            .stderr(Stdio::inherit());
+            
+        let _frontend_process = frontend_cmd.spawn()?;
         
         info!("Frontend server starting on port: {}", frontend_port);
         
