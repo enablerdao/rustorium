@@ -1,6 +1,5 @@
 use axum::{
     http::StatusCode,
-    response::IntoResponse,
     routing::get_service,
     Router,
 };
@@ -43,12 +42,12 @@ async fn main() -> anyhow::Result<()> {
         .layer(cors);
     
     // サーバーの起動
-    let port = 57620;
+    let port = 55560;
     
     // 通常のバインド方法
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    info!("Web server listening on {}", addr);
-    println!("Web server listening on {}", addr);
+    info!("Frontend server listening on {}", addr);
+    println!("Frontend server listening on {}", addr);
     
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;

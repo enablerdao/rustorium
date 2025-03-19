@@ -14,7 +14,10 @@ use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
 mod blockchain;
+mod contracts;
 use blockchain::{BlockchainState, Transaction};
+use contracts::{Contract, DeployContractRequest, CallContractRequest, CallContractResult};
+use uuid::Uuid;
 
 // トランザクション作成リクエスト
 #[derive(Debug, Serialize, Deserialize)]
@@ -40,13 +43,13 @@ fn default_gas_limit() -> u64 {
 
 // APIレスポンス
 #[derive(Debug, Serialize, Deserialize)]
-struct ApiResponse<T> {
+struct ApiResponse<T: Serialize> {
     success: bool,
     data: Option<T>,
     error: Option<String>,
 }
 
-impl<T> ApiResponse<T> {
+impl<T: Serialize> ApiResponse<T> {
     fn success(data: T) -> Self {
         Self {
             success: true,
@@ -146,7 +149,7 @@ async fn create_transaction(
     State(state): State<Arc<Mutex<AppState>>>,
     Json(request): Json<CreateTransactionRequest>,
 ) -> impl IntoResponse {
-    let mut app_state = state.lock().unwrap();
+    let app_state = state.lock().unwrap();
     let mut blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
     let result = blockchain.add_transaction(
@@ -255,7 +258,7 @@ async fn list_accounts(
 async fn create_account(
     State(state): State<Arc<Mutex<AppState>>>,
 ) -> impl IntoResponse {
-    let mut app_state = state.lock().unwrap();
+    let app_state = state.lock().unwrap();
     let mut blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
     let account = blockchain.create_account();
@@ -273,6 +276,343 @@ async fn get_account_transactions(
     let transactions = blockchain.get_account_transactions(&address);
     
     (StatusCode::OK, Json(ApiResponse::success(transactions)))
+}
+
+// スマートコントラクト関連のハンドラー
+
+// コントラクト一覧の取得
+async fn list_contracts(
+    State(state): State<Arc<Mutex<AppState>>>,
+) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    let contracts = blockchain.contract_manager.get_all_contracts_cloned();
+    
+    (StatusCode::OK, Json(ApiResponse::success(contracts)))
+}
+
+// コントラクトのデプロイ
+async fn deploy_contract(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Json(request): Json<DeployContractRequest>,
+) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let mut blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    // 送信者アカウントの存在確認
+    if !blockchain.accounts.contains_key(&request.from) {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(ApiResponse::<String>::error("Sender account not found".to_string())),
+        );
+    }
+    
+    // ガス代の計算
+    let gas_cost = (request.gas_price * request.gas_limit) as f64 / 1_000_000.0;
+    
+    // 送信者の残高確認
+    let sender_account = blockchain.accounts.get(&request.from).unwrap();
+    if sender_account.balance < gas_cost {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(ApiResponse::<String>::error("Insufficient balance for gas".to_string())),
+        );
+    }
+    
+    // トランザクションの作成
+    let tx_id = format!("0x{}", hex::encode(Uuid::new_v4().as_bytes())[..32].to_string());
+    
+    // ブロックチェーンの長さを取得
+    let chain_len = blockchain.chain.len() as u64;
+    
+    // コントラクトのデプロイ
+    let contract_address = blockchain.contract_manager.deploy_special_contract(
+        &request,
+        tx_id.clone(),
+        Some(chain_len),
+    );
+    
+    // コントラクトアカウントの作成
+    let contract_account = blockchain::Account::new_contract(
+        contract_address.clone(),
+        request.bytecode.clone(),
+        request.abi.clone(),
+    );
+    
+    // アカウントの追加
+    blockchain.accounts.insert(contract_address.clone(), contract_account);
+    
+    // 送信者の残高を更新
+    let sender_account = blockchain.accounts.get_mut(&request.from).unwrap();
+    sender_account.balance -= gas_cost;
+    sender_account.nonce += 1;
+    
+    // レスポンスの作成
+    let response = format!(
+        r#"{{
+            "address": "{}",
+            "transaction_id": "{}",
+            "gas_used": {},
+            "gas_cost": {}
+        }}"#,
+        contract_address, tx_id, request.gas_limit, gas_cost
+    );
+    
+    (StatusCode::CREATED, Json(ApiResponse::success(response)))
+}
+
+// コントラクト情報の取得
+async fn get_contract(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Path(address): Path<String>,
+) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    // コントラクトの存在確認
+    match blockchain.contract_manager.get_contract(&address) {
+        Some(contract) => {
+            let contract_clone = contract.clone();
+            (StatusCode::OK, Json(ApiResponse::success(contract_clone)))
+        },
+        None => (
+            StatusCode::NOT_FOUND,
+            Json(ApiResponse::<Contract>::error(format!(
+                "Contract not found: {}",
+                address
+            ))),
+        ),
+    }
+}
+
+// コントラクトの呼び出し
+async fn call_contract(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Path(address): Path<String>,
+    Json(request): Json<CallContractRequest>,
+) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let mut blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    // 送信者アカウントの存在確認
+    if !blockchain.accounts.contains_key(&request.from) {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(ApiResponse::<CallContractResult>::error("Sender account not found".to_string())),
+        );
+    }
+    
+    // コントラクトの存在確認
+    if blockchain.contract_manager.get_contract(&address).is_none() {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(ApiResponse::<CallContractResult>::error(format!(
+                "Contract not found: {}",
+                address
+            ))),
+        );
+    }
+    
+    // ガス代の計算
+    let gas_cost = (request.gas_price * request.gas_limit) as f64 / 1_000_000.0;
+    
+    // 送信者の残高確認
+    let sender_account = blockchain.accounts.get(&request.from).unwrap();
+    if sender_account.balance < gas_cost + request.value {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(ApiResponse::<CallContractResult>::error("Insufficient balance".to_string())),
+        );
+    }
+    
+    // トランザクションの作成
+    let tx_id = format!("0x{}", hex::encode(Uuid::new_v4().as_bytes())[..32].to_string());
+    
+    // デバッグモードが有効かどうかを確認
+    let debug_mode = request.debug_mode.unwrap_or(false);
+    
+    // コントラクトの呼び出し（デバッグモードに応じて処理を分岐）
+    let (result, debug_info) = if debug_mode {
+        // デバッグモードでの呼び出し
+        match blockchain.contract_manager.call_contract_with_debug(
+            &address,
+            &request.method,
+            request.args.as_deref(),
+            &request.from,
+            &tx_id,
+        ) {
+            Ok((result, debug_info)) => (result, Some(debug_info)),
+            Err(err) => {
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(ApiResponse::<CallContractResult>::error(err)),
+                );
+            }
+        }
+    } else {
+        // 通常モードでの呼び出し
+        match blockchain.contract_manager.call_contract(
+            &address,
+            &request.method,
+            request.args.as_deref(),
+            &request.from,
+        ) {
+            Ok(result) => (result, None),
+            Err(err) => {
+                return (
+                    StatusCode::BAD_REQUEST,
+                    Json(ApiResponse::<CallContractResult>::error(err)),
+                );
+            }
+        }
+    };
+    
+    // 送信者の残高を更新
+    let sender_account = blockchain.accounts.get_mut(&request.from).unwrap();
+    sender_account.balance -= gas_cost + request.value;
+    sender_account.nonce += 1;
+    
+    // コントラクトアカウントの残高を更新（もし値が送信された場合）
+    if request.value > 0.0 {
+        let contract_account = blockchain.accounts.get_mut(&address).unwrap();
+        contract_account.balance += request.value;
+    }
+    
+    // コントラクトのイベントを取得
+    let events = if debug_mode {
+        Some(blockchain.contract_manager.get_contract_events(&address)
+            .into_iter()
+            .cloned()
+            .collect())
+    } else {
+        None
+    };
+    
+    // レスポンスの作成
+    let response = CallContractResult {
+        transaction_id: tx_id,
+        result: Some(result),
+        gas_used: request.gas_limit,
+        events,
+        debug_info,
+    };
+    
+    (StatusCode::OK, Json(ApiResponse::success(response)))
+}
+
+// コントラクト検証
+async fn verify_contract(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Path(address): Path<String>,
+    Json(request): Json<VerifyContractRequest>,
+) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let mut blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    // コントラクトの存在確認
+    if blockchain.contract_manager.get_contract(&address).is_none() {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(ApiResponse::<String>::error(format!(
+                "Contract not found: {}",
+                address
+            ))),
+        );
+    }
+    
+    // コントラクトの検証
+    match blockchain.contract_manager.verify_contract(
+        &address,
+        request.source_code,
+        &request.compiler_version,
+        request.optimization,
+    ) {
+        Ok(()) => (
+            StatusCode::OK,
+            Json(ApiResponse::success("Contract verified successfully".to_string())),
+        ),
+        Err(err) => (
+            StatusCode::BAD_REQUEST,
+            Json(ApiResponse::<String>::error(err)),
+        ),
+    }
+}
+
+// コントラクトイベントの取得
+async fn get_contract_events(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Path(address): Path<String>,
+) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    // コントラクトの存在確認
+    if blockchain.contract_manager.get_contract(&address).is_none() {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(ApiResponse::<Vec<ContractEvent>>::error(format!(
+                "Contract not found: {}",
+                address
+            ))),
+        );
+    }
+    
+    // コントラクトのイベントを取得
+    let events = blockchain.contract_manager.get_contract_events(&address)
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>();
+    
+    (StatusCode::OK, Json(ApiResponse::success(events)))
+}
+
+// トークンコントラクトの作成
+async fn create_token_contract(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Json(mut request): Json<DeployContractRequest>,
+) -> impl IntoResponse {
+    // コントラクトタイプをトークンに設定
+    request.contract_type = Some(ContractType::Token);
+    
+    // 通常のデプロイ処理を呼び出し
+    deploy_contract(State(state), Json(request)).await
+}
+
+// NFTコントラクトの作成
+async fn create_nft_contract(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Json(mut request): Json<DeployContractRequest>,
+) -> impl IntoResponse {
+    // コントラクトタイプをNFTに設定
+    request.contract_type = Some(ContractType::NFT);
+    
+    // 通常のデプロイ処理を呼び出し
+    deploy_contract(State(state), Json(request)).await
+}
+
+// デバッグ情報の取得
+async fn get_debug_info(
+    State(state): State<Arc<Mutex<AppState>>>,
+    Path(tx_id): Path<String>,
+) -> impl IntoResponse {
+    let app_state = state.lock().unwrap();
+    let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
+    
+    // デバッグ情報の取得
+    match blockchain.contract_manager.get_debug_info(&tx_id) {
+        Some(debug_info) => (
+            StatusCode::OK,
+            Json(ApiResponse::success(debug_info.clone())),
+        ),
+        None => (
+            StatusCode::NOT_FOUND,
+            Json(ApiResponse::<DebugInfo>::error(format!(
+                "Debug info not found for transaction: {}",
+                tx_id
+            ))),
+        ),
+    }
 }
 
 #[tokio::main]
@@ -312,12 +652,22 @@ async fn main() -> anyhow::Result<()> {
         .route("/accounts/:address", get(get_account))
         .route("/accounts/:address/transactions", get(get_account_transactions))
         .route("/network/status", get(get_status))
+        // スマートコントラクト関連のエンドポイント
+        .route("/contracts", get(list_contracts))
+        .route("/contracts", post(deploy_contract))
+        .route("/contracts/:address", get(get_contract))
+        .route("/contracts/:address/call", post(call_contract))
+        .route("/contracts/:address/verify", post(verify_contract))
+        .route("/contracts/:address/events", get(get_contract_events))
+        .route("/contracts/token/create", post(create_token_contract))
+        .route("/contracts/nft/create", post(create_nft_contract))
+        .route("/debug/transactions/:tx_id", get(get_debug_info))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(app_state);
     
     // サーバーの起動
-    let port = 51055; // APIサーバーのポート
+    let port = 50128; // APIサーバーのポート
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     info!("API server listening on {}", addr);
     println!("API server listening on {}", addr);

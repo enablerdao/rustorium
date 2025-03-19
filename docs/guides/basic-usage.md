@@ -9,23 +9,23 @@
 Rustoriumのすべてのコンポーネントを一度に起動するには、以下のコマンドを実行します：
 
 ```bash
-./run_all.sh
+cargo run
 ```
 
 これにより、以下のサービスが起動します：
-- APIサーバー（デフォルトポート: 51055）
-- WebUI（デフォルトポート: 57620）
+- APIサーバー（デフォルトポート: 50128）
+- フロントエンド（デフォルトポート: 55560）
 
 ### システムの停止
 
 実行中のRustoriumを停止するには、ターミナルで`Ctrl+C`を押します。
 
-## WebUIの使用
+## フロントエンドの使用
 
-WebUIにアクセスするには、ブラウザで以下のURLを開きます：
+フロントエンドにアクセスするには、ブラウザで以下のURLを開きます：
 
 ```
-http://localhost:57620
+http://localhost:55560
 ```
 
 ### ダッシュボード
@@ -123,7 +123,7 @@ Rustoriumは、外部アプリケーションとの連携のためのRESTful API
 APIサーバーのベースURLは以下の通りです：
 
 ```
-http://localhost:51055/api
+http://localhost:50128
 ```
 
 ### 主要APIエンドポイント
@@ -131,31 +131,29 @@ http://localhost:51055/api
 #### ブロック情報の取得
 
 ```
-GET /api/blocks/latest
-GET /api/blocks/{block_number}
-GET /api/blocks/{block_hash}
+GET /blocks
+GET /blocks/{block_id}
 ```
 
 #### トランザクション情報の取得
 
 ```
-GET /api/transactions/{tx_id}
-GET /api/transactions/pending
-GET /api/blocks/{block_number}/transactions
+GET /transactions
+GET /transactions/{tx_id}
 ```
 
 #### アカウント情報の取得
 
 ```
-GET /api/accounts/{address}
-GET /api/accounts/{address}/balance
-GET /api/accounts/{address}/transactions
+GET /accounts
+GET /accounts/{address}
+GET /accounts/{address}/transactions
 ```
 
 #### トランザクションの送信
 
 ```
-POST /api/transactions
+POST /transactions
 ```
 
 リクエスト例：
@@ -171,24 +169,18 @@ POST /api/transactions
 }
 ```
 
-#### スマートコントラクトのデプロイ
-
-```
-POST /api/contracts
-```
-
-#### スマートコントラクトの呼び出し
-
-```
-POST /api/contracts/{address}/call
-```
-
 #### ネットワーク情報の取得
 
 ```
-GET /api/network/status
-GET /api/network/peers
-GET /api/network/shards
+GET /network/status
+```
+
+#### スマートコントラクト関連（開発中）
+
+```
+POST /contracts
+POST /contracts/{address}/call
+GET /contracts/{address}
 ```
 
 ## コマンドラインインターフェース

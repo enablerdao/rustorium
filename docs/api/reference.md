@@ -539,22 +539,47 @@ GET /api/ai/predictions
 
 ### 現在実装されているAPI
 
-- ✅ `GET /api/blocks/latest`
-- ✅ `GET /api/network/status`
+#### ブロック関連
+- ✅ `GET /blocks` - ブロック一覧の取得
+- ✅ `GET /blocks/{block_id}` - 特定のブロック情報の取得
+
+#### トランザクション関連
+- ✅ `GET /transactions` - トランザクション一覧の取得
+- ✅ `GET /transactions/{tx_id}` - 特定のトランザクション情報の取得
+- ✅ `POST /transactions` - 新規トランザクションの送信
+
+#### アカウント関連
+- ✅ `GET /accounts` - アカウント一覧の取得
+- ✅ `GET /accounts/{address}` - 特定のアカウント情報の取得
+- ✅ `GET /accounts/{address}/transactions` - アカウントのトランザクション履歴取得
+
+#### ネットワーク関連
+- ✅ `GET /network/status` - ネットワークステータスの取得
 
 ### 開発中のAPI
 
-- 🔄 `GET /api/blocks`
-- 🔄 `GET /api/blocks/{block_number}`
-- 🔄 `GET /api/transactions/{tx_id}`
-- 🔄 `POST /api/transactions`
+- 🔄 `POST /accounts` - 新規アカウントの作成
+- 🔄 `GET /blocks/by-hash/{block_hash}` - ハッシュによるブロック取得
+- 🔄 `GET /blocks/{block_number}/transactions` - ブロック内のトランザクション取得
+- 🔄 `GET /transactions/pending` - 保留中のトランザクション取得
 
 ### 今後実装予定のAPI
 
-- ⏳ `GET /api/accounts/{address}`
-- ⏳ `GET /api/accounts/{address}/transactions`
-- ⏳ `POST /api/contracts`
-- ⏳ `GET /api/network/peers`
-- ⏳ `GET /api/network/shards`
-- ⏳ `GET /api/ai/anomalies`
-- ⏳ `GET /api/ai/predictions`
+#### スマートコントラクト関連
+- ✅ `POST /contracts` - コントラクトのデプロイ
+- ✅ `POST /contracts/{address}/call` - コントラクトの呼び出し
+- ✅ `GET /contracts/{address}` - コントラクト情報の取得
+- ✅ `GET /contracts` - コントラクト一覧の取得
+
+#### 拡張ネットワーク関連
+- ⏳ `GET /network/peers` - ピア情報の取得
+- ⏳ `GET /network/shards` - シャード情報の取得
+
+#### AI分析関連
+- ⏳ `GET /ai/anomalies` - 異常検出結果の取得
+- ⏳ `GET /ai/predictions` - ネットワーク予測の取得
+
+#### トークン関連
+- ⏳ `POST /tokens` - 新規トークンの作成
+- ⏳ `GET /tokens/{token_id}` - トークン情報の取得
+- ⏳ `GET /accounts/{address}/tokens` - アカウントのトークン残高取得
