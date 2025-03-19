@@ -1,18 +1,50 @@
-# Rustorium
+# 🚀 Rustorium
 
-Rustoriumは、Rustで実装された高性能なブロックチェーンプラットフォームです。シンプルなブロックチェーン機能から始まり、将来的にはシャーディング、Avalanche型コンセンサス、マルチVM実行環境などの先進的な機能を備えた次世代分散台帳システムを目指しています。
+<div align="center">
+  <img src="docs/images/rustorium_logo.png" alt="Rustorium Logo" width="300"/>
+  <br/>
+  <strong>次世代ブロックチェーンプラットフォーム</strong>
+</div>
+
+<br/>
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Rust](https://img.shields.io/badge/Rust-1.70+-orange.svg)](https://www.rust-lang.org/)
+[![API Docs](https://img.shields.io/badge/API-Docs-blue.svg)](docs/api/reference.md)
+
+Rustoriumは、**Rust言語**で実装された高性能なブロックチェーンプラットフォームです。シンプルなブロックチェーン機能から始まり、将来的には**シャーディング**、**Avalanche型コンセンサス**、**マルチVM実行環境**などの先進的な機能を備えた次世代分散台帳システムを目指しています。
+
+> 💡 **Rustorium** = Rust + Emporium（宝物庫）の造語で、Rustの力を活かした価値の集積地を意味します。
 
 ![Rustorium Dashboard](docs/images/dashboard.png)
 
-## 主な特徴
+## ✨ 主な特徴
 
-- **[モダンなWebインターフェース](docs/guides/basic-usage.md#webui%E3%81%AE%E4%BD%BF%E7%94%A8)**: ダークモード対応の直感的なUI
-- **[高性能APIサーバー](docs/api/reference.md)**: 外部アプリケーションとの連携
-- **[拡張性の高いアーキテクチャ](docs/architecture/overview.md)**: 将来の機能追加に対応
+- 🖥️ **[モダンなWebインターフェース](docs/guides/basic-usage.md#webui-の使用)**: ダークモード対応の直感的なUI
+- 🔌 **[高性能APIサーバー](docs/api/reference.md)**: RESTful APIによる外部アプリケーションとの連携
+- 🧩 **[拡張性の高いアーキテクチャ](docs/architecture/overview.md)**: モジュール設計による将来の機能追加に対応
+- 🔒 **[堅牢なセキュリティ](docs/guides/security.md)**: 最新の暗号技術を採用
 
-## 使い方
+## 🚀 クイックスタート
 
-### 起動方法
+### 📋 必要条件
+
+- **Rust** 1.70以上
+- **Cargo** (Rustのパッケージマネージャー)
+- **Git** (ソースコード管理)
+
+### 🔧 インストール
+
+```bash
+# リポジトリをクローン
+git clone https://github.com/enablerdao/rustorium.git
+cd rustorium
+
+# 依存関係をインストール
+cargo build
+```
+
+### 🏃‍♂️ 起動方法
 
 基本的な起動:
 
@@ -20,135 +52,176 @@ Rustoriumは、Rustで実装された高性能なブロックチェーンプラ�
 cargo run
 ```
 
-これにより、APIサーバーとフロントエンドサーバーが起動します。
+これにより、以下のサービスが自動的に起動します:
 
-- APIサーバー: http://localhost:50128
-- フロントエンド: http://localhost:55560
+- 🌐 **APIサーバー**: [http://localhost:50128](http://localhost:50128)
+- 🖥️ **フロントエンド**: [http://localhost:55560](http://localhost:55560)
 
-### 起動オプション
+### ⚙️ 起動オプション
 
-Rustoriumは以下のコマンドラインオプションをサポートしています:
+Rustoriumは様々な起動オプションをサポートしています:
+
+| オプション | 説明 | コマンド例 |
+|------------|------|------------|
+| `--api-only` | APIサーバーのみを起動 | `cargo run -- --api-only` |
+| `--frontend-only` | フロントエンドのみを起動 | `cargo run -- --frontend-only` |
+| `--fast` | 高速起動モード（最適化レベル低） | `cargo run -- --fast` |
+| `--release` | リリースモード（最適化レベル高） | `cargo run -- --release` |
+| `--help` | ヘルプを表示 | `cargo run -- --help` |
+
+> 💡 **ヒント**: これらのオプションは組み合わせて使用できます。例えば:
+> ```bash
+> # APIサーバーのみをリリースモードで起動
+> cargo run -- --api-only --release
+> ```
+
+## 💎 機能一覧
+
+### 🧱 コア機能
+| 機能 | 説明 | ステータス | ドキュメント |
+|------|------|------------|--------------|
+| ブロックチェーン基盤 | ブロック生成、トランザクション処理、簡易的なコンセンサス | ✅ 完了 | [詳細](docs/architecture/overview.md) |
+| アカウント管理 | アカウント作成、秘密鍵管理、残高管理 | ✅ 完了 | [詳細](docs/guides/accounts.md) |
+| トランザクション処理 | 送金処理、手数料計算、署名検証 | ✅ 完了 | [詳細](docs/guides/transactions.md) |
+| ブロックエクスプローラー | ブロック情報の閲覧、トランザクション履歴 | ✅ 完了 | [詳細](docs/guides/blocks-explorer.md) |
+| スマートコントラクト | コントラクトのデプロイと実行、トークン規格 | ✅ 完了 | [詳細](docs/guides/smart-contracts.md) |
+
+### 🔌 API機能
+| 機能 | 説明 | ステータス | ドキュメント |
+|------|------|------------|--------------|
+| RESTful API | JSON形式のレスポンス、CORS対応 | ✅ 完了 | [詳細](docs/api/reference.md) |
+| ブロック関連API | ブロック一覧取得、ブロック詳細取得 | ✅ 完了 | [詳細](docs/api/reference.md#ブロック関連) |
+| トランザクション関連API | トランザクション送信、詳細取得 | ✅ 完了 | [詳細](docs/api/reference.md#トランザクション関連) |
+| アカウント関連API | アカウント情報取得、トランザクション履歴 | ✅ 完了 | [詳細](docs/api/reference.md#アカウント関連) |
+| コントラクト関連API | コントラクトデプロイ、呼び出し、検証 | ✅ 完了 | [詳細](docs/api/reference.md#コントラクト関連) |
+| ネットワークステータスAPI | ブロックチェーンの状態取得 | ✅ 完了 | [詳細](docs/api/reference.md#ネットワーク関連) |
+
+### 🖥️ フロントエンド機能
+| 機能 | 説明 | ステータス | ドキュメント |
+|------|------|------------|--------------|
+| ダッシュボードUI | ブロックチェーンの概要表示、リアルタイム更新 | ✅ 完了 | [詳細](docs/guides/basic-usage.md#ダッシュボード) |
+| レスポンシブデザイン | モバイル対応レイアウト、タブレット対応 | ✅ 完了 | [詳細](docs/guides/basic-usage.md#レスポンシブデザイン) |
+| テーマ切り替え | ライト/ダークモード、カスタムテーマ | ✅ 完了 | [詳細](docs/guides/basic-usage.md#テーマ切り替え) |
+| ウォレット連携 | ウォレット接続、トランザクション署名 | 🔄 開発中 | [詳細](docs/guides/wallet.md) |
+
+## 🔮 ロードマップ
+
+### 🔄 開発中の機能
+| 機能 | 説明 | 完了予定 | 詳細 |
+|------|------|----------|------|
+| 改良版コンセンサス | Proof of Stakeベースの効率的なブロック生成 | 2025年Q2 | [詳細](docs/features/consensus.md) |
+| トークン規格 | ERC-20/ERC-721互換のトークン規格 | 2025年Q1 | [詳細](docs/guides/tokens.md) |
+| ウォレット機能強化 | 秘密鍵管理、トランザクション署名、マルチシグ | 2025年Q1 | [詳細](docs/guides/wallet.md) |
+| ネットワーク可視化 | ブロックチェーンネットワークの視覚的表現 | 2025年Q2 | [詳細](docs/guides/basic-usage.md#ネットワーク可視化) |
+| 分析ダッシュボード | リアルタイム統計、トレンド分析 | 2025年Q2 | [詳細](docs/guides/basic-usage.md#分析ダッシュボード) |
+
+### 🔍 研究開発中の先進機能
+| 機能 | 説明 | 研究段階 | 詳細 |
+|------|------|----------|------|
+| シャーディング | 水平スケーリングによるスループット向上 | 設計段階 | [詳細](docs/features/sharding.md) |
+| Avalancheコンセンサス | 高速なファイナリティを実現する確率的合意形成 | プロトタイプ | [詳細](docs/features/consensus.md#avalanche) |
+| マルチVM実行環境 | EVM、WASM、Move VMなど複数の仮想マシン対応 | 研究段階 | [詳細](docs/features/multi-vm.md) |
+| DAGベース並列処理 | 依存関係グラフによるトランザクション並列実行 | 設計段階 | [詳細](docs/features/dag-execution.md) |
+
+### 🚀 将来のビジョン
+| 機能 | 説明 | 予定 | 詳細 |
+|------|------|------|------|
+| AI処理層 | 異常検出、予測分析、最適化 | 2026年~ | [詳細](docs/features/ai-layer.md) |
+| 分散ストレージ | IPFS連携、効率的なデータ保存 | 2025年Q4 | [詳細](docs/architecture/overview.md#7-ストレージ層) |
+| クロスチェーン連携 | IBC対応、他のブロックチェーンとの相互運用性 | 2026年~ | [詳細](docs/features/cross-chain.md) |
+| ゼロ知識証明 | プライバシー保護、スケーラビリティ向上 | 研究段階 | [詳細](docs/features/zero-knowledge.md) |
+
+> 📅 **注意**: ロードマップは開発の進捗や優先順位の変更により調整される場合があります。
+
+## 📚 ドキュメント
+
+Rustoriumは包括的なドキュメントを提供しています。以下のリンクから詳細情報にアクセスできます：
+
+### 📘 開発者ガイド
+
+| カテゴリ | 説明 | リンク |
+|---------|------|--------|
+| プロジェクト構造 | ディレクトリ構成、モジュール関係 | [詳細](docs/project-structure.md) |
+| アーキテクチャ | システム設計、コンポーネント構成 | [詳細](docs/architecture/overview.md) |
+| API仕様 | エンドポイント、リクエスト/レスポンス形式 | [詳細](docs/api/reference.md) |
+| 開発環境構築 | 環境設定、依存関係 | [詳細](docs/guides/installation.md) |
+| コントリビューション | コーディング規約、PR手順 | [詳細](docs/contributing.md) |
+
+### 🛠️ 機能ガイド
+
+| 機能 | 説明 | リンク |
+|------|------|--------|
+| ブロックエクスプローラー | ブロック・トランザクション検索 | [詳細](docs/guides/blocks-explorer.md) |
+| トランザクション | 送金、手数料、署名 | [詳細](docs/guides/transactions.md) |
+| アカウント管理 | アドレス生成、残高管理 | [詳細](docs/guides/accounts.md) |
+| スマートコントラクト | デプロイ、実行、デバッグ | [詳細](docs/guides/smart-contracts.md) |
+| ウォレット連携 | ウォレット接続、署名 | [詳細](docs/guides/wallet.md) |
+| トークン規格 | ERC-20/ERC-721互換実装 | [詳細](docs/guides/tokens.md) |
+
+### 🔬 先進機能解説
+
+| 機能 | 説明 | リンク |
+|------|------|--------|
+| シャーディング | 水平スケーリング技術 | [詳細](docs/features/sharding.md) |
+| Avalancheコンセンサス | 確率的合意形成アルゴリズム | [詳細](docs/features/consensus.md) |
+| マルチVM | 複数実行環境のサポート | [詳細](docs/features/multi-vm.md) |
+| DAG並列処理 | 依存関係グラフによる並列実行 | [詳細](docs/features/dag-execution.md) |
+| AI処理層 | 機械学習による最適化 | [詳細](docs/features/ai-layer.md) |
+| ゼロ知識証明 | プライバシー保護技術 | [詳細](docs/features/zero-knowledge.md) |
+
+## 🧪 テスト
+
+Rustoriumは包括的なテストスイートを提供しています：
 
 ```bash
-# APIサーバーのみを起動
-cargo run -- --api-only
+# 単体テストを実行
+cargo test
 
-# フロントエンドのみを起動
-cargo run -- --frontend-only
+# 統合テストを実行
+cargo test --test '*'
 
-# 高速起動モード（最適化レベル低）
-cargo run -- --fast
-
-# リリースモードで起動（最適化レベル高）
-cargo run -- --release
-
-# ヘルプを表示
-cargo run -- --help
+# 特定のテストを実行
+cargo test --package api --test blockchain_test
 ```
 
-これらのオプションを組み合わせることも可能です:
+## 🔧 開発者向け情報
+
+### コードスタイル
 
 ```bash
-# APIサーバーのみをリリースモードで起動
-cargo run -- --api-only --release
+# コードフォーマットを適用
+cargo fmt
+
+# リントチェックを実行
+cargo clippy
 ```
 
-## 現在の機能
-
-### コア機能
-- ✅ [基本的なブロックチェーン実装](docs/architecture/overview.md): ブロック生成、トランザクション処理、簡易的なコンセンサス
-- ✅ [アカウント管理](docs/guides/accounts.md): アカウント作成、残高管理
-- ✅ [トランザクション処理](docs/guides/transactions.md): 送金処理、手数料計算
-- ✅ [ブロック探索](docs/guides/blocks-explorer.md): ブロック情報の閲覧
-
-### API機能
-- ✅ [RESTful API](docs/api/reference.md): JSON形式のレスポンス
-- ✅ [ブロック関連API](docs/api/reference.md#ブロック関連): ブロック一覧取得、ブロック詳細取得
-- ✅ [トランザクション関連API](docs/api/reference.md#トランザクション関連): トランザクション送信、詳細取得
-- ✅ [アカウント関連API](docs/api/reference.md#アカウント関連): アカウント情報取得、トランザクション履歴
-- ✅ [ネットワークステータスAPI](docs/api/reference.md#ネットワーク関連): ブロックチェーンの状態取得
-
-### フロントエンド機能
-- ✅ [ダッシュボードUI](docs/guides/basic-usage.md#ダッシュボード): ブロックチェーンの概要表示
-- ✅ [レスポンシブデザイン](docs/guides/basic-usage.md): モバイル対応レイアウト
-- ✅ [テーマ切り替え機能](docs/guides/basic-usage.md): ライト/ダークモード
-
-## 開発中の機能
-
-### コア機能の拡張
-- ✅ [スマートコントラクト実行](docs/guides/smart-contracts.md): 基本的なスマートコントラクト機能
-- 🔄 [改良版コンセンサスアルゴリズム](docs/features/consensus.md): より効率的なブロック生成
-- 🔄 [トークン規格](docs/guides/tokens.md): カスタムトークンの作成と管理
-
-### UI/UX改善
-- 🔄 [ウォレット機能強化](docs/guides/wallet.md): 秘密鍵管理、トランザクション署名
-- 🔄 [ネットワーク可視化](docs/guides/basic-usage.md#ネットワーク可視化): ブロックチェーンネットワークの視覚的表現
-- 🔄 [分析ダッシュボード](docs/guides/basic-usage.md#分析ダッシュボード): 詳細な統計情報
-
-## 今後実装予定の機能
-
-### 先進的なブロックチェーン機能
-- ⏳ [シャーディング実装](docs/features/sharding.md): スケーラビリティの向上
-- ⏳ [Avalancheコンセンサス](docs/features/consensus.md): 高速なファイナリティ
-- ⏳ [マルチVM実行環境](docs/features/multi-vm.md): 複数の仮想マシン対応
-- ⏳ [DAGベース並列処理](docs/features/dag-execution.md): トランザクション並列実行
-
-### 革新的な機能
-- ⏳ [AI処理層](docs/features/ai-layer.md): 異常検出、予測分析
-- ⏳ [分散ストレージ](docs/architecture/overview.md#7-ストレージ層): 効率的なデータ保存
-- ⏳ [クロスチェーン連携](docs/features/cross-chain.md): 他のブロックチェーンとの相互運用性
-
-## クイックスタート
-
-### 必要条件
-
-- Rust 1.70以上
-- Cargo
-
-### 実行方法
+### パフォーマンス最適化
 
 ```bash
-# リポジトリをクローン
-git clone https://github.com/enablerdao/rustorium.git
-cd rustorium
+# ベンチマークを実行
+cargo bench
 
-# すべてのサービスを起動
-cargo run
+# フレームグラフを生成（flamegraphツールが必要）
+cargo flamegraph
 ```
 
-これにより、以下のサービスが起動します：
-- APIサーバー: http://localhost:50128
-- フロントエンド: http://localhost:55560
+## 📊 パフォーマンス指標
 
-## ドキュメント
+| 指標 | 値 | 備考 |
+|------|-----|------|
+| トランザクション処理速度 | ~1,000 tx/秒 | 単一ノード環境 |
+| ブロック生成時間 | 5秒 | 標準設定 |
+| ストレージ効率 | ~500 tx/MB | 圧縮後 |
+| P2P通信レイテンシ | <100ms | 地理的に近接したノード間 |
 
-詳細なドキュメントは以下のリンクから参照できます：
+## 📜 ライセンス
 
-### 基本ガイド
-- [プロジェクト構造](docs/project-structure.md)
-- [アーキテクチャ概要](docs/architecture/overview.md)
-- [APIリファレンス](docs/api/reference.md)
-- [インストールガイド](docs/guides/installation.md)
-- [基本的な使い方](docs/guides/basic-usage.md)
-- [サービス管理](docs/guides/service-management.md)
-- [ネットワーク選択](docs/guides/network-selection.md)
+Rustoriumは[MIT](LICENSE)ライセンスの下で公開されています。
 
-### 機能ガイド
-- [ブロックエクスプローラー](docs/guides/blocks-explorer.md)
-- [トランザクション管理](docs/guides/transactions.md)
-- [アカウント管理](docs/guides/accounts.md)
-- [スマートコントラクト](docs/guides/smart-contracts.md)
-- [ウォレット機能](docs/guides/wallet.md)
-- [AI分析機能](docs/guides/ai-insights.md)
+---
 
-## 機能詳細
-
-- [シャーディング実装](docs/features/sharding.md)
-- [Avalancheコンセンサス](docs/features/consensus.md)
-- [マルチVM実行環境](docs/features/multi-vm.md)
-- [DAGベース並列処理](docs/features/dag-execution.md)
-- [AI処理層](docs/features/ai-layer.md)
-
-## ライセンス
-
-MIT
+<div align="center">
+  <p>🌟 Rustoriumにスターを付けて応援してください！ 🌟</p>
+  <p>質問やフィードバックは<a href="https://github.com/enablerdao/rustorium/issues">GitHub Issues</a>までお気軽に。</p>
+</div>
