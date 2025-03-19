@@ -200,8 +200,8 @@ async fn main() -> Result<()> {
     info!("");
     info!("Press Ctrl+C to stop all services");
     
-    // 持続可能なブロックチェーン機能のデモを実行
-    if options.sustainable_demo {
+    // 持続可能なブロックチェーン機能のデモを実行する関数
+    let run_sustainable_demo = || {
         info!("Running sustainable blockchain demo...");
         
         // 持続可能なブロックチェーンマネージャーを初期化
@@ -233,10 +233,19 @@ async fn main() -> Result<()> {
         info!("最後のスケーリング: {}", scaling_status.last_scaling);
         info!("次のスケーリング予定: {}", scaling_status.next_scaling);
         
-        info!("持続可能なブロックチェーン機能のデモを終了します");
+        info!("持続可能なブロックチェーン機能のデモを終了しました");
+    };
+    
+    if options.sustainable_demo {
+        run_sustainable_demo();
         return Ok(());
     }
 
+    // 持続可能なブロックチェーン機能のデモを自動実行
+    info!("");
+    info!("=== 持続可能なブロックチェーン機能のデモを自動実行 ===");
+    run_sustainable_demo();
+    
     // 終了シグナルを待機
     let running = Arc::new(AtomicBool::new(true));
     let r = running.clone();
