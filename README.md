@@ -10,6 +10,49 @@ Rustoriumは、Rustで実装された高性能なブロックチェーンプラ�
 - **[高性能APIサーバー](docs/api/reference.md)**: 外部アプリケーションとの連携
 - **[拡張性の高いアーキテクチャ](docs/architecture/overview.md)**: 将来の機能追加に対応
 
+## 使い方
+
+### 起動方法
+
+基本的な起動:
+
+```bash
+cargo run
+```
+
+これにより、APIサーバーとフロントエンドサーバーが起動します。
+
+- APIサーバー: http://localhost:50128
+- フロントエンド: http://localhost:55560
+
+### 起動オプション
+
+Rustoriumは以下のコマンドラインオプションをサポートしています:
+
+```bash
+# APIサーバーのみを起動
+cargo run -- --api-only
+
+# フロントエンドのみを起動
+cargo run -- --frontend-only
+
+# 高速起動モード（最適化レベル低）
+cargo run -- --fast
+
+# リリースモードで起動（最適化レベル高）
+cargo run -- --release
+
+# ヘルプを表示
+cargo run -- --help
+```
+
+これらのオプションを組み合わせることも可能です:
+
+```bash
+# APIサーバーのみをリリースモードで起動
+cargo run -- --api-only --release
+```
+
 ## 現在の機能
 
 ### コア機能
