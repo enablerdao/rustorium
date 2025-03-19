@@ -22,7 +22,7 @@ pub trait StorageEngine: Send + Sync {
     async fn scan_prefix_bytes(&self, cf: &str, prefix: &[u8]) -> Result<Vec<(Vec<u8>, Vec<u8>)>>;
 
     /// バッチ書き込み
-    async fn batch_write_bytes(&self, cf: &str, pairs: Vec<(&[u8], &[u8])>) -> Result<()>;
+    async fn batch_write_bytes(&self, cf: &str, pairs: &[(&[u8], &[u8])]) -> Result<()>;
 
     /// スナップショットを作成
     async fn create_snapshot(&self, path: &Path) -> Result<()>;
@@ -93,11 +93,12 @@ pub trait TypedStorage: StorageEngine {
             value_bytes_vec.push(value_bytes);
         }
 
+        let mut refs = Vec::with_capacity(pairs.len());
         for (i, (key, _)) in pairs.iter().enumerate() {
-            bytes_pairs.push((key.as_ref(), value_bytes_vec[i].as_slice()));
+            refs.push((key.as_ref(), value_bytes_vec[i].as_slice()));
         }
 
-        self.batch_write_bytes(cf, &bytes_pairs).await
+        self.batch_write_bytes(cf, &refs).await
     }
 }
 

@@ -6,7 +6,7 @@ use async_trait::async_trait;
 
 /// トランザクションID
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
-pub struct TxId(String);
+pub struct TxId(pub String);
 
 /// トランザクションステータス
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

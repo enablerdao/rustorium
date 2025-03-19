@@ -1,9 +1,9 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use std::time::Duration;
+use tokio::sync::{mpsc, RwLock};
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
-use async_trait::async_trait;
 use super::dag::{TxId, Transaction, TxStatus};
 
 /// 投票結果

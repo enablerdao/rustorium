@@ -1,13 +1,16 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
+use std::time::Duration;
 use tokio::sync::RwLock;
+use tokio::time::interval;
+use tracing::warn;
 use serde::{Deserialize, Serialize};
 use async_trait::async_trait;
 use super::dag::{Transaction, TxId};
 
 /// シャードID
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
-pub struct ShardId(u64);
+pub struct ShardId(pub u64);
 
 /// シャード状態
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -172,7 +175,7 @@ impl ShardManager {
 
         // 応答を待機して状態をマージ
         let mut states = vec![current_state];
-        let mut timeout = tokio::time::interval(Duration::from_secs(1));
+        let mut timeout = interval(Duration::from_secs(1));
         let mut attempts = 0;
 
         while attempts < 5 {
@@ -208,22 +211,30 @@ impl ShardManager {
         shard_loads.sort_by_key(|(_id, load)| *load);
 
         // 最も負荷の高いシャードから最も負荷の低いシャードにトランザクションを移動
-        while let (Some(min), Some(max)) = (shard_loads.first(), shard_loads.last()) {
-            if max.1 - min.1 <= 1 {
+        while shard_loads.len() >= 2 {
+            let min_load = shard_loads[0].1;
+            let max_load = shard_loads[shard_loads.len() - 1].1;
+            
+            if max_load - min_load <= 1 {
                 break;
             }
 
+            let min_id = shard_loads[0].0.clone();
+            let max_id = shard_loads[shard_loads.len() - 1].0.clone();
+
             // トランザクションの移動を実行
-            self.migrate_transactions(&max.0, &min.0).await?;
+            self.migrate_transactions(&max_id, &min_id).await?;
 
             // ロード情報を更新
+            let mut shards = self.shards.write().await;
             if let (Some(min_state), Some(max_state)) = (
-                shards.get(&min.0),
-                shards.get(&max.0),
+                shards.get(&min_id),
+                shards.get(&max_id),
             ) {
                 shard_loads[0].1 = min_state.transactions.len();
                 shard_loads[shard_loads.len() - 1].1 = max_state.transactions.len();
             }
+            shard_loads.sort_by_key(|(_id, load)| *load);
         }
 
         Ok(())
@@ -233,10 +244,10 @@ impl ShardManager {
     async fn migrate_transactions(&self, from: &ShardId, to: &ShardId) -> anyhow::Result<()> {
         let mut shards = self.shards.write().await;
         
-        if let (Some(from_state), Some(to_state)) = (
-            shards.get_mut(from),
-            shards.get_mut(to),
-        ) {
+        let from_state = shards.get(from).cloned();
+        let to_state = shards.get(to).cloned();
+
+        if let (Some(mut from_state), Some(mut to_state)) = (from_state, to_state) {
             // 移動するトランザクションを選択
             let tx_count = from_state.transactions.len();
             let move_count = tx_count / 4; // 25%のトランザクションを移動
@@ -254,8 +265,13 @@ impl ShardManager {
             }
 
             // 状態を更新
-            from_state.last_updated = chrono::Utc::now();
-            to_state.last_updated = chrono::Utc::now();
+            let now = chrono::Utc::now();
+            from_state.last_updated = now;
+            to_state.last_updated = now;
+
+            // 更新した状態を保存
+            shards.insert(from.clone(), from_state);
+            shards.insert(to.clone(), to_state);
         }
 
         Ok(())
