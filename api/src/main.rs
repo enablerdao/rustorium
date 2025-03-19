@@ -43,13 +43,13 @@ fn default_gas_limit() -> u64 {
 
 // APIレスポンス
 #[derive(Debug, Serialize, Deserialize)]
-struct ApiResponse<T> {
+struct ApiResponse<T: Serialize> {
     success: bool,
     data: Option<T>,
     error: Option<String>,
 }
 
-impl<T> ApiResponse<T> {
+impl<T: Serialize> ApiResponse<T> {
     fn success(data: T) -> Self {
         Self {
             success: true,
