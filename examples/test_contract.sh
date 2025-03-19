@@ -25,7 +25,8 @@ DEPLOY_RESPONSE=$(curl -s -X POST $API_URL/contracts \
     \"gas_price\": 10
   }")
 
-CONTRACT_ADDRESS=$(echo $DEPLOY_RESPONSE | jq -r '.data.address')
+echo "デプロイレスポンス: $(echo $DEPLOY_RESPONSE | jq .)"
+CONTRACT_ADDRESS=$(echo $DEPLOY_RESPONSE | jq -r '.data' | jq -r 'fromjson | .address')
 echo "デプロイされたコントラクトアドレス: $CONTRACT_ADDRESS"
 
 # 値の保存
