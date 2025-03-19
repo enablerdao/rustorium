@@ -96,7 +96,13 @@ rocksdb = { version = "0.21", features = ["multi-threaded-cf"] }
 bincode = "1.3"
 snap = "1.1"
 bytes = "1.5"
+structopt = "0.3"
+ctrlc = { version = "3.4", features = ["termination"] }
 
 [[bin]]
 name = "rustorium"
 path = "src/main.rs"
+
+[[bin]]
+name = "node"
+path = "src/bin/node.rs"
