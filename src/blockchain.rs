@@ -1,6 +1,5 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
@@ -58,9 +57,8 @@ impl Block {
         block
     }
 
-    // ブロックのハッシュを計算
+    // ブロックのハッシュを計算（簡易版）
     pub fn calculate_hash(&self) -> String {
-        let mut hasher = Sha256::new();
         let data = format!(
             "{}{}{}{}{}",
             self.index,
@@ -69,8 +67,10 @@ impl Block {
             self.previous_hash,
             self.nonce
         );
-        hasher.update(data.as_bytes());
-        format!("{:x}", hasher.finalize())
+        
+        // 簡易ハッシュ関数（実際の実装ではSHA-256などを使用）
+        let hash_value = data.as_bytes().iter().fold(0u64, |acc, &x| acc.wrapping_add(x as u64));
+        format!("{:016x}", hash_value)
     }
 
     // ブロックをマイニング
@@ -385,9 +385,10 @@ impl Blockchain {
     pub fn create_account(&mut self) -> Account {
         // アドレスと秘密鍵を生成
         let private_key = format!("0x{}", Uuid::new_v4().to_string().replace("-", ""));
-        let mut hasher = Sha256::new();
-        hasher.update(private_key.as_bytes());
-        let address = format!("0x{:x}", hasher.finalize());
+        
+        // 簡易ハッシュ関数でアドレスを生成
+        let hash_value = private_key.as_bytes().iter().fold(0u64, |acc, &x| acc.wrapping_add(x as u64));
+        let address = format!("0x{:040x}", hash_value);
         let address = address[0..42].to_string(); // 0xを含めて42文字
 
         // アカウントを作成

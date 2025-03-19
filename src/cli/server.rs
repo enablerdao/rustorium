@@ -11,6 +11,7 @@ pub struct ServerManager {
     pub frontend_only: bool,
     pub fast: bool,
     pub release: bool,
+    current_pid: u32,
 }
 
 impl ServerManager {
@@ -29,7 +30,61 @@ impl ServerManager {
             frontend_only,
             fast,
             release,
+            current_pid: std::process::id(),
         }
+    }
+
+    /// 既存のプロセスをクリーンアップ
+    pub fn cleanup_existing_processes(&self) -> Result<()> {
+        info!("Cleaning up any existing processes...");
+
+        // APIプロセスのクリーンアップ
+        if !self.frontend_only {
+            let _ = Command::new("pkill")
+                .args(["-f", "target/debug/api"])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status();
+
+            let _ = Command::new("pkill")
+                .args(["-f", "target/release/api"])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status();
+        }
+
+        // フロントエンドプロセスのクリーンアップ
+        if !self.api_only {
+            let _ = Command::new("pkill")
+                .args(["-f", "target/debug/frontend"])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status();
+
+            let _ = Command::new("pkill")
+                .args(["-f", "target/release/frontend"])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status();
+        }
+
+        // 自分自身以外のrustoriumプロセスを終了
+        let _ = Command::new("sh")
+            .arg("-c")
+            .arg(format!("ps -ef | grep target/debug/rustorium | grep -v {} | grep -v grep | awk '{{print $2}}' | xargs -r kill", self.current_pid))
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status();
+
+        let _ = Command::new("sh")
+            .arg("-c")
+            .arg(format!("ps -ef | grep target/release/rustorium | grep -v {} | grep -v grep | awk '{{print $2}}' | xargs -r kill", self.current_pid))
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status();
+
+        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+        Ok(())
     }
 
     pub fn get_cargo_command(&self) -> &'static str {
@@ -43,6 +98,9 @@ impl ServerManager {
     }
 
     pub async fn start_servers(&self) -> Result<()> {
+        // 既存のプロセスをクリーンアップ
+        self.cleanup_existing_processes().await?;
+
         // プログレスバーのスタイルを設定
         let spinner_style = ProgressStyle::with_template("{spinner:.green} {msg}")
             .unwrap()
@@ -69,6 +127,8 @@ impl ServerManager {
                 .stdout(Stdio::inherit())
                 .stderr(Stdio::inherit())
                 .spawn()?;
+
+            info!("API server starting on port: {}", self.api_port);
         }
 
         // フロントエンドサーバーを起動（APIのみモードでない場合）
@@ -84,6 +144,8 @@ impl ServerManager {
                 .stdout(Stdio::inherit())
                 .stderr(Stdio::inherit())
                 .spawn()?;
+
+            info!("Frontend server starting on port: {}", self.frontend_port);
         }
 
         // サービスの起動を待機
@@ -91,14 +153,30 @@ impl ServerManager {
         spinner.finish_with_message("✨ All services started successfully!");
         println!();
 
+        // サービスのURLを表示
+        if !self.frontend_only {
+            info!("API server running at http://localhost:{}", self.api_port);
+        }
+        if !self.api_only {
+            info!("Frontend running at http://localhost:{}", self.frontend_port);
+        }
+        info!("");
+        info!("Press Ctrl+C to stop all services");
+
         Ok(())
     }
 
     pub fn stop_servers(&self) -> Result<()> {
         // APIサーバーを停止
         if !self.frontend_only {
+            let target_dir = if self.release {
+                "target/release/api"
+            } else {
+                "target/debug/api"
+            };
+
             let _ = Command::new("pkill")
-                .args(["-f", "target/debug/api"])
+                .args(["-f", target_dir])
                 .stdout(Stdio::null())
                 .stderr(Stdio::null())
                 .status();
@@ -106,8 +184,14 @@ impl ServerManager {
 
         // フロントエンドサーバーを停止
         if !self.api_only {
+            let target_dir = if self.release {
+                "target/release/frontend"
+            } else {
+                "target/debug/frontend"
+            };
+
             let _ = Command::new("pkill")
-                .args(["-f", "target/debug/frontend"])
+                .args(["-f", target_dir])
                 .stdout(Stdio::null())
                 .stderr(Stdio::null())
                 .status();
