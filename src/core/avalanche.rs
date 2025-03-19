@@ -92,7 +92,7 @@ impl AvalancheEngine {
     }
 
     /// サンプリングベースの投票を実行
-    pub async fn run_consensus(&self, tx: &Transaction) -> anyhow::Result<TxStatus> {
+    pub async fn run_consensus(&mut self, tx: &Transaction) -> anyhow::Result<TxStatus> {
         let mut current_confidence = Confidence::new();
         let mut rng = rand::thread_rng();
 
@@ -103,6 +103,7 @@ impl AvalancheEngine {
                 .choose_multiple(&mut rng, self.params.sample_size)
                 .cloned()
                 .collect();
+            drop(peers); // 早めにロックを解放
 
             // 各ピアから投票を収集
             for peer in sample {
@@ -125,7 +126,7 @@ impl AvalancheEngine {
 
     /// ピアに投票をリクエスト
     async fn query_peer(&mut self, peer_id: &str, tx: &Transaction) -> anyhow::Result<Vote> {
-        use crate::network::{NetworkMessage, P2PNetwork};
+        use crate::network::NetworkMessage;
         
         // ネットワークメッセージを作成
         let query = NetworkMessage::QueryTransaction {
@@ -135,6 +136,7 @@ impl AvalancheEngine {
         // メッセージを送信
         let network = self.network.read().await;
         let sender = network.message_sender();
+        drop(network); // 早めにロックを解放
         sender.send(query)?;
         
         // 応答を待機
