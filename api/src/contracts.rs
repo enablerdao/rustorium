@@ -318,6 +318,7 @@ pub struct VerifyContractRequest {
 
 /// コントラクトデバッグ情報
 #[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone)]
 pub struct DebugInfo {
     pub execution_trace: Vec<ExecutionStep>,
     pub state_changes: HashMap<String, StateChange>,
@@ -327,6 +328,7 @@ pub struct DebugInfo {
 
 /// 実行ステップ
 #[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone)]
 pub struct ExecutionStep {
     pub step: u32,
     pub op_code: String,
@@ -338,6 +340,7 @@ pub struct ExecutionStep {
 
 /// 状態変更
 #[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone)]
 pub struct StateChange {
     pub key: String,
     pub old_value: Option<String>,
@@ -492,16 +495,16 @@ impl ContractManager {
         args: Option<&str>,
         caller: &str,
     ) -> Result<String, String> {
-        // コントラクトの存在確認
-        let contract = match self.contracts.get_mut(address) {
-            Some(c) => c,
+        // コントラクトの存在確認とクローン
+        let mut contract = match self.contracts.get(address) {
+            Some(c) => c.clone(),
             None => return Err(format!("Contract not found: {}", address)),
         };
 
         // コントラクトタイプに基づいて処理を分岐
         let result = match contract.contract_type {
-            ContractType::Token => self.call_token_contract(contract, method, args, caller),
-            ContractType::NFT => self.call_nft_contract(contract, method, args, caller),
+            ContractType::Token => self.call_token_contract(&mut contract, method, args, caller),
+            ContractType::NFT => self.call_nft_contract(&mut contract, method, args, caller),
             _ => {
                 // 標準コントラクトの場合
                 match method {
@@ -540,9 +543,9 @@ impl ContractManager {
         caller: &str,
         transaction_id: &str,
     ) -> Result<(String, DebugInfo), String> {
-        // コントラクトの存在確認
-        let contract = match self.contracts.get_mut(address) {
-            Some(c) => c,
+        // コントラクトの存在確認とクローン
+        let mut contract = match self.contracts.get(address) {
+            Some(c) => c.clone(),
             None => return Err(format!("Contract not found: {}", address)),
         };
         
