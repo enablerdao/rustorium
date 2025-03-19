@@ -1,5 +1,5 @@
-pub mod p2p;
-pub mod types;
+mod p2p;
+mod types;
 
-pub use p2p::*;
-pub use types::*;
+pub use p2p::P2PNetwork;
+pub use types::NetworkMessage;

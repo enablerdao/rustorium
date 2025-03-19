@@ -1,49 +1,39 @@
-use super::{StorageEngine, CF_METADATA, CF_SHARD_STATE, CF_TRANSACTIONS};
+use std::path::Path;
+use std::sync::Arc;
 use anyhow::{Context, Result};
 use async_trait::async_trait;
-use bytes::Bytes;
-use rocksdb::{
-    ColumnFamilyDescriptor, DBCompressionType, Options, DB, WriteBatch, WriteOptions,
-};
-use serde::{de::DeserializeOwned, Serialize};
-use snap::raw::{Decoder, Encoder};
-use std::{path::Path, sync::Arc};
+use rocksdb::{DB, Options, ColumnFamilyDescriptor, WriteBatch, WriteOptions};
 use tokio::sync::Mutex;
+use snap::raw::Encoder;
+use super::{StorageEngine, TypedStorage};
 
-/// RocksDBベースのストレージエンジン
 pub struct RocksDBStorage {
     db: Arc<DB>,
     write_lock: Arc<Mutex<()>>,
 }
 
 impl RocksDBStorage {
-    /// 新しいストレージエンジンを作成
     pub fn new(path: &Path) -> Result<Self> {
-        // オプションの設定
-        let mut opts = Options::default();
-        opts.create_if_missing(true);
-        opts.set_compression_type(DBCompressionType::Lz4);
-        opts.set_use_fsync(true);
-        opts.set_keep_log_file_num(10);
-        opts.set_max_total_wal_size(536_870_912); // 512MB
-        opts.set_write_buffer_size(67_108_864); // 64MB
-        opts.set_max_write_buffer_number(3);
-        opts.set_target_file_size_base(67_108_864); // 64MB
-        opts.set_level_zero_file_num_compaction_trigger(8);
-        opts.set_level_zero_slowdown_writes_trigger(17);
-        opts.set_level_zero_stop_writes_trigger(24);
-        opts.set_max_bytes_for_level_base(536_870_912); // 512MB
-        opts.set_max_bytes_for_level_multiplier(8.0);
+        // データディレクトリを作成
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
 
         // カラムファミリーの設定
+        let mut opts = Options::default();
+        opts.create_if_missing(true);
+        opts.create_missing_column_families(true);
+
+        // カラムファミリーの定義
         let cf_opts = Options::default();
         let cf_descriptors = vec![
-            ColumnFamilyDescriptor::new(CF_SHARD_STATE, cf_opts.clone()),
-            ColumnFamilyDescriptor::new(CF_TRANSACTIONS, cf_opts.clone()),
-            ColumnFamilyDescriptor::new(CF_METADATA, cf_opts),
+            ColumnFamilyDescriptor::new("default", cf_opts.clone()),
+            ColumnFamilyDescriptor::new("shard_state", cf_opts.clone()),
+            ColumnFamilyDescriptor::new("transactions", cf_opts.clone()),
+            ColumnFamilyDescriptor::new("metadata", cf_opts),
         ];
 
-        // DBを開く
+        // データベースを開く
         let db = DB::open_cf_descriptors(&opts, path, cf_descriptors)?;
 
         Ok(Self {
@@ -52,18 +42,14 @@ impl RocksDBStorage {
         })
     }
 
-    /// 値を圧縮
-    fn compress_value<V: Serialize>(value: &V) -> Result<Vec<u8>> {
-        let serialized = bincode::serialize(value)?;
+    fn compress_value(value: &[u8]) -> Result<Vec<u8>> {
         let mut encoder = Encoder::new();
-        Ok(encoder.compress_vec(&serialized)?)
+        Ok(encoder.compress_vec(value)?)
     }
 
-    /// 値を解凍
-    fn decompress_value<V: DeserializeOwned>(bytes: &[u8]) -> Result<V> {
-        let mut decoder = Decoder::new();
-        let decompressed = decoder.decompress_vec(bytes)?;
-        Ok(bincode::deserialize(&decompressed)?)
+    fn decompress_value(value: &[u8]) -> Result<Vec<u8>> {
+        let mut encoder = Encoder::new();
+        Ok(encoder.decompress_vec(value)?)
     }
 }
 
@@ -96,10 +82,9 @@ impl StorageEngine for RocksDBStorage {
 
     async fn scan_prefix_bytes(&self, cf: &str, prefix: &[u8]) -> Result<Vec<(Vec<u8>, Vec<u8>)>> {
         let cf_handle = self.db.cf_handle(cf).context("Column family not found")?;
-        let prefix_bytes = Bytes::copy_from_slice(prefix);
         let mut results = Vec::new();
 
-        let iter = self.db.prefix_iterator_cf(cf_handle, prefix_bytes);
+        let iter = self.db.prefix_iterator_cf(cf_handle, prefix);
         for item in iter {
             let (key, value) = item?;
             let decompressed = Self::decompress_value(&value)?;
@@ -133,16 +118,70 @@ impl StorageEngine for RocksDBStorage {
     }
 
     async fn restore_from_snapshot(&self, path: &Path) -> Result<()> {
-        // DBを閉じる
-        drop(self.db.clone());
-
-        // スナップショットから復元
-        let opts = Options::default();
-        let cf_names = vec![CF_SHARD_STATE, CF_TRANSACTIONS, CF_METADATA];
-        let cf_opts: Vec<_> = cf_names.iter().map(|_| Options::default()).collect();
-        
-        DB::open_cf_as_secondary(&opts, path, self.db.path(), cf_names.as_slice(), cf_opts.as_slice())?;
-        
+        // TODO: スナップショットからの復元を実装
         Ok(())
+    }
+}
+
+#[async_trait]
+impl TypedStorage for RocksDBStorage {
+    async fn put<K, V>(&self, cf: &str, key: K, value: &V) -> Result<()>
+    where
+        K: AsRef<[u8]> + Send + Sync,
+        V: serde::Serialize + Send + Sync,
+    {
+        let value_bytes = bincode::serialize(value)?;
+        self.put_bytes(cf, key.as_ref(), &value_bytes).await
+    }
+
+    async fn get<K, V>(&self, cf: &str, key: K) -> Result<Option<V>>
+    where
+        K: AsRef<[u8]> + Send + Sync,
+        V: serde::de::DeserializeOwned + Send + Sync,
+    {
+        if let Some(bytes) = self.get_bytes(cf, key.as_ref()).await? {
+            Ok(Some(bincode::deserialize(&bytes)?))
+        } else {
+            Ok(None)
+        }
+    }
+
+    async fn delete<K>(&self, cf: &str, key: K) -> Result<()>
+    where
+        K: AsRef<[u8]> + Send + Sync,
+    {
+        self.delete_bytes(cf, key.as_ref()).await
+    }
+
+    async fn scan_prefix<K, V>(&self, cf: &str, prefix: K) -> Result<Vec<(Vec<u8>, V)>>
+    where
+        K: AsRef<[u8]> + Send + Sync,
+        V: serde::de::DeserializeOwned + Send + Sync,
+    {
+        let pairs = self.scan_prefix_bytes(cf, prefix.as_ref()).await?;
+        let mut results = Vec::with_capacity(pairs.len());
+        
+        for (key, value) in pairs {
+            results.push((key, bincode::deserialize(&value)?));
+        }
+        
+        Ok(results)
+    }
+
+    async fn batch_write<K, V>(&self, cf: &str, pairs: &[(K, &V)]) -> Result<()>
+    where
+        K: AsRef<[u8]> + Send + Sync,
+        V: serde::Serialize + Send + Sync,
+    {
+        let mut bytes_pairs = Vec::with_capacity(pairs.len());
+        let mut value_bytes_vec = Vec::with_capacity(pairs.len());
+
+        for (key, value) in pairs {
+            let value_bytes = bincode::serialize(value)?;
+            value_bytes_vec.push(value_bytes);
+            bytes_pairs.push((key.as_ref(), value_bytes_vec.last().unwrap().as_slice()));
+        }
+
+        self.batch_write_bytes(cf, &bytes_pairs).await
     }
 }

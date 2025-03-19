@@ -29,6 +29,40 @@ pub trait StorageEngine: Send + Sync {
 
     /// スナップショットから復元
     async fn restore_from_snapshot(&self, path: &Path) -> Result<()>;
+
+    /// トランザクションを保存
+    async fn put_transaction(&self, tx: &Transaction) -> Result<()> {
+        let tx_bytes = bincode::serialize(tx)?;
+        self.put_bytes(CF_TRANSACTIONS, tx.id.as_bytes(), &tx_bytes).await
+    }
+
+    /// トランザクションを取得
+    async fn get_transaction(&self, tx_id: &TxId) -> Result<Option<Transaction>> {
+        if let Some(tx_bytes) = self.get_bytes(CF_TRANSACTIONS, tx_id.as_bytes()).await? {
+            Ok(Some(bincode::deserialize(&tx_bytes)?))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// トランザクションを削除
+    async fn delete_transaction(&self, tx_id: &TxId) -> Result<()> {
+        self.delete_bytes(CF_TRANSACTIONS, tx_id.as_bytes()).await
+    }
+
+    /// トランザクションをバッチ保存
+    async fn batch_write_transactions(&self, txs: &[&Transaction]) -> Result<()> {
+        let mut pairs = Vec::with_capacity(txs.len());
+        let mut tx_bytes_vec = Vec::with_capacity(txs.len());
+
+        for tx in txs {
+            let tx_bytes = bincode::serialize(tx)?;
+            tx_bytes_vec.push(tx_bytes);
+            pairs.push((tx.id.as_bytes(), tx_bytes_vec.last().unwrap().as_slice()));
+        }
+
+        self.batch_write_bytes(CF_TRANSACTIONS, &pairs).await
+    }
 }
 
 /// 型付きストレージ拡張
@@ -38,68 +72,30 @@ pub trait TypedStorage: StorageEngine {
     async fn put<K, V>(&self, cf: &str, key: K, value: &V) -> Result<()>
     where
         K: AsRef<[u8]> + Send + Sync,
-        V: Serialize + Send + Sync,
-    {
-        let value_bytes = bincode::serialize(value)?;
-        self.put_bytes(cf, key.as_ref(), &value_bytes).await
-    }
+        V: Serialize + Send + Sync;
 
     /// 型付きの値を取得
     async fn get<K, V>(&self, cf: &str, key: K) -> Result<Option<V>>
     where
         K: AsRef<[u8]> + Send + Sync,
-        V: DeserializeOwned + Send + Sync,
-    {
-        if let Some(bytes) = self.get_bytes(cf, key.as_ref()).await? {
-            Ok(Some(bincode::deserialize(&bytes)?))
-        } else {
-            Ok(None)
-        }
-    }
+        V: DeserializeOwned + Send + Sync;
 
     /// 型付きのキーを削除
     async fn delete<K>(&self, cf: &str, key: K) -> Result<()>
     where
-        K: AsRef<[u8]> + Send + Sync,
-    {
-        self.delete_bytes(cf, key.as_ref()).await
-    }
+        K: AsRef<[u8]> + Send + Sync;
 
     /// 型付きのプレフィックスでスキャン
     async fn scan_prefix<K, V>(&self, cf: &str, prefix: K) -> Result<Vec<(Vec<u8>, V)>>
     where
         K: AsRef<[u8]> + Send + Sync,
-        V: DeserializeOwned + Send + Sync,
-    {
-        let pairs = self.scan_prefix_bytes(cf, prefix.as_ref()).await?;
-        let mut result = Vec::with_capacity(pairs.len());
-        for (key, value) in pairs {
-            result.push((key, bincode::deserialize(&value)?));
-        }
-        Ok(result)
-    }
+        V: DeserializeOwned + Send + Sync;
 
     /// 型付きのバッチ書き込み
-    async fn batch_write<K, V>(&self, cf: &str, pairs: &[(K, V)]) -> Result<()>
+    async fn batch_write<K, V>(&self, cf: &str, pairs: &[(K, &V)]) -> Result<()>
     where
         K: AsRef<[u8]> + Send + Sync,
-        V: Serialize + Send + Sync,
-    {
-        let mut bytes_pairs = Vec::with_capacity(pairs.len());
-        let mut value_bytes_vec = Vec::with_capacity(pairs.len());
-
-        for (key, value) in pairs {
-            let value_bytes = bincode::serialize(value)?;
-            value_bytes_vec.push(value_bytes);
-        }
-
-        let mut refs = Vec::with_capacity(pairs.len());
-        for (i, (key, _)) in pairs.iter().enumerate() {
-            refs.push((key.as_ref(), value_bytes_vec[i].as_slice()));
-        }
-
-        self.batch_write_bytes(cf, &refs).await
-    }
+        V: Serialize + Send + Sync;
 }
 
 /// カラムファミリー名の定義
