@@ -67,14 +67,21 @@ pub struct AvalancheEngine {
     params: AvalancheParams,
     confidence: Arc<RwLock<HashMap<TxId, Confidence>>>,
     peers: Arc<RwLock<Vec<String>>>,
+    network: Arc<RwLock<crate::network::P2PNetwork>>,
+    vote_sender: mpsc::UnboundedSender<Vote>,
+    vote_receiver: mpsc::UnboundedReceiver<Vote>,
 }
 
 impl AvalancheEngine {
-    pub fn new(params: AvalancheParams) -> Self {
+    pub fn new(params: AvalancheParams, network: Arc<RwLock<crate::network::P2PNetwork>>) -> Self {
+        let (vote_sender, vote_receiver) = mpsc::unbounded_channel();
         Self {
             params,
             confidence: Arc::new(RwLock::new(HashMap::new())),
             peers: Arc::new(RwLock::new(Vec::new())),
+            network,
+            vote_sender,
+            vote_receiver,
         }
     }
 
@@ -117,14 +124,34 @@ impl AvalancheEngine {
     }
 
     /// ピアに投票をリクエスト
-    async fn query_peer(&self, peer: &str, tx: &Transaction) -> anyhow::Result<Vote> {
-        // TODO: 実際のP2P通信を実装
-        // 現在はランダムな投票を返す
-        Ok(if rand::random::<bool>() {
-            Vote::Accept
-        } else {
-            Vote::Reject
-        })
+    async fn query_peer(&self, peer_id: &str, tx: &Transaction) -> anyhow::Result<Vote> {
+        use crate::network::{NetworkMessage, P2PNetwork};
+        
+        // ネットワークメッセージを作成
+        let query = NetworkMessage::QueryTransaction {
+            tx_id: tx.id.clone(),
+        };
+        
+        // メッセージを送信
+        let network = self.network.read().await;
+        let sender = network.message_sender();
+        sender.send(query)?;
+        
+        // 応答を待機
+        let response = self.wait_for_vote(tx.id.clone()).await?;
+        Ok(response)
+    }
+    
+    /// 投票応答を待機
+    async fn wait_for_vote(&self, tx_id: TxId) -> anyhow::Result<Vote> {
+        use tokio::time::timeout;
+        
+        // タイムアウト付きで応答を待機
+        match timeout(Duration::from_secs(5), self.vote_receiver.recv()).await {
+            Ok(Some(vote)) => Ok(vote),
+            Ok(None) => anyhow::bail!("Vote channel closed"),
+            Err(_) => anyhow::bail!("Vote request timed out"),
+        }
     }
 
     /// トランザクションの検証
