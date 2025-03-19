@@ -5,6 +5,9 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
 
+// コントラクトモジュールをインポート
+use crate::contracts::{Contract, ContractManager};
+
 // ブロック構造体
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Block {
@@ -160,6 +163,8 @@ pub struct Account {
     pub transaction_count: u64,
     pub last_activity: DateTime<Utc>,
     pub tokens: HashMap<String, f64>,
+    pub contract_code: Option<String>,  // コントラクトコード（コントラクトアカウントの場合）
+    pub contract_abi: Option<String>,   // コントラクトABI（コントラクトアカウントの場合）
 }
 
 impl Account {
@@ -174,6 +179,24 @@ impl Account {
             transaction_count: 0,
             last_activity: Utc::now(),
             tokens: HashMap::new(),
+            contract_code: None,
+            contract_abi: None,
+        }
+    }
+    
+    // コントラクトアカウントを作成
+    pub fn new_contract(address: String, code: String, abi: Option<String>) -> Self {
+        Account {
+            address,
+            private_key: None,
+            balance: 0.0,
+            is_contract: true,
+            nonce: 0,
+            transaction_count: 0,
+            last_activity: Utc::now(),
+            tokens: HashMap::new(),
+            contract_code: Some(code),
+            contract_abi: abi,
         }
     }
 }
@@ -184,6 +207,7 @@ pub struct Blockchain {
     pub chain: Vec<Block>,
     pub pending_transactions: Vec<Transaction>,
     pub accounts: HashMap<String, Account>,
+    pub contract_manager: ContractManager,
 }
 
 impl Blockchain {
@@ -193,6 +217,7 @@ impl Blockchain {
             chain: Vec::new(),
             pending_transactions: Vec::new(),
             accounts: HashMap::new(),
+            contract_manager: ContractManager::new(),
         };
 
         // ジェネシスブロックを作成
