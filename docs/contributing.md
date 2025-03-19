@@ -27,11 +27,101 @@ Rustoriumプロジェクトには、様々な方法で貢献できます：
 git clone https://github.com/YOUR_USERNAME/rustorium.git
 cd rustorium
 
+# 必要なシステム依存関係をインストール
+# Debian/Ubuntu
+apt-get install -y clang libclang-dev librocksdb-dev
+
+# macOS
+brew install rocksdb llvm
+
 # 依存関係をインストール
 cargo build
 
 # テストを実行して環境が正しく設定されていることを確認
 cargo test
+```
+
+### 開発モード
+
+Rustoriumには開発用のテストノード機能が組み込まれています。この機能を使用すると、複数のノードを同時に起動してテストできます。
+
+#### テストノードの起動
+```bash
+# デフォルト設定（10ノード）で起動
+cargo run -- --dev
+
+# カスタム設定で起動
+cargo run -- --dev --nodes 5 --base-port 50000 --data-dir /path/to/data
+```
+
+#### 開発モードの機能
+- 複数のノードインスタンス
+- 自動ピア発見
+- 各ノードの個別データディレクトリ
+- 個別のAPIとフロントエンドエンドポイント
+- 自動ポート割り当て
+
+#### ノード情報
+開発モードでは、各ノードについて以下の情報が表示されます：
+- API URL: `http://localhost:<port>`
+- フロントエンドURL: `http://localhost:<port>`
+- P2Pアドレス: `/ip4/127.0.0.1/tcp/<port>`
+- Peer ID
+
+#### ポート割り当て
+ポートは各ノードに対して順番に割り当てられます：
+- ノード1: base_port, base_port+1, base_port+2
+- ノード2: base_port+3, base_port+4, base_port+5
+- 以降同様
+
+### アーキテクチャ
+
+Rustoriumは以下の主要コンポーネントで構成されています：
+
+#### 1. DAGエンジン
+- トランザクショングラフ管理
+- 依存関係追跡
+- 並列実行スケジューラ
+- トポロジカルソート
+
+#### 2. Avalancheプロトコル
+- サンプリングベースの投票システム
+- コンフィデンス追跡
+- メタスタビリティ検出
+- 非同期ネットワーク対応
+
+#### 3. シャーディングマネージャ
+- 動的シャード割り当て
+- クロスシャードトランザクション
+- 2フェーズコミットプロトコル
+- ステート同期
+
+#### 4. P2Pネットワーク
+- libp2pベースのネットワーキング
+- Gossipsubによるメッセージ伝播
+- Kademliaによるピア発見
+- mDNSによるローカルピア発見
+
+#### 5. ストレージレイヤー
+- RocksDBベースの永続化
+- カラムファミリーによるデータ分離
+- Snappyによる圧縮
+- アトミックなバッチ操作
+
+#### ディレクトリ構造
+```
+rustorium/
+├── src/
+│   ├── core/           # コアブロックチェーンコンポーネント
+│   │   ├── dag.rs      # DAG実装
+│   │   ├── avalanche.rs # コンセンサスプロトコル
+│   │   └── sharding.rs # シャーディング管理
+│   ├── network/        # P2Pネットワーキング
+│   ├── storage/        # 永続化レイヤー
+│   └── dev/           # 開発ツール
+├── api/               # APIサーバー
+├── frontend/         # フロントエンドアプリケーション
+└── docs/            # ドキュメント
 ```
 
 ## 🌿 ブランチ戦略
