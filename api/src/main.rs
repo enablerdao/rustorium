@@ -323,13 +323,16 @@ async fn deploy_contract(
     // トランザクションの作成
     let tx_id = format!("0x{}", hex::encode(Uuid::new_v4().as_bytes())[..32].to_string());
     
+    // ブロックチェーンの長さを取得
+    let chain_len = blockchain.chain.len() as u64;
+    
     // コントラクトのデプロイ
     let contract_address = blockchain.contract_manager.deploy_contract(
         request.from.clone(),
         request.bytecode.clone(),
         request.abi.clone(),
         tx_id.clone(),
-        Some(blockchain.chain.len() as u64),
+        Some(chain_len),
     );
     
     // コントラクトアカウントの作成
