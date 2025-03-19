@@ -351,20 +351,12 @@ async fn deploy_contract(
     sender_account.nonce += 1;
     
     // レスポンスの作成
-    #[derive(Serialize)]
-    struct DeployResponse {
-        address: String,
-        transaction_id: String,
-        gas_used: u64,
-        gas_cost: f64,
-    }
-    
-    let response = DeployResponse {
-        address: contract_address,
-        transaction_id: tx_id,
-        gas_used: request.gas_limit,
-        gas_cost,
-    };
+    let response = serde_json::json!({
+        "address": contract_address,
+        "transaction_id": tx_id,
+        "gas_used": request.gas_limit,
+        "gas_cost": gas_cost
+    });
     
     (StatusCode::CREATED, Json(ApiResponse::success(response)))
 }
