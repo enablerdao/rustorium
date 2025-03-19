@@ -20,7 +20,7 @@ DEPLOY_RESPONSE=$(curl -s -X POST $API_URL/contracts \
   -d "{
     \"from\": \"$ACCOUNT\",
     \"bytecode\": \"$BYTECODE\",
-    \"abi\": $(jq -c . simple_storage.abi.json),
+    \"abi\": \"$(jq -c . simple_storage.abi.json | sed 's/"/\\"/g')\",
     \"gas_limit\": 1000000,
     \"gas_price\": 10
   }")
