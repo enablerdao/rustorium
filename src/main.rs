@@ -6,6 +6,9 @@ use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 use std::env;
 
+mod blockchain;
+mod sustainable;
+
 // コマンドラインオプションの定義
 #[derive(Debug, Clone)]
 struct AppOptions {
@@ -13,6 +16,7 @@ struct AppOptions {
     frontend_only: bool,
     fast: bool,
     release: bool,
+    sustainable_demo: bool,
 }
 
 impl AppOptions {
@@ -22,6 +26,7 @@ impl AppOptions {
             frontend_only: false,
             fast: false,
             release: false,
+            sustainable_demo: false,
         }
     }
 
@@ -35,6 +40,7 @@ impl AppOptions {
                 "--frontend-only" => options.frontend_only = true,
                 "--fast" => options.fast = true,
                 "--release" => options.release = true,
+                "--sustainable-demo" => options.sustainable_demo = true,
                 "-h" | "--help" => {
                     print_help();
                     std::process::exit(0);
@@ -58,11 +64,12 @@ fn print_help() {
     println!("  cargo run [オプション]");
     println!();
     println!("オプション:");
-    println!("  --api-only       APIサーバーのみを起動");
-    println!("  --frontend-only  フロントエンドサーバーのみを起動");
-    println!("  --fast           高速起動モード（最適化レベル低）");
-    println!("  --release        リリースモードで起動（最適化レベル高）");
-    println!("  -h, --help       このヘルプメッセージを表示");
+    println!("  --api-only         APIサーバーのみを起動");
+    println!("  --frontend-only    フロントエンドサーバーのみを起動");
+    println!("  --fast             高速起動モード（最適化レベル低）");
+    println!("  --release          リリースモードで起動（最適化レベル高）");
+    println!("  --sustainable-demo 持続可能なブロックチェーン機能のデモを実行");
+    println!("  -h, --help         このヘルプメッセージを表示");
 }
 
 #[tokio::main]
@@ -193,6 +200,43 @@ async fn main() -> Result<()> {
     info!("");
     info!("Press Ctrl+C to stop all services");
     
+    // 持続可能なブロックチェーン機能のデモを実行
+    if options.sustainable_demo {
+        info!("Running sustainable blockchain demo...");
+        
+        // 持続可能なブロックチェーンマネージャーを初期化
+        let manager = sustainable::SustainableBlockchainManager::new();
+        
+        // デモ用の初期化
+        manager.initialize_demo();
+        
+        // コンセンサスステータスの表示
+        let consensus_status = manager.get_consensus_status();
+        info!("=== コンセンサスステータス ===");
+        info!("バリデーター数: {}", consensus_status.validator_count);
+        info!("総ステーク量: {}", consensus_status.total_stake);
+        info!("リソース効率: {:.2}", consensus_status.resource_efficiency);
+        info!("現在の報酬レート: {}", consensus_status.current_reward_rate);
+        
+        // 負荷シミュレーション
+        info!("=== 負荷シミュレーション ===");
+        manager.simulate_load(5);
+        
+        // スケーリングステータスの表示
+        let scaling_status = manager.get_scaling_status();
+        info!("=== スケーリングステータス ===");
+        info!("現在のシャード数: {}", scaling_status.current_shards);
+        info!("現在のノード数: {}", scaling_status.current_nodes);
+        info!("CPU使用率: {:.2}", scaling_status.cpu_usage);
+        info!("メモリ使用率: {:.2}", scaling_status.memory_usage);
+        info!("TPS: {:.2}", scaling_status.tps);
+        info!("最後のスケーリング: {}", scaling_status.last_scaling);
+        info!("次のスケーリング予定: {}", scaling_status.next_scaling);
+        
+        info!("持続可能なブロックチェーン機能のデモを終了します");
+        return Ok(());
+    }
+
     // 終了シグナルを待機
     let running = Arc::new(AtomicBool::new(true));
     let r = running.clone();
