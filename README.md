@@ -1,9 +1,9 @@
-# 🚀 Rustorium
+# 🦀 Rustorium
 
 <div align="center">
   <img src="docs/images/rustorium_logo.png" alt="Rustorium Logo" width="300"/>
   <br/>
-  <strong>次世代ブロックチェーンプラットフォーム</strong>
+  <strong>効率的でスケーラブルな次世代ブロックチェーンプラットフォーム</strong>
 </div>
 
 <br/>
@@ -16,10 +16,25 @@ Rustoriumは、**Rust言語**で実装された高性能なブロックチェー
 
 > 💡 **Rustorium** = Rust + Emporium（宝物庫）の造語で、Rustの力を活かした価値の集積地を意味します。
 
+## 🌟 ビジョン
+
+私たちは、まだ世の中に理想的なブロックチェーンが存在していないと考えています。Rustoriumは単なる技術的な興味からではなく、より良いブロックチェーンの可能性を追求するために生まれました。
+
+もし私たちのビジョンが実現すれば、無駄なコンピューターリソースを使わず、安全にブロックチェーン技術を誰もが利用できる世界が訪れるでしょう。
+
+### 🌱 持続可能なブロックチェーン
+
+Rustoriumの特徴的な点は、**リソースが増えるほどスケールして速くなる**設計です。同時に、無駄なコンピュータリソースを使わないように、**必要以上にノードが増えると報酬が劇的に下がる**仕組みも取り入れています。これにより、環境に優しく、効率的なブロックチェーンエコシステムを実現します。
+
+また、**誰でも簡単にノードに参加できる**アクセシビリティを重視し、ブロックチェーン技術の民主化を目指しています。
+
 ![Rustorium Dashboard](docs/images/dashboard.png)
 
 ## ✨ 主な特徴
 
+- 🌿 **[環境に優しい設計](docs/architecture/overview.md)**: リソースを効率的に活用し、無駄なエネルギー消費を抑制
+- 📈 **[スケーラブルなアーキテクチャ](docs/architecture/overview.md)**: ノードが増えるほどネットワーク全体のパフォーマンスが向上
+- 🔓 **[アクセシビリティ](docs/guides/installation.md)**: 誰でも簡単にノードを立ち上げ、ネットワークに参加可能
 - 🖥️ **[モダンなWebインターフェース](docs/guides/basic-usage.md#webui-の使用)**: ダークモード対応の直感的なUI
 - 🔌 **[高性能APIサーバー](docs/api/reference.md)**: RESTful APIによる外部アプリケーションとの連携
 - 🧩 **[拡張性の高いアーキテクチャ](docs/architecture/overview.md)**: モジュール設計による将来の機能追加に対応
@@ -109,27 +124,34 @@ Rustoriumは様々な起動オプションをサポートしています:
 ### 🔄 開発中の機能
 | 機能 | 説明 | 完了予定 | 詳細 |
 |------|------|----------|------|
-| 改良版コンセンサス | Proof of Stakeベースの効率的なブロック生成 | 2025年Q2 | [詳細](docs/features/consensus.md) |
+| 持続可能なコンセンサス | リソース効率の良いProof of Stakeベースのコンセンサス | 2025年Q2 | [詳細](docs/features/consensus.md) |
+| 動的報酬システム | ノード数に応じて報酬を調整する仕組み | 2025年Q1 | [詳細](docs/features/rewards.md) |
 | トークン規格 | ERC-20/ERC-721互換のトークン規格 | 2025年Q1 | [詳細](docs/guides/tokens.md) |
 | ウォレット機能強化 | 秘密鍵管理、トランザクション署名、マルチシグ | 2025年Q1 | [詳細](docs/guides/wallet.md) |
 | ネットワーク可視化 | ブロックチェーンネットワークの視覚的表現 | 2025年Q2 | [詳細](docs/guides/basic-usage.md#ネットワーク可視化) |
 | 分析ダッシュボード | リアルタイム統計、トレンド分析 | 2025年Q2 | [詳細](docs/guides/basic-usage.md#分析ダッシュボード) |
+| リソース使用効率モニタリング | ネットワーク全体のリソース使用状況の監視と最適化 | 2025年Q2 | [詳細](docs/features/resource-monitoring.md) |
 
 ### 🔍 研究開発中の先進機能
 | 機能 | 説明 | 研究段階 | 詳細 |
 |------|------|----------|------|
+| 適応型スケーリング | ノード数に応じて自動的にスケールする仕組み | 設計段階 | [詳細](docs/features/adaptive-scaling.md) |
 | シャーディング | 水平スケーリングによるスループット向上 | 設計段階 | [詳細](docs/features/sharding.md) |
 | Avalancheコンセンサス | 高速なファイナリティを実現する確率的合意形成 | プロトタイプ | [詳細](docs/features/consensus.md#avalanche) |
 | マルチVM実行環境 | EVM、WASM、Move VMなど複数の仮想マシン対応 | 研究段階 | [詳細](docs/features/multi-vm.md) |
 | DAGベース並列処理 | 依存関係グラフによるトランザクション並列実行 | 設計段階 | [詳細](docs/features/dag-execution.md) |
+| エコフレンドリーメトリクス | ブロックチェーンの環境負荷を測定・最適化する仕組み | 研究段階 | [詳細](docs/features/eco-metrics.md) |
 
 ### 🚀 将来のビジョン
 | 機能 | 説明 | 予定 | 詳細 |
 |------|------|------|------|
+| 持続可能なブロックチェーンエコシステム | 環境に配慮した完全なブロックチェーンエコシステム | 2026年~ | [詳細](docs/features/sustainable-ecosystem.md) |
+| 動的リソース最適化 | ネットワーク状況に応じて自動的にリソースを最適化 | 2025年Q4 | [詳細](docs/features/dynamic-optimization.md) |
 | AI処理層 | 異常検出、予測分析、最適化 | 2026年~ | [詳細](docs/features/ai-layer.md) |
 | 分散ストレージ | IPFS連携、効率的なデータ保存 | 2025年Q4 | [詳細](docs/architecture/overview.md#7-ストレージ層) |
 | クロスチェーン連携 | IBC対応、他のブロックチェーンとの相互運用性 | 2026年~ | [詳細](docs/features/cross-chain.md) |
 | ゼロ知識証明 | プライバシー保護、スケーラビリティ向上 | 研究段階 | [詳細](docs/features/zero-knowledge.md) |
+| カーボンニュートラル運用 | ブロックチェーン運用のカーボンオフセット | 2026年~ | [詳細](docs/features/carbon-neutral.md) |
 
 > 📅 **注意**: ロードマップは開発の進捗や優先順位の変更により調整される場合があります。
 
@@ -224,4 +246,5 @@ Rustoriumは[MIT](LICENSE)ライセンスの下で公開されています。
 <div align="center">
   <p>🌟 Rustoriumにスターを付けて応援してください！ 🌟</p>
   <p>質問やフィードバックは<a href="https://github.com/enablerdao/rustorium/issues">GitHub Issues</a>までお気軽に。</p>
+  <p>「ブロックチェーンは、リソースが増えるほどスケールし、速くなるべきであり、無駄なコンピュータリソースを使わないように設計されるべきだ」 - Rustorium チーム</p>
 </div>
