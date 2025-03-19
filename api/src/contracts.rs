@@ -1,4 +1,3 @@
-use crate::blockchain::{Account, Transaction, TransactionStatus};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -98,6 +97,7 @@ pub struct CallContractResult {
 }
 
 /// コントラクト管理モジュール
+#[derive(Clone)]
 pub struct ContractManager {
     pub contracts: HashMap<String, Contract>,
 }
@@ -139,7 +139,7 @@ impl ContractManager {
         address: &str,
         method: &str,
         args: Option<&str>,
-        caller: &str,
+        _caller: &str,
     ) -> Result<String, String> {
         // コントラクトの存在確認
         let contract = match self.contracts.get_mut(address) {
@@ -183,5 +183,10 @@ impl ContractManager {
     /// すべてのコントラクトを取得
     pub fn get_all_contracts(&self) -> Vec<&Contract> {
         self.contracts.values().collect()
+    }
+    
+    /// すべてのコントラクトをクローンして取得
+    pub fn get_all_contracts_cloned(&self) -> Vec<Contract> {
+        self.contracts.values().cloned().collect()
     }
 }

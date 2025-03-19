@@ -17,6 +17,7 @@ mod blockchain;
 mod contracts;
 use blockchain::{BlockchainState, Transaction};
 use contracts::{Contract, DeployContractRequest, CallContractRequest, CallContractResult};
+use uuid::Uuid;
 
 // トランザクション作成リクエスト
 #[derive(Debug, Serialize, Deserialize)]
@@ -286,7 +287,7 @@ async fn list_contracts(
     let app_state = state.lock().unwrap();
     let blockchain = app_state.blockchain_state.blockchain.lock().unwrap();
     
-    let contracts = blockchain.contract_manager.get_all_contracts();
+    let contracts = blockchain.contract_manager.get_all_contracts_cloned();
     
     (StatusCode::OK, Json(ApiResponse::success(contracts)))
 }
@@ -354,7 +355,7 @@ async fn deploy_contract(
         "gas_cost": gas_cost
     });
     
-    (StatusCode::CREATED, Json(ApiResponse::success(response)))
+    (StatusCode::CREATED, Json(ApiResponse::success(response.to_string())))
 }
 
 // コントラクト情報の取得
@@ -367,7 +368,10 @@ async fn get_contract(
     
     // コントラクトの存在確認
     match blockchain.contract_manager.get_contract(&address) {
-        Some(contract) => (StatusCode::OK, Json(ApiResponse::success(contract))),
+        Some(contract) => {
+            let contract_clone = contract.clone();
+            (StatusCode::OK, Json(ApiResponse::success(contract_clone)))
+        },
         None => (
             StatusCode::NOT_FOUND,
             Json(ApiResponse::<Contract>::error(format!(
