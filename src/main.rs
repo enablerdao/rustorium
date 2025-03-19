@@ -12,7 +12,7 @@ mod blockchain;
 mod sustainable;
 mod network;
 
-use cli::{AppOptions, AppState, InteractiveConsole, ServerManager};
+use cli::{AppOptions, AppState, InteractiveConsole};
 use core::{
     dag::{DAGManager, Transaction, TxId},
     avalanche::AvalancheEngine,
@@ -100,56 +100,45 @@ async fn main() -> Result<()> {
         network.clone(),
     ));
 
-    // ポート設定（標準的なポートを優先）
-    let api_preferred_ports = vec![8001, 3001, 5001, 8081, 9001, 50128];
-    let frontend_preferred_ports = vec![8000, 3000, 5000, 8080, 9000, 55560];
-    
-    // 使用可能なポートを見つける関数
-    let find_available_port = |preferred_ports: &[u16]| -> u16 {
-        for &port in preferred_ports {
-            // ポートが使用可能かチェック
-            match std::net::TcpListener::bind(format!("0.0.0.0:{}", port)) {
-                Ok(listener) => {
-                    // リスナーをドロップして、ポートを解放
-                    drop(listener);
-                    return port;
-                },
-                Err(_) => continue,
-            }
-        }
-        // すべてのポートが使用中の場合はランダムなポートを使用
-        let listener = std::net::TcpListener::bind("0.0.0.0:0").expect("Failed to bind to random port");
-        let addr = listener.local_addr().expect("Failed to get local address");
-        drop(listener);
-        addr.port()
+    // トークンマネージャーの初期化
+    let token_manager = Arc::new(TokenManager::new(storage.clone()));
+
+    // APIサーバーの初期化
+    let api_config = ApiConfig {
+        host: options.api_host.unwrap_or_else(|| "127.0.0.1".to_string()),
+        rest_port: options.api_port.unwrap_or(8001),
+        ws_port: options.ws_port.unwrap_or(8002),
+        graphql_port: options.graphql_port.unwrap_or(8003),
+        cors_origin: options.cors_origin.unwrap_or_else(|| "*".to_string()),
+        rate_limit: options.rate_limit.unwrap_or(1000),
     };
-    
-    let api_port = options.api_port.unwrap_or_else(|| find_available_port(&api_preferred_ports));
-    let frontend_port = options.frontend_port.unwrap_or_else(|| find_available_port(&frontend_preferred_ports));
+
+    let api_server = ApiServer::new(
+        api_config.clone(),
+        token_manager.clone(),
+        dag_manager.clone(),
+        shard_manager.clone(),
+    );
 
     // アプリケーション状態の初期化
     let app_state = AppState {
-        api_port,
-        frontend_port,
+        api_port: api_config.rest_port,
+        ws_port: api_config.ws_port,
+        graphql_port: api_config.graphql_port,
         locale: LocaleConfig::new("en"), // デフォルトは英語
-        api_url: format!("http://localhost:{}", api_port),
-        frontend_url: format!("http://localhost:{}", frontend_port),
+        api_url: format!("http://localhost:{}", api_config.rest_port),
+        ws_url: format!("ws://localhost:{}", api_config.ws_port),
+        graphql_url: format!("http://localhost:{}", api_config.graphql_port),
         dag_manager: dag_manager.clone(),
         avalanche: avalanche.clone(),
         shard_manager: shard_manager.clone(),
+        token_manager: token_manager.clone(),
         network: network.clone(),
     };
 
-    // サーバーマネージャーの初期化と起動
-    let server_manager = ServerManager::new(
-        api_port,
-        frontend_port,
-        options.api_only,
-        options.frontend_only,
-        options.fast,
-        options.release,
-    );
-    server_manager.start_servers().await?;
+    // APIサーバーの起動
+    info!("Starting API servers...");
+    api_server.start().await?;
 
     // P2Pネットワークの起動
     info!("Starting P2P network...");
@@ -176,8 +165,8 @@ async fn main() -> Result<()> {
     // P2Pネットワークの停止
     network.stop().await?;
     
-    // サーバーの停止
-    server_manager.stop_servers()?;
+    // APIサーバーの停止
+    api_server.stop().await?;
     
     println!("{}", style("✨ Thank you for using Rustorium!").green().bold());
 
