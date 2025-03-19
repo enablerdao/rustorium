@@ -38,67 +38,30 @@ pub trait TypedStorage: StorageEngine {
     async fn put<K, V>(&self, cf: &str, key: K, value: &V) -> Result<()>
     where
         K: AsRef<[u8]> + Send + Sync,
-        V: Serialize + Send + Sync,
-    {
-        let value_bytes = bincode::serialize(value)?;
-        self.put_bytes(cf, key.as_ref(), &value_bytes).await
-    }
+        V: Serialize + Send + Sync;
 
     /// 型付きの値を取得
     async fn get<K, V>(&self, cf: &str, key: K) -> Result<Option<V>>
     where
         K: AsRef<[u8]> + Send + Sync,
-        V: DeserializeOwned + Send + Sync,
-    {
-        if let Some(bytes) = self.get_bytes(cf, key.as_ref()).await? {
-            Ok(Some(bincode::deserialize(&bytes)?))
-        } else {
-            Ok(None)
-        }
-    }
+        V: DeserializeOwned + Send + Sync;
 
     /// 型付きのキーを削除
     async fn delete<K>(&self, cf: &str, key: K) -> Result<()>
     where
-        K: AsRef<[u8]> + Send + Sync,
-    {
-        self.delete_bytes(cf, key.as_ref()).await
-    }
+        K: AsRef<[u8]> + Send + Sync;
 
     /// 型付きのプレフィックスでスキャン
     async fn scan_prefix<K, V>(&self, cf: &str, prefix: K) -> Result<Vec<(Vec<u8>, V)>>
     where
         K: AsRef<[u8]> + Send + Sync,
-        V: DeserializeOwned + Send + Sync,
-    {
-        let pairs = self.scan_prefix_bytes(cf, prefix.as_ref()).await?;
-        let mut result = Vec::with_capacity(pairs.len());
-        for (key, value) in pairs {
-            result.push((key, bincode::deserialize(&value)?));
-        }
-        Ok(result)
-    }
+        V: DeserializeOwned + Send + Sync;
 
     /// 型付きのバッチ書き込み
     async fn batch_write<K, V>(&self, cf: &str, pairs: &[(K, &V)]) -> Result<()>
     where
         K: AsRef<[u8]> + Send + Sync,
-        V: Serialize + Send + Sync,
-    {
-        let mut bytes_pairs = Vec::with_capacity(pairs.len());
-        let mut value_bytes_vec = Vec::with_capacity(pairs.len());
-
-        for (key, value) in pairs {
-            let value_bytes = bincode::serialize(value)?;
-            value_bytes_vec.push(value_bytes);
-        }
-
-        for (i, (key, _)) in pairs.iter().enumerate() {
-            bytes_pairs.push((key.as_ref(), value_bytes_vec[i].as_slice()));
-        }
-
-        self.batch_write_bytes(cf, &bytes_pairs).await
-    }
+        V: Serialize + Send + Sync;
 }
 
 /// カラムファミリー名の定義

@@ -146,6 +146,13 @@ impl TypedStorage for RocksDBStorage {
         }
     }
 
+    async fn delete<K>(&self, cf: &str, key: K) -> Result<()>
+    where
+        K: AsRef<[u8]> + Send + Sync,
+    {
+        self.delete_bytes(cf, key.as_ref()).await
+    }
+
     async fn scan_prefix<K, V>(&self, cf: &str, prefix: K) -> Result<Vec<(Vec<u8>, V)>>
     where
         K: AsRef<[u8]> + Send + Sync,
