@@ -4,27 +4,58 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v0.1.0)'
+        required: false
+        default: ''
 
 jobs:
   create-release:
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
+      - name: Get version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ steps.get_version.outputs.version }}
+          release_name: Release ${{ steps.get_version.outputs.version }}
           draft: false
           prerelease: false
+          body: |
+            ## Installation
+            ```bash
+            curl -sSf https://raw.githubusercontent.com/enablerdao/rustorium/main/scripts/install.sh | bash
+            ```
+
+            ## Features
+            - Auto-detection of interactive environment
+            - 10-second countdown with keyboard/mouse input detection
+            - Automatic background mode
+            - Pre-built binaries for multiple platforms
 
   build-release:
     needs: create-release
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -38,7 +69,7 @@ jobs:
             artifact_name: rustorium-darwin-aarch64.tar.gz
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -47,9 +78,32 @@ jobs:
           target: ${{ matrix.target }}
           override: true
 
-      - name: Build binary (with bundled rocksdb)
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install sccache
+        uses: mozilla-actions/sccache-action@v0.0.3
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "rustorium-${{ matrix.target }}"
+
+      - name: Build binary
+        env:
+          RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTFLAGS: "-C target-cpu=native"
         run: |
-          RUSTFLAGS="-C target-cpu=native" cargo build --profile fast --target ${{ matrix.target }} --features bundled-rocksdb
+          cargo build --profile fast --target ${{ matrix.target }} --features bundled-rocksdb
 
       - name: Create tarball
         run: |
@@ -64,3 +118,14 @@ jobs:
           asset_path: ./${{ matrix.artifact_name }}
           asset_name: ${{ matrix.artifact_name }}
           asset_content_type: application/gzip
+
+  update-latest:
+    needs: [create-release, build-release]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Update latest tag
+        run: |
+          git tag -f latest
+          git push -f origin latest

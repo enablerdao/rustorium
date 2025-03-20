@@ -1,37 +1,22 @@
-[target.x86_64-unknown-linux-gnu]
-linker = "clang"
-rustflags = ["-C", "link-arg=-fuse-ld=lld"]
-
 [build]
 rustc-wrapper = "sccache"
-jobs = 8  # 並列ビルドジョブ数
+target-dir = "/tmp/cargo-target"
 
-[profile.dev]
-opt-level = 1        # 最適化レベルを上げる
-debug = 0           # デバッグ情報を減らす
-debug-assertions = true
-overflow-checks = true
-lto = false
-panic = 'unwind'
-incremental = true
-codegen-units = 512  # 並列コード生成ユニット数を増やす
-rpath = false
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "target-cpu=native"]
 
-[profile.dev.build-override]
-opt-level = 0
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "target-cpu=native"]
 
-[profile.release]
-opt-level = 3
+[target.aarch64-apple-darwin]
+rustflags = ["-C", "target-cpu=native"]
+
+[profile.fast]
+inherits = "release"
+opt-level = 2
 debug = false
-debug-assertions = false
-overflow-checks = false
-lto = true
-panic = 'unwind'
-incremental = false
-codegen-units = 16
-rpath = false
-
-[env]
-RUSTC_WRAPPER = "sccache"
-SCCACHE_CACHE_SIZE = "10G"
-SCCACHE_DIR = "/tmp/sccache"
+strip = true
+lto = "thin"
+panic = "abort"
+codegen-units = 256
+incremental = true
