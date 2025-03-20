@@ -7,6 +7,7 @@ use rustorium::{
 
 use tracing::{info, Level};
 use tracing_subscriber::fmt;
+use console::style;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -30,16 +31,7 @@ async fn main() -> Result<()> {
         .expect("Failed to set tracing subscriber");
 
     // 設定の読み込みと更新
-    let config_path = args.data_dir.join("config.toml");
-    let mut config = if config_path.exists() {
-        NodeConfig::load(config_path.to_str().unwrap())?
-    } else {
-        let config = NodeConfig::default();
-        config.save(config_path.to_str().unwrap())?;
-        config
-    };
-
-    // コマンドライン引数で設定を更新
+    let mut config = NodeConfig::default();
     config.update_from_args(&args);
 
     // ノードの役割を自動判定
@@ -53,8 +45,14 @@ async fn main() -> Result<()> {
     let mut service_manager = ServiceManager::new(config.clone());
     service_manager.start().await?;
 
-    // インタラクティブコンソールを起動
-    InteractiveConsole::run(&service_manager).await?;
+    // インタラクティブコンソールを起動（--no-interactiveが指定されていない場合）
+    if !args.no_interactive {
+        InteractiveConsole::run(&service_manager).await?;
+    } else {
+        // バックグラウンドモードの場合は、Ctrl+Cを待機
+        tokio::signal::ctrl_c().await?;
+        println!("\n{}", style("Received Ctrl+C, shutting down...").dim());
+    }
 
     // シャットダウン処理
     info!("Shutting down...");

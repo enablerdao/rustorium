@@ -11,19 +11,16 @@ pub mod api;
 use std::sync::Arc;
 use axum::{
     Router,
-    routing::get,
+    routing::get_service,
     response::{IntoResponse, Response},
-    http::{StatusCode, header},
+    http::StatusCode,
     Json,
 };
-use tower::ServiceBuilder;
 use tower_http::{
-    trace::TraceLayer,
-    cors::{CorsLayer, Any},
+    services::ServeDir,
+    cors::CorsLayer,
 };
-
-use tracing::info;
-use rust_embed::RustEmbed;
+use tracing::{info, error};
 use serde_json::json;
 use thiserror::Error;
 use crate::config::NodeConfig;
@@ -98,10 +95,6 @@ pub struct AppState {
     pub config: Arc<NodeConfig>,
 }
 
-#[derive(RustEmbed)]
-#[folder = "frontend/"]
-struct Asset;
-
 #[derive(Debug, Clone)]
 pub struct WebServer {
     port: u16,
@@ -119,77 +112,40 @@ impl WebServer {
     }
 
     pub async fn run(&self) -> anyhow::Result<()> {
-        // APIルーターの作成
-        let api_router = api::create_router(AppState { config: self.config.clone() });
-
         // 静的ファイルのハンドラー
-        let static_handler = get(serve_static);
+        let serve_dir = ServeDir::new("frontend");
 
         // ルーターの作成
         let app = Router::new()
-            .nest("/api", api_router)
-            .route("/", static_handler.clone())
-            .route("/index.html", static_handler.clone())
-            .route("/manifest.json", static_handler.clone())
-            .route("/sw.js", static_handler.clone())
-            .route("/css/*file", static_handler.clone())
-            .route("/js/*file", static_handler.clone())
-            .route("/icons/*file", static_handler.clone())
-            .layer(
-                ServiceBuilder::new()
-                    .layer(TraceLayer::new_for_http())
-                    .layer(CorsLayer::new()
-                        .allow_origin(Any)
-                        .allow_methods(Any)
-                        .allow_headers(Any))
-                    .into_inner()
-            );
+            .nest("/api", api::create_router(AppState { config: self.config.clone() }))
+            .nest_service("/", get_service(serve_dir))
+            .layer(CorsLayer::permissive());
 
         // サーバーの起動
-        use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-        let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), self.port);
-        info!("Starting web server on 0.0.0.0:{}", self.port);
-        
-        let shutdown_signal = self.shutdown.clone();
+        let addr = std::net::SocketAddr::from(([0, 0, 0, 0], self.port));
+        info!("Starting web server on {}", addr);
+
         let listener = tokio::net::TcpListener::bind(addr).await?;
         let server = axum::serve(listener, app);
 
-        let graceful = server.with_graceful_shutdown(async move {
-            shutdown_signal.notified().await;
-        });
+        // シャットダウンシグナルを待機
+        let shutdown_signal = self.shutdown.clone();
+        tokio::select! {
+            result = server => {
+                if let Err(e) = result {
+                    error!("Web server error: {}", e);
+                }
+            }
+            _ = shutdown_signal.notified() => {
+                info!("Shutdown signal received");
+            }
+        }
 
-        graceful.await?;
         info!("Web server stopped");
-
         Ok(())
     }
 
     pub fn shutdown(&self) {
         self.shutdown.notify_one();
-    }
-}
-
-async fn serve_static(uri: axum::http::Uri) -> impl IntoResponse {
-    let path = uri.path().trim_start_matches('/');
-    let path = if path.is_empty() { "index.html" } else { path };
-
-    info!("Serving static file: {}", path);
-
-    match Asset::get(path) {
-        Some(content) => {
-            let mime = mime_guess::from_path(path).first_or_octet_stream();
-            info!("Found file: {} (mime: {})", path, mime);
-            Response::builder()
-                .header(header::CONTENT_TYPE, mime.as_ref())
-                .body(axum::body::Body::from(content.data))
-                .unwrap()
-        }
-        None => {
-            info!("File not found: {}", path);
-            Response::builder()
-                .status(StatusCode::NOT_FOUND)
-                .body("404 Not Found".into())
-                .unwrap()
-        }
     }
 }

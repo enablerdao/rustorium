@@ -41,6 +41,10 @@ pub struct AppOptions {
     /// テストモードのノード数 (default: 1)
     #[structopt(long, default_value = "1")]
     pub nodes: u8,
+
+    /// CUIを開かずにバックグラウンドで実行
+    #[structopt(long)]
+    pub no_interactive: bool,
 }
 
 impl AppOptions {

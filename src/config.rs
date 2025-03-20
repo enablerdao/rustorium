@@ -46,6 +46,8 @@ pub struct NodeSettings {
 /// ネットワーク設定
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct NetworkSettings {
+    /// ネットワークの有効化
+    pub enabled: bool,
     /// ホストアドレス
     pub host: String,
     /// 基本ポート（P2P用）
@@ -147,8 +149,9 @@ impl Default for NodeConfig {
                 log_level: "info".to_string(),
             },
             network: NetworkSettings {
+                enabled: true,
                 host: "0.0.0.0".to_string(),
-                port: 8000,
+                port: 9070,  // ダッシュボードポート
                 external_addr: None,
                 bootstrap_nodes: vec![
                     // メインネットのブートストラップノード
@@ -156,20 +159,20 @@ impl Default for NodeConfig {
                     "/ip4/mainnet2.rustorium.org/tcp/4001/p2p/12D3KooWBmT4c6YvhVYy3KmXMEGaxJXuTVqGtCwwS2GTncxSoje7".to_string(),
                 ],
             },
+            web: WebSettings {
+                enabled: true,
+                port_offset: 0,  // 9070 (ダッシュボード)
+                open_browser: false,
+            },
             api: ApiSettings {
                 enabled: true,
-                port_offset: 2,
+                port_offset: 1,  // 9071 (API)
                 rate_limit: 1000,
                 cors_origins: vec!["*".to_string()],
             },
-            web: WebSettings {
-                enabled: true,
-                port_offset: 1,
-                open_browser: false,
-            },
             websocket: WebSocketSettings {
                 enabled: true,
-                port_offset: 3,
+                port_offset: 2,  // 9072 (WebSocket)
             },
             validator: ValidatorSettings {
                 stake: 0,
@@ -183,7 +186,7 @@ impl Default for NodeConfig {
             },
             storage: StorageSettings {
                 engine: "rocksdb".to_string(),
-                path: PathBuf::from("data/db"),
+                path: PathBuf::new(),  // 空のパスを設定
                 max_open_files: 1000,
                 cache_size: 512,
             },
@@ -215,7 +218,11 @@ impl NodeConfig {
     /// コマンドライン引数から設定を更新
     pub fn update_from_args(&mut self, args: &AppOptions) {
         // 基本設定
-        self.node.data_dir = args.data_dir.clone().into();
+        self.node.data_dir = if args.data_dir.as_os_str().is_empty() {
+            PathBuf::from("data")
+        } else {
+            args.data_dir.clone().into()
+        };
         self.node.log_level = args.log_level.clone();
 
         // ネットワーク設定
