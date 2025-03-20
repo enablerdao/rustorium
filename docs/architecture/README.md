@@ -1,298 +1,169 @@
-<div align="center">
+# アーキテクチャ概要
 
-# 🏗 アーキテクチャ設計
+Rustoriumは、高性能で拡張性の高いブロックチェーンプラットフォームです。以下に、主要なコンポーネントと技術スタックを説明します。
 
-**Rustoriumの技術スタックと設計思想**
-
-<img src="../images/architecture.png" alt="Architecture Overview" width="800px">
-
-</div>
-
----
-
-## 📖 目次
-
-- [設計思想](#-設計思想)
-- [システム構成](#-システム構成)
-- [コアコンポーネント](#-コアコンポーネント)
-- [データフロー](#-データフロー)
-- [スケーラビリティ](#-スケーラビリティ)
-- [セキュリティ](#-セキュリティ)
-- [運用性](#-運用性)
-
----
-
-## 🎯 設計思想
-
-Rustoriumは以下の3つの設計原則に基づいて構築されています：
-
-### 1. 超低遅延
-
-- **QUICベースP2P**: 最新のトランスポートプロトコル
-- **地理的最適化**: クライアントに最も近いノードで処理
-- **パイプライン処理**: 並列性の最大活用
-
-### 2. 高スケーラビリティ
-
-- **動的シャーディング**: 負荷に応じた自動分散
-- **地理分散処理**: グローバルな処理の最適化
-- **水平スケーリング**: ノード数に応じた線形なスケール
-
-### 3. 高信頼性
-
-- **ZK証明**: 数学的な正当性の保証
-- **AI自己最適化**: 継続的なパフォーマンス改善
-- **自動障害検知/回復**: システムの堅牢性確保
-
----
-
-## 🔄 システム構成
+## システムアーキテクチャ
 
 ```mermaid
 graph TD
-    Client[クライアント] --> API[API Gateway]
-    API --> TxPool[トランザクションプール]
-    TxPool --> Consensus[合意形成エンジン]
-    Consensus --> Cache[キャッシュレイヤー]
-    Cache --> Storage[ストレージエンジン]
-    
-    subgraph "クライアントレイヤー"
-        Client
-        API
-    end
-    
-    subgraph "処理レイヤー"
-        TxPool
-        Consensus
-    end
-    
-    subgraph "データレイヤー"
-        Cache
-        Storage
-    end
-
-    style Client fill:#f9f,stroke:#333,stroke-width:2px
-    style API fill:#bbf,stroke:#333,stroke-width:2px
-    style TxPool fill:#dfd,stroke:#333,stroke-width:2px
-    style Consensus fill:#ffd,stroke:#333,stroke-width:2px
-    style Cache fill:#dff,stroke:#333,stroke-width:2px
-    style Storage fill:#fdf,stroke:#333,stroke-width:2px
+    A[クライアントアプリケーション] --> B[API Gateway]
+    B --> C[ノードサービス]
+    C --> D1[トランザクション処理]
+    C --> D2[コンセンサスエンジン]
+    C --> D3[P2Pネットワーク]
+    D1 --> E[ストレージレイヤー]
+    D2 --> E
+    D3 --> E
 ```
 
----
+## 技術スタック詳細
 
-## 🛠 コアコンポーネント
-
-### 1. トランザクション処理
-
-```rust
-/// トランザクション処理エンジン
-pub trait TransactionProcessor {
-    /// トランザクションの送信
-    async fn submit_transaction(&self, tx: Transaction) -> Result<TxReceipt>;
-    
-    /// トランザクションの状態確認
-    async fn get_transaction(&self, tx_hash: Hash) -> Result<Option<Transaction>>;
-    
-    /// トランザクションストリームの購読
-    async fn subscribe_transactions(&self) -> Result<TransactionStream>;
-}
-
-/// トランザクションの構造
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Transaction {
-    /// トランザクションID
-    pub id: TxId,
-    
-    /// 送信者の位置情報
-    pub location: GeoLocation,
-    
-    /// トランザクションデータ
-    pub data: Vec<u8>,
-    
-    /// 署名
-    pub signature: Signature,
-}
+### 1. データストレージ層
+```
+Storage Layer
+├── KVストア: RocksDB
+│   ├── 高速な読み書き
+│   ├── 組み込み可能
+│   └── Column Family対応
+│
+├── ステート管理: Redb
+│   ├── Rustネイティブ
+│   ├── ACID準拠
+│   └── トランザクションサポート
+│
+└── キャッシュ層: Moka
+    ├── 高性能なRustキャッシュ
+    ├── メモリ制限対応
+    └── TTLサポート
 ```
 
-### 2. 合意形成
-
-```rust
-/// 合意形成エンジン
-pub trait ConsensusEngine {
-    /// ブロックの提案
-    async fn propose_block(&self, block: Block) -> Result<BlockHash>;
-    
-    /// ブロックの検証
-    async fn validate_block(&self, block: &Block) -> Result<bool>;
-    
-    /// クォーラムの待機
-    async fn wait_for_quorum(&self, block_hash: BlockHash) -> Result<()>;
-}
-
-/// ブロックの構造
-#[derive(Debug, Clone)]
-pub struct Block {
-    /// ブロックヘッダー
-    pub header: BlockHeader,
-    
-    /// トランザクションリスト
-    pub transactions: Vec<Transaction>,
-    
-    /// 証明
-    pub proof: BlockProof,
-}
+### 2. ネットワーク層
+```
+Network Layer
+├── P2P通信: libp2p
+│   ├── 実績のあるP2Pライブラリ
+│   ├── 多様なトランスポート
+│   └── PubSubサポート
+│
+├── RPCサーバー: tonic (gRPC)
+│   ├── 高性能
+│   ├── 双方向ストリーミング
+│   └── プロトコルバッファ
+│
+└── WebSocket: tokio-tungstenite
+    ├── 非同期対応
+    ├── 標準準拠
+    └── 軽量
 ```
 
-### 3. ストレージ
-
-```rust
-/// ストレージエンジン
-pub trait Storage {
-    /// データの書き込み（証明付き）
-    async fn write_with_proof(&self, key: &[u8], value: &[u8]) -> Result<WriteResult>;
-    
-    /// データの読み取り
-    async fn read(&self, key: &[u8]) -> Result<Option<ReadResult>>;
-    
-    /// 証明の検証
-    async fn verify_proof(&self, proof: &Proof) -> Result<bool>;
-}
-
-/// 書き込み結果
-#[derive(Debug)]
-pub struct WriteResult {
-    /// マークルプルーフ
-    pub proof: MerkleProof,
-    
-    /// タイムスタンプ
-    pub timestamp: SystemTime,
-}
+### 3. コンセンサス層
+```
+Consensus Layer
+├── コンセンサスエンジン: Tendermint
+│   ├── BFT合意形成
+│   ├── 実績あり
+│   └── Rust実装利用
+│
+├── バリデーター管理: 独自実装
+│   ├── PoS (Proof of Stake)
+│   ├── スラッシング
+│   └── 報酬分配
+│
+└── 同期管理: 独自実装
+    ├── ブロック同期
+    ├── ステート同期
+    └── スナップショット
 ```
 
----
-
-## 📊 データフロー
-
-### 1. トランザクション処理フロー
-
-```mermaid
-sequenceDiagram
-    participant C as クライアント
-    participant T as トランザクション層
-    participant Co as 合意形成層
-    participant Ca as キャッシュ層
-    participant S as ストレージ層
-
-    C->>T: トランザクション送信
-    T->>Co: 合意形成要求
-    Co->>Ca: キャッシュ更新
-    Ca->>S: 永続化
-    S-->>C: 完了通知
+### 4. トランザクション処理
+```
+Transaction Layer
+├── 実行エンジン: Wasmer
+│   ├── WebAssembly実行
+│   ├── サンドボックス化
+│   └── 高速な実行
+│
+├── メモリプール: 独自実装
+│   ├── トランザクションキュー
+│   ├── 優先度付け
+│   └── ガス価格調整
+│
+└── 署名検証: ed25519-dalek
+    ├── 高速な署名検証
+    ├── バッチ処理対応
+    └── セキュア
 ```
 
-### 2. クエリ処理フロー
+## パフォーマンス特性
 
-```mermaid
-sequenceDiagram
-    participant C as クライアント
-    participant Ca as キャッシュ層
-    participant S as ストレージ層
+### トランザクション処理
+- **スループット**: 100,000+ TPS
+- **レイテンシ**: < 100ms
+- **ファイナリティ**: 2-3秒
 
-    C->>Ca: クエリ要求
-    alt キャッシュヒット
-        Ca-->>C: 即時レスポンス
-    else キャッシュミス
-        Ca->>S: ストレージ検索
-        S-->>Ca: データ取得
-        Ca-->>C: レスポンス
-    end
-```
+### スケーラビリティ
+- **シャーディング**: 動的なシャード管理
+- **ステート分割**: 効率的なステート管理
+- **並列処理**: マルチコア活用
 
----
+### リソース要件
+- **CPU**: 4コア以上推奨
+- **メモリ**: 8GB以上推奨
+- **ストレージ**: SSD推奨、100GB以上
 
-## 📈 スケーラビリティ
+## セキュリティ設計
 
-### 垂直スケーリング
-- **CPU**: 最大128コア
-- **メモリ**: 最大2TB
-- **ストレージ**: 最大1PB
+### 暗号化
+- **トランザクション**: ED25519署名
+- **通信**: TLS 1.3
+- **ストレージ**: 暗号化オプション
 
-### 水平スケーリング
-- **ノード**: 無制限
-- **シャード**: 動的
-- **リージョン**: グローバル
+### アクセス制御
+- **ノード認証**: TLS証明書
+- **API認証**: JWT/APIキー
+- **管理者認証**: マルチシグ
 
-### 最適化
-- **自動負荷分散**
-- **予測的スケーリング**
-- **リソース最適化**
+### 監査
+- **トランザクションログ**: 永続化
+- **セキュリティログ**: 集中管理
+- **監査証跡**: 改ざん検知
 
----
+## モニタリング・運用
 
-## 🔒 セキュリティ
+### メトリクス収集
+- **システムメトリクス**: CPU、メモリ、ディスク
+- **アプリケーションメトリクス**: TPS、レイテンシ
+- **ネットワークメトリクス**: P2P接続、帯域
 
-### 1. 暗号化
-- **通信**: TLS 1.3 + QUIC
-- **ストレージ**: AES-256-GCM
-- **メモリ**: セキュアメモリ
+### ロギング
+- **構造化ログ**: JSON形式
+- **ログレベル**: ERROR、WARN、INFO、DEBUG
+- **ログ集約**: ELKスタック
 
-### 2. 検証
-- **トランザクション**: ZKプルーフ
-- **ステート**: Verkle Trees
-- **ネットワーク**: P2P認証
-
-### 3. 監視
+### アラート
+- **リソース監視**: 閾値ベース
 - **異常検知**: AIベース
-- **監査ログ**: 改ざん検知付き
-- **メトリクス**: Prometheus + Grafana
+- **通知**: Slack、Email、PagerDuty
 
----
+## 開発者リソース
 
-## 🔧 運用性
+### SDKs
+- [Rust SDK](../sdk/rust/README.md)
+- [TypeScript SDK](../sdk/typescript/README.md)
+- [Python SDK](../sdk/python/README.md)
 
-### 1. モニタリング
-```bash
-# メトリクス収集
-rustorium metrics collect
+### ツール
+- [CLIツール](../tools/cli/README.md)
+- [デバッガー](../tools/debugger/README.md)
+- [モニタリングツール](../tools/monitoring/README.md)
 
-# パフォーマンス分析
-rustorium analyze performance
+### ドキュメント
+- [API リファレンス](../api/README.md)
+- [運用ガイド](../guides/operations.md)
+- [セキュリティガイド](../guides/security.md)
 
-# ログ集約
-rustorium logs aggregate
-```
+## 関連リソース
 
-### 2. 管理機能
-```bash
-# ノード追加
-rustorium node add --region asia-northeast
-
-# シャード再配置
-rustorium shard rebalance
-
-# バックアップ作成
-rustorium backup create
-```
-
-### 3. 障害対応
-```bash
-# 自動復旧
-rustorium recover auto
-
-# 手動復旧
-rustorium recover manual
-
-# 状態確認
-rustorium status check
-```
-
----
-
-## 📚 関連ドキュメント
-
-- [QUIC実装詳細](../features/quic.md)
-- [ストレージ設計](storage.md)
-- [シャーディング](../features/sharding.md)
-- [パフォーマンスチューニング](../guides/performance.md)
-
+- [実装ロードマップ](../roadmap.md)
+- [コントリビューションガイド](../../CONTRIBUTING.md)
+- [リリースノート](../releases/README.md)
