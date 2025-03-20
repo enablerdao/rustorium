@@ -5,17 +5,20 @@ use crate::{
     config::NodeConfig,
     web::WebServer,
     core::{
-        storage::RocksDBStorage,
+        storage::redb_storage::RedbStorage,
         network::P2PNetwork,
+        ai::AiOptimizer,
     },
 };
+use tokio::sync::Mutex;
 
 /// サービスマネージャー
 pub struct ServiceManager {
     config: NodeConfig,
-    storage: Option<Arc<RocksDBStorage>>,
+    storage: Option<Arc<RedbStorage>>,
     network: Option<Arc<P2PNetwork>>,
     web_server: Option<WebServer>,
+    ai_optimizer: Option<Arc<Mutex<AiOptimizer>>>,
 }
 
 impl ServiceManager {
@@ -26,7 +29,18 @@ impl ServiceManager {
             storage: None,
             network: None,
             web_server: None,
+            ai_optimizer: None,
         }
+    }
+
+    /// ストレージエンジンを設定
+    pub fn set_storage(&mut self, storage: Arc<RedbStorage>) {
+        self.storage = Some(storage);
+    }
+
+    /// AI最適化エンジンを設定
+    pub fn set_ai_optimizer(&mut self, optimizer: Arc<Mutex<AiOptimizer>>) {
+        self.ai_optimizer = Some(optimizer);
     }
 
     /// 設定を取得
@@ -42,14 +56,21 @@ impl ServiceManager {
 
     /// 平均レイテンシーを取得
     pub async fn get_average_latency(&self) -> u32 {
-        // TODO: 実際のP2Pネットワークから平均レイテンシーを取得
-        0
+        if let Some(optimizer) = &self.ai_optimizer {
+            let metrics = optimizer.lock().await.get_network_metrics().await;
+            metrics.average_latency as u32
+        } else {
+            0
+        }
     }
 
     /// ブロック数を取得
     pub async fn get_block_count(&self) -> u64 {
-        // TODO: 実際のブロックチェーンからブロック数を取得
-        0
+        if let Some(storage) = &self.storage {
+            storage.get_block_count().await.unwrap_or(0)
+        } else {
+            0
+        }
     }
 
     /// サービスを起動
@@ -57,16 +78,29 @@ impl ServiceManager {
         // データディレクトリを作成
         tokio::fs::create_dir_all(&self.config.node.data_dir).await?;
 
-        // ストレージエンジンを初期化
-        info!("Initializing storage engine...");
-        let storage_path = if self.config.storage.path.as_os_str().is_empty() {
-            self.config.node.data_dir.join("storage")
+        // ストレージエンジンの初期化確認
+        if let Some(storage) = &self.storage {
+            info!("Storage engine initialized");
         } else {
-            self.config.storage.path.clone()
-        };
-        tokio::fs::create_dir_all(&storage_path).await?;
-        let storage = Arc::new(RocksDBStorage::new(storage_path.to_str().unwrap())?);
-        self.storage = Some(storage.clone());
+            let storage_path = if self.config.storage.path.as_os_str().is_empty() {
+                self.config.node.data_dir.join("storage")
+            } else {
+                self.config.storage.path.clone()
+            };
+            tokio::fs::create_dir_all(&storage_path).await?;
+            let storage = Arc::new(RedbStorage::new(storage_path.to_str().unwrap())?);
+            self.storage = Some(storage);
+            info!("Storage engine initialized");
+        }
+
+        // AI最適化エンジンの初期化確認
+        if let Some(optimizer) = &self.ai_optimizer {
+            info!("AI optimization engine initialized");
+        } else {
+            let optimizer = Arc::new(Mutex::new(AiOptimizer::new()));
+            self.ai_optimizer = Some(optimizer);
+            info!("AI optimization engine initialized");
+        }
 
         // P2Pネットワークを初期化
         info!("Initializing P2P network...");
@@ -77,7 +111,7 @@ impl ServiceManager {
         // Web UIサーバーを起動
         if self.config.web.enabled {
             info!("Starting Web UI server...");
-            
+
             // ダッシュボード
             let web_server = WebServer::new(
                 self.config.network.port,  // 9070
@@ -123,7 +157,7 @@ impl ServiceManager {
     /// サービスを停止
     pub async fn stop(&mut self) -> Result<()> {
         info!("Stopping services...");
-        
+
         // 各サービスを停止
         if let Some(web_server) = self.web_server.take() {
             info!("Stopping Web UI server...");
@@ -136,12 +170,30 @@ impl ServiceManager {
             drop(network);
         }
 
+        if let Some(optimizer) = self.ai_optimizer.take() {
+            info!("Stopping AI optimization engine...");
+            // 最適化エンジンの適切な停止処理
+            let mut opt = optimizer.lock().await;
+            opt.shutdown().await?;
+        }
+
         if let Some(storage) = self.storage.take() {
             info!("Stopping storage engine...");
-            drop(storage);
+            // ストレージエンジンの適切な停止処理
+            storage.shutdown().await?;
         }
 
         info!("All services stopped");
         Ok(())
+    }
+
+    // ストレージエンジンへのアクセス
+    pub fn storage(&self) -> Option<&Arc<RedbStorage>> {
+        self.storage.as_ref()
+    }
+
+    // AI最適化エンジンへのアクセス
+    pub fn ai_optimizer(&self) -> Option<&Arc<Mutex<AiOptimizer>>> {
+        self.ai_optimizer.as_ref()
     }
 }

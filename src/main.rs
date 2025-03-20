@@ -3,8 +3,14 @@ use rustorium::{
     cli::console::InteractiveConsole,
     config::NodeConfig,
     services::ServiceManager,
+    core::{
+        storage::redb_storage::RedbStorage,
+        ai::AiOptimizer,
+    },
 };
 
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use tracing::{info, Level};
 use tracing_subscriber::fmt;
 use console::style;
@@ -41,8 +47,28 @@ async fn main() -> Result<()> {
     tokio::fs::create_dir_all(&config.node.data_dir).await?;
     tokio::fs::create_dir_all(&config.storage.path).await?;
 
+    // Redbストレージエンジンの初期化
+    let storage = Arc::new(RedbStorage::new(&config.storage.path)?);
+
+    // AI最適化エンジンの初期化
+    let ai_optimizer = Arc::new(Mutex::new(AiOptimizer::new()));
+
+    // 最適化タスクの開始
+    let ai_optimizer_clone = ai_optimizer.clone();
+    tokio::spawn(async move {
+        loop {
+            let mut optimizer = ai_optimizer_clone.lock().await;
+            if let Err(e) = optimizer.optimize_system().await {
+                tracing::error!("AI optimization error: {}", e);
+            }
+            tokio::time::sleep(tokio::time::Duration::from_secs(60)).await;
+        }
+    });
+
     // サービスマネージャーを作成して起動
     let mut service_manager = ServiceManager::new(config.clone());
+    service_manager.set_storage(storage);
+    service_manager.set_ai_optimizer(ai_optimizer);
     service_manager.start().await?;
 
     // インタラクティブコンソールを起動（--no-interactiveが指定されていない場合）
