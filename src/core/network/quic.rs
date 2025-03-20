@@ -1,11 +1,37 @@
 use anyhow::Result;
-use quinn::{Endpoint, ServerConfig, ClientConfig, Connection};
+use quinn::{Endpoint, ServerConfig, ClientConfig, Connection, TransportConfig};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::collections::HashMap;
 use std::net::SocketAddr;
+use std::time::Duration;
+use serde::{Serialize, Deserialize};
+use tracing::{info, warn, error};
 
-/// QUICベースのP2Pネットワーク管理
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NetworkConfig {
+    pub listen_addr: SocketAddr,
+    pub bootstrap_nodes: Vec<String>,
+    pub max_concurrent_streams: u32,
+    pub keep_alive_interval: Duration,
+    pub handshake_timeout: Duration,
+    pub idle_timeout: Duration,
+}
+
+impl Default for NetworkConfig {
+    fn default() -> Self {
+        Self {
+            listen_addr: "0.0.0.0:9070".parse().unwrap(),
+            bootstrap_nodes: vec![],
+            max_concurrent_streams: 1000,
+            keep_alive_interval: Duration::from_secs(10),
+            handshake_timeout: Duration::from_secs(10),
+            idle_timeout: Duration::from_secs(30),
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct QuicNetwork {
     endpoint: Endpoint,
     connections: Arc<Mutex<HashMap<PeerId, Connection>>>,
@@ -17,11 +43,19 @@ impl QuicNetwork {
         // QUICエンドポイントの設定
         let (endpoint, _server_cert) = Self::configure_endpoint(&config).await?;
         
-        Ok(Self {
+        let network = Self {
             endpoint,
             connections: Arc::new(Mutex::new(HashMap::new())),
             config,
-        })
+        };
+        
+        // 受信ハンドラーの開始
+        network.start_receiving().await?;
+        
+        // ブートストラップノードへの接続
+        network.connect_to_bootstrap_nodes().await?;
+        
+        Ok(network)
     }
 
     /// ピアへの接続
@@ -59,7 +93,7 @@ impl QuicNetwork {
         };
 
         // メッセージのシリアライズ
-        let data = message.serialize()?;
+        let data = bincode::serialize(&message)?;
 
         // 双方向ストリームを開く
         let (mut send, mut recv) = conn.open_bi().await?;
@@ -99,6 +133,18 @@ impl QuicNetwork {
         Ok(())
     }
 
+    /// ブートストラップノードへの接続
+    async fn connect_to_bootstrap_nodes(&self) -> Result<()> {
+        for node in &self.config.bootstrap_nodes {
+            let addr = node.parse()?;
+            let peer_id = PeerId::from_addr(&addr);
+            if let Err(e) = self.connect(peer_id, addr).await {
+                warn!("Failed to connect to bootstrap node {}: {}", node, e);
+            }
+        }
+        Ok(())
+    }
+
     /// エンドポイントの設定
     async fn configure_endpoint(config: &NetworkConfig) -> Result<(Endpoint, Vec<u8>)> {
         // 証明書の生成
@@ -106,12 +152,18 @@ impl QuicNetwork {
         let cert_der = cert.serialize_der()?;
         let priv_key = cert.serialize_private_key_der();
 
+        // トランスポート設定
+        let mut transport_config = TransportConfig::default();
+        transport_config.max_concurrent_uni_streams(config.max_concurrent_streams.into());
+        transport_config.keep_alive_interval(Some(config.keep_alive_interval));
+        transport_config.max_idle_timeout(Some(config.idle_timeout.try_into()?));
+
         // サーバー設定
         let mut server_config = ServerConfig::with_single_cert(
             vec![rustls::Certificate(cert_der.clone())],
             rustls::PrivateKey(priv_key)
         )?;
-        server_config.use_stateless_retry(true);
+        server_config.transport_config(Arc::new(transport_config.clone()));
 
         // クライアント設定
         let client_config = ClientConfig::new(Arc::new(
@@ -127,6 +179,27 @@ impl QuicNetwork {
 
         Ok((endpoint, cert_der))
     }
+
+    /// 接続されているピアの数を取得
+    pub async fn peer_count(&self) -> usize {
+        self.connections.lock().await.len()
+    }
+
+    /// 接続されているピアのリストを取得
+    pub async fn connected_peers(&self) -> Vec<PeerId> {
+        self.connections.lock().await.keys().cloned().collect()
+    }
+
+    /// ネットワーク統計を取得
+    pub async fn get_stats(&self) -> NetworkStats {
+        let connections = self.connections.lock().await;
+        NetworkStats {
+            peer_count: connections.len(),
+            total_bytes_sent: 0, // TODO: 実際の統計を実装
+            total_bytes_received: 0,
+            active_streams: 0,
+        }
+    }
 }
 
 /// 接続ハンドラー
@@ -135,23 +208,23 @@ async fn handle_connection(conn: Connection, peer_id: PeerId) {
         // データの受信
         let mut data = Vec::new();
         if let Err(e) = recv.read_to_end(&mut data).await {
-            eprintln!("Failed to read from stream: {}", e);
+            error!("Failed to read from stream: {}", e);
             continue;
         }
 
         // メッセージの処理
-        match Message::deserialize(&data) {
+        match bincode::deserialize::<Message>(&data) {
             Ok(message) => {
                 // TODO: メッセージの実際の処理
                 let response = handle_message(message).await;
                 
                 // レスポンスの送信
                 if let Err(e) = send.write_all(&response).await {
-                    eprintln!("Failed to send response: {}", e);
+                    error!("Failed to send response: {}", e);
                 }
             }
             Err(e) => {
-                eprintln!("Failed to deserialize message: {}", e);
+                error!("Failed to deserialize message: {}", e);
             }
         }
     }
@@ -180,7 +253,6 @@ impl rustls::client::ServerCertVerifier for SkipServerVerification {
     }
 }
 
-// 補助的な型定義
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub struct PeerId(String);
 
@@ -189,39 +261,24 @@ impl PeerId {
         // TODO: 実際のピアID生成ロジック
         Self("dummy".into())
     }
-}
 
-#[derive(Debug)]
-pub struct NetworkConfig {
-    pub listen_addr: SocketAddr,
-    pub max_concurrent_streams: u32,
-    pub keep_alive_interval: std::time::Duration,
-}
-
-#[derive(Debug)]
-pub struct Message {
-    pub message_type: MessageType,
-    pub payload: Vec<u8>,
-}
-
-impl Message {
-    pub fn serialize(&self) -> Result<Vec<u8>> {
-        // TODO: 実際のシリアライズ実装
-        Ok(self.payload.clone())
-    }
-
-    pub fn deserialize(data: &[u8]) -> Result<Self> {
-        // TODO: 実際のデシリアライズ実装
-        Ok(Self {
-            message_type: MessageType::Data,
-            payload: data.to_vec(),
-        })
+    pub fn from_addr(addr: &SocketAddr) -> Self {
+        Self(addr.to_string())
     }
 }
 
-#[derive(Debug)]
-pub enum MessageType {
-    Data,
-    Control,
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Message {
+    Transaction(Vec<u8>),
+    Block(Vec<u8>),
+    Consensus(Vec<u8>),
     Heartbeat,
+}
+
+#[derive(Debug)]
+pub struct NetworkStats {
+    pub peer_count: usize,
+    pub total_bytes_sent: u64,
+    pub total_bytes_received: u64,
+    pub active_streams: u32,
 }
