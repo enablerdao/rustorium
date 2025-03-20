@@ -1,188 +1,205 @@
-# 🏗️ アーキテクチャ概要
+# Rustorium アーキテクチャ概要
 
-## 💫 設計思想
+## 🏗 システム構成
 
-Rustoriumは、以下の3つの原則に基づいて設計されています：
+Rustoriumは、以下の主要コンポーネントで構成される次世代ブロックチェーンプラットフォームです。
 
-### 1. 無限のスケーラビリティ
-- **動的シャーディング**: 負荷に応じて自動的にネットワークを分割・統合
-- **水平スケーリング**: ノード数に比例して処理能力が向上
-- **スマートな負荷分散**: AIによる最適なリソース配分
+### 1. コアレイヤー
 
-### 2. 即時性と確実性
-- **ハイブリッドコンセンサス**: 取引の性質に応じて最適な合意形成を選択
-- **2段階確定**: 0.5秒で事前確定、1.0秒で完全確定
-- **クロスシャード通信**: 超軽量なシャード間同期
+#### 1.1 分散ストレージエンジン
+- **基盤**: TiKV/CockroachDBベース
+- **KVストア**: Redb
+- **特徴**:
+  - グローバルGeo分散
+  - ZKフレンドリーなデータ構造
+  - 自動シャーディング
+  - 高速なトランザクション処理
 
-### 3. 開発者エクスペリエンス
-- **マルチ言語対応**: Rust, TypeScript, Python SDKを提供
-- **プラグアブル**: 柔軟な機能拡張が可能
-- **自己修復**: 自動エラー検知と回復
-
-## 🔄 システム構成
-
-```mermaid
-graph TD
-    A[クライアントレイヤー] --> B[APIレイヤー]
-    B --> C[実行レイヤー]
-    C --> D[コンセンサスレイヤー]
-    D --> E[ストレージレイヤー]
+```rust
+pub struct CoreStorage {
+    db: Redb,
+    merkle: PoseidonMerkleTree,
+    zk_prover: ZkProver,
+}
 ```
 
-### 1️⃣ クライアントレイヤー
-- SDKs & CLI Tools
-- ウォレットインテグレーション
-- dAppsサポート
+#### 1.2 ZK証明システム
+- **プルーバー**: Halo2/Plonky2
+- **ハッシュ関数**: Poseidon
+- **機能**:
+  - トランザクション証明生成
+  - 状態遷移の検証
+  - 効率的な証明集約
 
-### 2️⃣ APIレイヤー
-- REST / GraphQL / WebSocket
-- JSON-RPC互換
-- カスタムプロトコル
+```rust
+pub struct ZkSystem {
+    prover: Halo2Prover,
+    verifier: Halo2Verifier,
+    hasher: PoseidonHasher,
+}
+```
 
-### 3️⃣ 実行レイヤー
-- DAGベースの並列処理
+#### 1.3 AI自己最適化エンジン
+- **機能**:
+  - 負荷分散の最適化
+  - 予測的障害検知
+  - パフォーマンスチューニング
+  - リソース割り当て
+
+```rust
+pub struct AiOptimizer {
+    metrics: MetricsCollector,
+    model: OptimizationModel,
+    executor: ActionExecutor,
+}
+```
+
+### 2. ネットワークレイヤー
+
+#### 2.1 コンセンサスプロトコル
+- **アルゴリズム**: Narwhal & Bullshark
+- **特徴**:
+  - 高スループット
+  - 低レイテンシー
+  - BFTベース合意形成
+
+#### 2.2 P2P通信
+- **プロトコル**: QUICベース
+- **機能**:
+  - 効率的なルーティング
+  - NAT越え
+  - 暗号化通信
+
+### 3. 実行レイヤー
+
+#### 3.1 トランザクション処理
+- 非同期実行エンジン
+- 並列処理の最適化
 - スマートコントラクト実行
-- クロスシャードオーケストレーション
 
-### 4️⃣ コンセンサスレイヤー
-- ハイブリッドPoS
-- シャードコンセンサス
-- バリデーター管理
-
-### 5️⃣ ストレージレイヤー
-- 分散ステート管理
-- 高速キャッシング
-- データ永続化
-
-## 🔐 セキュリティモデル
-
-### 多層防御
-1. **ネットワークレベル**
-   - DDoS保護
-   - P2P暗号化
-   - ノード認証
-
-2. **プロトコルレベル**
-   - BFTコンセンサス
-   - 経済的インセンティブ
-   - スラッシング条件
-
-3. **アプリケーションレベル**
-   - スマートコントラクト監査
-   - 実行環境分離
-   - リソース制限
-
-## 🎯 パフォーマンス特性
-
-### 処理性能
-| メトリクス | 値 |
-|------------|-----|
-| TPS | 100,000+ |
-| レイテンシ | 0.5-1.0秒 |
-| ファイナリティ | 1.0秒 |
-
-### スケーリング特性
-- **線形スケーリング**: ノード数に比例
-- **自動最適化**: 負荷に応じた調整
-- **リソース効率**: 最小限のオーバーヘッド
+#### 3.2 状態管理
+- マークルツリー/Verkleツリー
+- スナップショット管理
+- 状態同期
 
 ## 🔄 データフロー
 
-### トランザクション処理
-1. **受付**
-   ```rust
-   // トランザクションの受け付け
-   tx.validate()
-     .assign_shard()
-     .propagate()
+1. **トランザクション受信**
+   ```mermaid
+   sequenceDiagram
+       Client->>API: Submit Tx
+       API->>TxPool: Validate & Queue
+       TxPool->>Consensus: Propose
+       Consensus->>Execution: Execute
+       Execution->>Storage: Commit
    ```
 
-2. **実行**
-   ```rust
-   // 並列実行とステート管理
-   shard.execute(tx)
-       .update_state()
-       .emit_events()
+2. **状態更新**
+   ```mermaid
+   sequenceDiagram
+       Storage->>ZkProver: Generate Proof
+       ZkProver->>Storage: Store Proof
+       Storage->>AiOptimizer: Analyze State
+       AiOptimizer->>Storage: Optimize
    ```
 
-3. **確定**
-   ```rust
-   // コンセンサスと確定
-   consensus.validate()
-           .finalize()
-           .notify()
-   ```
+## 🛠 実装詳細
 
-## 🛠️ 開発者インターフェース
-
-### SDKサポート
-```typescript
-// TypeScript SDK例
-const client = new RustoriumClient({
-    network: "mainnet",
-    shard: "auto"
-});
-
-// トランザクション実行
-const tx = await client.transaction
-    .create()
-    .send();
-```
-
-### スマートコントラクト
-```solidity
-// Solidityサポート
-contract Example {
-    function execute() public {
-        // クロスシャード呼び出し
-        CrossShard.call(
-            shard_id,
-            contract_addr,
-            "method",
-            args
-        );
+### ストレージレイヤー
+```rust
+impl CoreStorage {
+    pub async fn write(&mut self, key: &[u8], value: &[u8]) -> Result<ZkProof> {
+        let tx = self.db.begin_write()?;
+        tx.insert(key, value)?;
+        
+        let merkle_proof = self.merkle.insert(key, value)?;
+        let zk_proof = self.zk_prover.generate_proof(key, value, &merkle_proof)?;
+        
+        tx.commit()?;
+        Ok(zk_proof)
     }
 }
 ```
 
-## 📈 モニタリング・運用
-
-### メトリクス収集
-- **システムメトリクス**: CPU, メモリ, ディスク
-- **ネットワークメトリクス**: レイテンシ, スループット
-- **アプリケーションメトリクス**: TPS, 成功率
-
-### 異常検知
-- **AIベース監視**: パターン認識
-- **自動アラート**: しきい値監視
-- **予測分析**: 問題の事前検知
-
-## 🔄 アップグレードプロセス
-
-### プロトコルアップグレード
-1. **提案**: ガバナンスによる承認
-2. **テスト**: テストネットでの検証
-3. **展開**: 段階的なロールアウト
-
-### ノードアップグレード
-```bash
-# ノードソフトウェアの更新
-rustorium node upgrade
-
-# 設定の更新
-rustorium config update
+### ZK証明システム
+```rust
+impl ZkSystem {
+    pub fn prove_state(&self, state: &State) -> Result<StateProof> {
+        let state_hash = self.hasher.hash_state(state)?;
+        let proof = self.prover.prove_state(state, state_hash)?;
+        
+        Ok(StateProof {
+            proof,
+            state_hash,
+            timestamp: SystemTime::now(),
+        })
+    }
+}
 ```
 
-## 📚 関連ドキュメント
+### AI最適化エンジン
+```rust
+impl AiOptimizer {
+    pub async fn optimize(&mut self) -> Result<()> {
+        let metrics = self.metrics.collect().await?;
+        let predictions = self.model.predict(&metrics)?;
+        
+        for action in predictions.actions() {
+            self.executor.execute(action).await?;
+        }
+        
+        Ok(())
+    }
+}
+```
 
-- [シャーディングシステム](../sharding.md)
-- [コンセンサスメカニズム](../consensus.md)
-- [スマートコントラクト](../smart-contracts.md)
+## 📊 パフォーマンス特性
 
----
+### 1. スループット
+- 通常操作: 10,000+ TPS
+- バッチ処理: 50,000+ TPS
+- ZK証明生成: 1,000+ proofs/s
 
-<div align="center">
+### 2. レイテンシ
+- トランザクション確定: < 500ms
+- ZK証明生成: < 100ms
+- グローバル同期: < 2s
 
-**[🔧 開発を始める](../guides/installation.md)** | **[📊 メトリクスを見る](https://metrics.rustorium.org)**
+### 3. スケーラビリティ
+- 水平スケーリング: 線形
+- ストレージ効率: O(log n)
+- メモリ使用: 最適化済み
 
-</div>
+## 🔒 セキュリティ考慮事項
+
+### 1. 暗号化
+- トランザクション: ED25519
+- 通信: TLS 1.3
+- ストレージ: AES-256
+
+### 2. 攻撃対策
+- DDoS防御
+- Sybil攻撃対策
+- Eclipse攻撃対策
+
+### 3. 監査
+- 継続的なセキュリティ監査
+- 自動脆弱性スキャン
+- コード品質チェック
+
+## 📈 モニタリングと運用
+
+### 1. メトリクス
+- Prometheusエクスポーター
+- Grafanaダッシュボード
+- カスタムアラート
+
+### 2. ログ
+- 構造化ロギング
+- 分散トレーシング
+- エラー追跡
+
+### 3. 管理ツール
+- CLIインターフェース
+- Web管理コンソール
+- APIエンドポイント
