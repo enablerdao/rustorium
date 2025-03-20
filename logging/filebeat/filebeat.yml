@@ -1,0 +1,65 @@
+filebeat.inputs:
+- type: container
+  paths:
+    - /var/lib/docker/containers/*/*.log
+  processors:
+    - add_docker_metadata:
+        host: "unix:///var/run/docker.sock"
+    - decode_json_fields:
+        fields: ["message"]
+        target: "json"
+        overwrite_keys: true
+
+- type: log
+  enabled: true
+  paths:
+    - /var/log/rustorium/*.log
+  fields:
+    type: rustorium
+  fields_under_root: true
+  multiline:
+    pattern: '^\d{4}-\d{2}-\d{2}'
+    negate: true
+    match: after
+
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
+
+output.logstash:
+  hosts: ["logstash:5044"]
+  ssl.enabled: false
+
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644
+
+setup.kibana:
+  host: "kibana:5601"
+
+setup.dashboards.enabled: true
+setup.template.enabled: true
+setup.template.name: "rustorium"
+setup.template.pattern: "rustorium-*"
+setup.template.settings:
+  index.number_of_shards: 1
+  index.number_of_replicas: 0
+
+setup.ilm:
+  enabled: true
+  rollover_alias: "rustorium"
+  pattern: "{now/d}-000001"
+  policy_name: "rustorium"
+  policy_file: "ilm-policy.json"
