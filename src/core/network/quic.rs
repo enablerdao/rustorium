@@ -64,7 +64,7 @@ impl QuicNetwork {
         {
             let connections = self.connections.lock().await;
             if let Some(conn) = connections.get(&peer_id) {
-                if !conn.is_closed() {
+                if !conn.closed() {
                     return Ok(conn.clone());
                 }
             }
@@ -104,7 +104,7 @@ impl QuicNetwork {
 
         // レスポンスを待機
         let mut response = Vec::new();
-        recv.read_to_end(&mut response).await?;
+        response = recv.read_to_end(1024 * 1024).await?;
 
         Ok(())
     }
@@ -163,7 +163,7 @@ impl QuicNetwork {
             vec![rustls::Certificate(cert_der.clone())],
             rustls::PrivateKey(priv_key)
         )?;
-        server_config.transport_config(Arc::new(transport_config.clone()));
+        server_config.transport_config(Arc::new(transport_config));
 
         // クライアント設定
         let client_config = ClientConfig::new(Arc::new(
@@ -207,7 +207,7 @@ async fn handle_connection(conn: Connection, peer_id: PeerId) {
     while let Ok((mut send, mut recv)) = conn.accept_bi().await {
         // データの受信
         let mut data = Vec::new();
-        if let Err(e) = recv.read_to_end(&mut data).await {
+        if let Err(e) = recv.read_to_end(1024 * 1024).await.map(|d| data = d) {
             error!("Failed to read from stream: {}", e);
             continue;
         }

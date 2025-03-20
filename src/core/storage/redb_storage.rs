@@ -88,7 +88,7 @@ impl RedbStorage {
                 timestamp: std::time::SystemTime::now(),
                 version: 1,
             };
-            table.insert(key, &bincode::serialize(&state)?)?;
+            table.insert(key, bincode::serialize(&state)?.as_slice())?;
         }
         
         // マークルツリーの更新
@@ -100,7 +100,7 @@ impl RedbStorage {
         // マークルツリーの保存
         {
             let mut table = write_txn.open_table(MERKLE_TABLE)?;
-            table.insert(key, &bincode::serialize(&merkle_proof)?)?;
+            table.insert(key, bincode::serialize(&merkle_proof)?.as_slice())?;
         }
         
         write_txn.commit()?;
@@ -118,34 +118,31 @@ impl RedbStorage {
         // データの読み取り
         let value = {
             let table = read_txn.open_table(TX_TABLE)?;
-            if let Some(value) = table.get(key)? {
-                value.value().to_vec()
-            } else {
-                return Ok(None);
+            match table.get(key)? {
+                Some(value) => value.value().to_vec(),
+                None => return Ok(None),
             }
         };
         
         // 状態の読み取り
         let state = {
             let table = read_txn.open_table(STATE_TABLE)?;
-            if let Some(state_bytes) = table.get(key)? {
-                bincode::deserialize(state_bytes.value())?
-            } else {
-                State {
+            match table.get(key)? {
+                Some(state_bytes) => bincode::deserialize(state_bytes.value())?,
+                None => State {
                     value: value.clone(),
                     timestamp: std::time::SystemTime::now(),
                     version: 1,
-                }
+                },
             }
         };
         
         // マークルプルーフの読み取り
         let merkle_proof = {
             let table = read_txn.open_table(MERKLE_TABLE)?;
-            if let Some(proof_bytes) = table.get(key)? {
-                bincode::deserialize(proof_bytes.value())?
-            } else {
-                MerkleProof::default()
+            match table.get(key)? {
+                Some(proof_bytes) => bincode::deserialize(proof_bytes.value())?,
+                None => MerkleProof::default(),
             }
         };
         
@@ -194,7 +191,7 @@ impl RedbStorage {
     }
     
     pub async fn compact(&self) -> Result<()> {
-        let db = self.db.lock().await;
+        let mut db = self.db.lock().await;
         db.compact()?;
         Ok(())
     }

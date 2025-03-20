@@ -79,11 +79,21 @@ impl RedpandaClient {
 // 補助的な型定義
 pub type ShardId = String;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct GeoLocation {
     pub latitude: f64,
     pub longitude: f64,
     pub region: String,
+}
+
+impl GeoLocation {
+    pub fn new(latitude: f64, longitude: f64, region: String) -> Self {
+        Self {
+            latitude,
+            longitude,
+            region,
+        }
+    }
 }
 
 #[derive(Debug)]
