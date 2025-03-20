@@ -7,12 +7,14 @@ pub mod core {
     pub mod transaction;
     pub mod consensus;
     pub mod cache;
-    pub mod storage;
+    pub mod storage {
+        pub mod redb_storage;
+    }
     pub mod network {
-        mod quic;
+        pub mod quic;
         pub use quic::*;
     }
-    pub mod query;
+    pub mod ai;
 }
 pub mod config;
 
