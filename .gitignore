@@ -44,8 +44,7 @@ LOCK
 MANIFEST-*
 OPTIONS-*
 
-# Shell scripts
-*.sh
+# Shell scripts (except setup scripts)
 apionly
 fastrun
 release-run
