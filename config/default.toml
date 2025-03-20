@@ -1,0 +1,62 @@
+# Rustorium ノードのデフォルト設定
+
+[node]
+# 基本設定
+name = ""                      # ノード名（空の場合はIDから自動生成）
+role = "auto"                  # ノードの役割 (auto, validator, full, light)
+data_dir = "data"             # データディレクトリ
+log_level = "info"            # ログレベル (debug, info, warn, error)
+
+[network]
+# ネットワーク設定
+host = "127.0.0.1"            # ホストアドレス
+port = 4001                   # 基本ポート（P2P用）
+external_addr = ""            # 外部公開アドレス（空の場合は自動検出）
+bootstrap_nodes = [           # デフォルトのブートストラップノード
+    "/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
+    "/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN"
+]
+
+[api]
+# API設定
+enabled = true                # APIの有効化
+port_offset = 1              # APIポートのオフセット（基本ポート + offset）
+rate_limit = 1000            # レート制限（リクエスト/分）
+cors_origins = ["*"]         # CORS設定
+
+[web]
+# Web UI設定
+enabled = true               # Web UIの有効化
+port_offset = 2             # Web UIポートのオフセット
+open_browser = true         # 起動時にブラウザを開く
+
+[websocket]
+# WebSocket設定
+enabled = true              # WebSocketの有効化
+port_offset = 3            # WebSocketポートのオフセット
+
+[validator]
+# バリデーター設定（role = "validator"の場合に使用）
+stake = 0                  # ステーク量
+commission = 0.1           # 手数料率（10%）
+min_stake = 100000        # 最小ステーク量
+
+[performance]
+# パフォーマンス設定
+max_peers = 50             # 最大ピア数
+max_pending_tx = 10000     # 最大保留トランザクション数
+block_time = 2000          # ブロック生成間隔（ミリ秒）
+
+[storage]
+# ストレージ設定
+engine = "rocksdb"         # ストレージエンジン
+path = "data/db"          # データベースパス
+max_open_files = 1000      # 最大オープンファイル数
+cache_size = 512           # キャッシュサイズ（MB）
+
+[dev]
+# 開発モード設定
+nodes = 4                  # ノード数
+base_port = 4001          # 開始ポート
+auto_mining = true        # 自動マイニング
+block_time = 1000         # 開発モードのブロック生成間隔（ミリ秒）

@@ -1,0 +1,189 @@
+//! Webサーバーの実装
+//! 
+//! このモジュールは、RustoriumのWebサーバーを実装します。
+//! 主な機能：
+//! - HTTP/WebSocket サーバー
+//! - 静的ファイルの提供
+//! - CORS対応
+//! - OpenAPI ドキュメント
+
+pub mod api;
+pub mod ws;
+pub mod error;
+
+use std::sync::Arc;
+use std::time::Duration;
+use axum::{
+    Router,
+    routing::{get, get_service},
+    response::{IntoResponse, Response},
+    extract::State,
+    middleware,
+    error_handling::HandleErrorLayer,
+};
+use tower::{ServiceBuilder, BoxError};
+use tower_http::{
+    trace::TraceLayer,
+    cors::CorsLayer,
+    compression::CompressionLayer,
+    services::ServeDir,
+    catch_panic::CatchPanicLayer,
+    request_id::RequestIdLayer,
+    timeout::TimeoutLayer,
+};
+use tracing::info;
+use crate::config::NodeConfig;
+use crate::metrics::MetricsState;
+use error::AppError;
+
+/// Webサーバーの状態
+#[derive(Clone)]
+pub struct AppState {
+    config: Arc<NodeConfig>,
+    metrics: Arc<MetricsState>,
+}
+
+/// Webサーバー
+#[derive(Debug)]
+pub struct WebServer {
+    config: Arc<NodeConfig>,
+    metrics: Arc<MetricsState>,
+    shutdown: Arc<tokio::sync::Notify>,
+}
+
+impl WebServer {
+    /// 新しいWebサーバーを作成
+    pub fn new(config: NodeConfig, metrics: MetricsState) -> Self {
+        Self {
+            config: Arc::new(config),
+            metrics: Arc::new(metrics),
+            shutdown: Arc::new(tokio::sync::Notify::new()),
+        }
+    }
+
+    /// サーバーを起動
+    pub async fn run(&self) -> anyhow::Result<()> {
+        let state = AppState {
+            config: self.config.clone(),
+            metrics: self.metrics.clone(),
+        };
+
+        // ミドルウェアスタックの構築
+        let middleware_stack = ServiceBuilder::new()
+            .layer(HandleErrorLayer::new(handle_error))
+            .layer(CatchPanicLayer::new())
+            .layer(TimeoutLayer::new(Duration::from_secs(30)))
+            .layer(CompressionLayer::new())
+            .layer(RequestIdLayer::new())
+            .layer(TraceLayer::new_for_http())
+            .layer(
+                CorsLayer::new()
+                    .allow_origin(tower_http::cors::Any)
+                    .allow_methods(tower_http::cors::Any)
+                    .allow_headers(tower_http::cors::Any)
+                    .max_age(Duration::from_secs(3600))
+            );
+
+        // 静的ファイルハンドラの設定
+        let static_files = if self.config.dev.auto_mining {
+            // 開発モード: ファイルシステムから直接提供
+            get_service(ServeDir::new("frontend"))
+                .handle_error(handle_static_error)
+        } else {
+            // 本番モード: 埋め込みファイルから提供
+            get(serve_static)
+        };
+
+        // APIルーターの構築
+        let api_router = api::create_router(state.clone())
+            .layer(middleware_stack.clone());
+
+        // WebSocketルーターの構築
+        let ws_router = ws::create_router(state.clone())
+            .layer(middleware_stack.clone());
+
+        // メインルーターの構築
+        let app = Router::new()
+            .nest("/api", api_router)
+            .nest("/ws", ws_router)
+            .route("/", static_files.clone())
+            .route("/index.html", static_files.clone())
+            .route("/manifest.json", static_files.clone())
+            .route("/sw.js", static_files.clone())
+            .route("/css/*file", static_files.clone())
+            .route("/js/*file", static_files.clone())
+            .route("/icons/*file", static_files)
+            .with_state(state)
+            .layer(middleware_stack);
+
+        // サーバーの起動
+        let addr = format!("0.0.0.0:{}", self.config.network.port + self.config.web.port_offset).parse()?;
+        info!("Starting web server on {}", addr);
+        
+        let shutdown_signal = self.shutdown.clone();
+        let server = axum::Server::bind(&addr)
+            .serve(app.into_make_service());
+
+        let graceful = server.with_graceful_shutdown(async move {
+            shutdown_signal.notified().await;
+        });
+
+        graceful.await?;
+        info!("Web server stopped");
+
+        Ok(())
+    }
+
+    /// サーバーをシャットダウン
+    pub fn shutdown(&self) {
+        self.shutdown.notify_one();
+    }
+}
+
+/// 静的ファイルのエラーハンドリング
+async fn handle_static_error(err: std::io::Error) -> impl IntoResponse {
+    (
+        axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+        format!("Static file error: {}", err),
+    )
+}
+
+/// エラーハンドリング
+async fn handle_error(error: BoxError) -> impl IntoResponse {
+    if error.is::<tower::timeout::error::Elapsed>() {
+        return (axum::http::StatusCode::REQUEST_TIMEOUT, "Request timeout").into_response();
+    }
+
+    if error.is::<tower::load_shed::error::Overloaded>() {
+        return (axum::http::StatusCode::SERVICE_UNAVAILABLE, "Service overloaded").into_response();
+    }
+
+    (axum::http::StatusCode::INTERNAL_SERVER_ERROR, "Internal server error").into_response()
+}
+
+/// 埋め込み静的ファイルの提供
+#[cfg(not(debug_assertions))]
+async fn serve_static(uri: axum::http::Uri) -> impl IntoResponse {
+    use rust_embed::RustEmbed;
+
+    #[derive(RustEmbed)]
+    #[folder = "frontend/"]
+    struct Asset;
+
+    let path = uri.path().trim_start_matches('/');
+    let path = if path.is_empty() { "index.html" } else { path };
+
+    match Asset::get(path) {
+        Some(content) => {
+            let mime = mime_guess::from_path(path).first_or_octet_stream();
+            Response::builder()
+                .header(axum::http::header::CONTENT_TYPE, mime.as_ref())
+                .body(axum::body::Body::from(content.data))
+                .unwrap()
+        }
+        None => Response::builder()
+            .status(axum::http::StatusCode::NOT_FOUND)
+            .body("404 Not Found".into())
+            .unwrap()
+    }
+}

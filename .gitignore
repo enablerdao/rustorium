@@ -1,0 +1,51 @@
+# Rust
+/target/
+/contracts/target/
+/*/target/
+**/*.rs.bk
+
+# Remove Cargo.lock from gitignore if creating an executable, leave it for libraries
+# More information here https://doc.rust-lang.org/cargo/guide/cargo-toml-vs-cargo-lock.html
+Cargo.lock
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.local
+
+# Debug files
+*.pdb
+
+# Build output
+/dist/
+/build/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Logs and data
+*.log
+*.log.*
+/data/
+/data*/
+
+# Database files
+*.db
+*.db-*
+CURRENT
+IDENTITY
+LOCK
+MANIFEST-*
+OPTIONS-*
+
+# Shell scripts
+*.sh
+apionly
+fastrun
+release-run

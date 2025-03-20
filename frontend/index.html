@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rustorium Node</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>Rustorium Node</h1>
+            <div class="status">
+                <span class="status-label">Status:</span>
+                <span class="status-value" id="node-status">Connecting...</span>
+            </div>
+        </header>
+
+        <main>
+            <section class="metrics">
+                <h2>System Metrics</h2>
+                <div class="metric-grid" id="system-metrics">
+                    <div class="metric">
+                        <div class="metric-label">CPU Cores</div>
+                        <div class="metric-value" id="cpu-cores">-</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Memory</div>
+                        <div class="metric-value" id="memory">-</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Role</div>
+                        <div class="metric-value" id="node-role">-</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="network">
+                <h2>Network</h2>
+                <div class="metric-grid" id="network-metrics">
+                    <div class="metric">
+                        <div class="metric-label">P2P Port</div>
+                        <div class="metric-value" id="p2p-port">-</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Web Port</div>
+                        <div class="metric-value" id="web-port">-</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">API Port</div>
+                        <div class="metric-value" id="api-port">-</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">WebSocket Port</div>
+                        <div class="metric-value" id="ws-port">-</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="performance">
+                <h2>Performance</h2>
+                <div class="metric-grid" id="performance-metrics">
+                    <div class="metric">
+                        <div class="metric-label">Max Peers</div>
+                        <div class="metric-value" id="max-peers">-</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Pending Transactions</div>
+                        <div class="metric-value" id="pending-tx">-</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Block Time</div>
+                        <div class="metric-value" id="block-time">-</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
