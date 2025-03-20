@@ -2,7 +2,7 @@
 
 # 🚀 Rustorium
 
-**超低遅延・地理分散型ブロックチェーンプラットフォーム**
+**次世代の超低遅延・地理分散型ブロックチェーンプラットフォーム**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-blue.svg)](https://www.rust-lang.org)
@@ -12,11 +12,7 @@
 
 [English](README.en.md) | [中文](README.zh.md) | 日本語
 
-<br>
-
 <img src="docs/images/banner.png" alt="Rustorium Banner" width="800px">
-
-<br>
 
 [📚 ドキュメント](docs/) | [🌍 デモ](https://demo.rustorium.dev) | [💬 Discord](https://discord.gg/rustorium)
 
@@ -24,14 +20,33 @@
 
 ---
 
-## 💫 概要
+## 💫 特徴
 
-Rustoriumは、次世代の分散型インフラストラクチャを実現する高性能ブロックチェーンプラットフォームです。
+Rustoriumは、次世代のブロックチェーンインフラストラクチャを実現する高性能プラットフォームです。
 
-- **⚡️ 超低遅延**: 100K+ TPS、レイテンシ < 100ms
-- **🌍 地理分散**: 世界中のノードで最適な処理を実現
-- **🔒 高い信頼性**: ZK証明による検証可能性
-- **🤖 自己最適化**: AIによる自動パフォーマンスチューニング
+### ⚡️ 超低遅延
+
+- **100K+ TPS**: 業界最高レベルのトランザクション処理能力
+- **< 100ms レイテンシ**: リアルタイムアプリケーションに最適
+- **QUIC + Redpanda**: 最新のネットワーク/ストリーミング技術
+
+### 🌍 地理分散
+
+- **グローバル分散**: 世界中のノードで最適な処理を実現
+- **動的シャーディング**: 負荷に応じた自動分散
+- **エッジコンピューティング**: ユーザーに最も近いノードで処理
+
+### 🔒 高信頼性
+
+- **ZK証明**: 数学的な正当性の保証
+- **Verkle Trees**: 効率的な状態管理
+- **Byzantine Fault Tolerance**: 高い障害耐性
+
+### 🤖 自己最適化
+
+- **AI最適化**: 継続的なパフォーマンス改善
+- **予測的スケーリング**: 負荷予測に基づく自動スケーリング
+- **自動障害検知/回復**: システムの堅牢性確保
 
 ## 🎯 ユースケース
 
