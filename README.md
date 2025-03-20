@@ -28,79 +28,28 @@ Rustoriumは、Rustで実装された高性能な分散型インフラストラ�
 ## 🚀 クイックスタート
 
 ### 📦 インストール
-
-#### Rustのインストール
-
-##### Linux & macOS
 ```bash
-# Rustupのインストール
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-# 環境変数の設定
-source $HOME/.cargo/env
+curl -sSf https://raw.githubusercontent.com/enablerdao/rustorium/main/scripts/install.sh | bash
 ```
 
-##### Windows
-1. [Rust インストーラー](https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe)をダウンロード
-2. インストーラーを実行
-3. 開発者用コマンドプロンプトを再起動
-
-#### 必要なツール
-
-##### Linux (Ubuntu/Debian)
-```bash
-# 開発ツールのインストール
-sudo apt update
-sudo apt install -y build-essential pkg-config libssl-dev
-```
-
-##### macOS
-```bash
-# Homebrewのインストール（未インストールの場合）
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-# 開発ツールのインストール
-brew install openssl pkg-config
-```
-
-##### Windows
-1. [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)をインストール
-2. "C++ build tools"を選択してインストール
-
-#### Rustoriumのインストール
-
-```bash
-# GitHubからソースコードを取得
-git clone https://github.com/rustorium/rustorium.git
-cd rustorium
-
-# ビルドとインストール
-cargo install --path .
-```
+詳細なインストール手順は[こちら](docs/installation.md)をご覧ください。
 
 ### 🎮 ノードの起動
-
 ```bash
-# シングルノード（最もシンプル）
-cargo run
+# シンプルな起動
+rustorium
 
-# リリースビルドで実行
-cargo run --release
-
-# データディレクトリを指定して起動
-cargo run -- --data-dir my-node-data
-
-# ポートを変更して起動（デフォルト: 9070）
-cargo run -- --base-port 8000
+# ポートを変更（デフォルト: 9070-9072）
+rustorium --base-port 8000
 
 # バックグラウンドで実行
-cargo run -- --no-interactive
+rustorium --no-interactive
+
+# データディレクトリを指定
+rustorium --data-dir my-node-data
 ```
 
-### 🔧 オプション
-```bash
---data-dir        # データディレクトリ (default: data/<node-name>)
---base-port       # 基本ポート (default: 9070)
---no-interactive  # CUIを開かずにバックグラウンドで実行
-```
+詳細な使用方法は[こちら](docs/usage.md)をご覧ください。
 ```
 
 ### 🎛️ ノードの管理
