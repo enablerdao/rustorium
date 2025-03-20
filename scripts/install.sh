@@ -99,7 +99,32 @@ run_os_setup() {
 # rustoriumのインストール
 install_rustorium() {
     echo "Installing Rustorium..."
-    cargo install --git https://github.com/enablerdao/rustorium.git
+    
+    # 一時ディレクトリの作成
+    TMP_DIR=$(mktemp -d)
+    cd "$TMP_DIR"
+    
+    # ソースコードの取得
+    git clone https://github.com/enablerdao/rustorium.git .
+    
+    # 高速ビルドの設定
+    export RUSTFLAGS="-C target-cpu=native"
+    
+    # リリースビルドの作成（高速プロファイル使用）
+    echo "Building optimized version (this may take a few minutes)..."
+    cargo build --profile fast
+    
+    # バイナリのインストール
+    echo "Installing binary..."
+    mkdir -p "$HOME/.cargo/bin"
+    cp target/fast/rustorium "$HOME/.cargo/bin/"
+    
+    # キャッシュディレクトリの作成
+    mkdir -p "$HOME/.rustorium/cache"
+    
+    # クリーンアップ
+    cd - > /dev/null
+    rm -rf "$TMP_DIR"
 }
 
 # メイン処理
@@ -158,8 +183,8 @@ start_server() {
     if ! check_server; then
         echo "Starting Rustorium server..."
         if [ -f "$PWD/Cargo.toml" ]; then
-            # ソースディレクトリ内の場合
-            cargo run -- "$@" &
+            # ソースディレクトリ内の場合（高速プロファイル使用）
+            RUSTFLAGS="-C target-cpu=native" cargo run --profile fast -- "$@" &
         else
             # インストール済みバイナリを使用
             "$RUST_DIR/bin/rustorium" "$@" &

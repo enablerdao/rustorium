@@ -18,6 +18,18 @@ incremental = true
 codegen-units = 512  # 並列コード生成ユニット数を増やす
 rpath = false
 
+[profile.fast]
+inherits = "release"
+opt-level = 2        # 適度な最適化
+debug = false
+debug-assertions = false
+overflow-checks = false
+lto = "thin"         # 高速な Link Time Optimization
+panic = 'abort'      # パニック時の巻き戻しを無効化
+incremental = true   # インクリメンタルコンパイルを有効化
+codegen-units = 256  # 並列コンパイル
+strip = true         # バイナリサイズの削減
+
 [profile.dev.build-override]
 opt-level = 0
 
