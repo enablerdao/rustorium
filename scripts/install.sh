@@ -114,7 +114,8 @@ install_rustorium() {
         TMP_DIR=$(mktemp -d)
         cd "$TMP_DIR"
         
-        # バイナリのダウンロードと展開
+        # バイナリのダウンロードと展開（rocksdbを含む）
+        echo "Downloading pre-built binary (includes rocksdb)..."
         curl -L "$BINARY_URL" | tar xz
         
         # バイナリのインストール
@@ -137,14 +138,9 @@ install_rustorium() {
         # ソースコードの取得
         git clone https://github.com/enablerdao/rustorium.git .
         
-        # システムのrocksdbを探す
-        if [ -f "/usr/lib/librocksdb.so" ] || [ -f "/usr/local/lib/librocksdb.so" ]; then
-            echo "Using system rocksdb..."
-            FEATURES="--no-default-features --features system-rocksdb"
-        else
-            echo "Using bundled rocksdb..."
-            FEATURES="--features bundled-rocksdb"
-        fi
+        # バンドルされたrocksdbを使用（バイナリに含める）
+        echo "Building with bundled rocksdb (will be included in binary)..."
+        FEATURES="--features bundled-rocksdb"
         
         # 高速ビルドの設定
         export RUSTFLAGS="-C target-cpu=native"

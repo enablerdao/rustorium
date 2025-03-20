@@ -47,20 +47,9 @@ jobs:
           target: ${{ matrix.target }}
           override: true
 
-      - name: Install system dependencies (Linux)
-        if: runner.os == 'Linux'
+      - name: Build binary (with bundled rocksdb)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y librocksdb-dev
-
-      - name: Install system dependencies (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew install rocksdb
-
-      - name: Build binary
-        run: |
-          RUSTFLAGS="-C target-cpu=native" cargo build --profile fast --target ${{ matrix.target }} --no-default-features --features system-rocksdb
+          RUSTFLAGS="-C target-cpu=native" cargo build --profile fast --target ${{ matrix.target }} --features bundled-rocksdb
 
       - name: Create tarball
         run: |
