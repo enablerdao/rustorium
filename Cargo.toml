@@ -2,188 +2,81 @@
 name = "rustorium"
 version = "0.1.0"
 edition = "2021"
-description = "Rustorium - A blockchain platform implemented in Rust"
 authors = ["OpenHands <openhands@all-hands.dev>"]
-
-# No workspace configuration needed
-
-[profile.dev]
-opt-level = 1        # 最適化レベルを上げる
-debug = 0           # デバッグ情報を減らす
-debug-assertions = true
-overflow-checks = true
-lto = false
-panic = 'unwind'
-incremental = true
-codegen-units = 512  # 並列コード生成ユニット数を増やす
-rpath = false
-
-[profile.fast]
-inherits = "release"
-opt-level = 2        # 適度な最適化
-debug = false
-debug-assertions = false
-overflow-checks = false
-lto = "thin"         # 高速な Link Time Optimization
-panic = 'abort'      # パニック時の巻き戻しを無効化
-incremental = true   # インクリメンタルコンパイルを有効化
-codegen-units = 256  # 並列コンパイル
-strip = true         # バイナリサイズの削減
-
-[profile.dev.build-override]
-opt-level = 0
-
-[profile.release]
-opt-level = 3
-debug = false
-debug-assertions = false
-overflow-checks = false
-lto = true
-panic = 'unwind'
-incremental = false
-codegen-units = 16
-rpath = false
-
-[profile.fast-dev]
-inherits = "dev"
-opt-level = 1
-codegen-units = 128
-incremental = true
-debug = 0
+description = "Next-generation blockchain platform with geographic distribution"
 
 [dependencies]
-# Web server
-axum = { version = "0.7", features = ["ws", "macros"] }
-tower = { version = "0.4", features = ["util"] }
-tower-http = { version = "0.5", features = ["fs", "trace", "cors"] }
-tokio-stream = "0.1"
-
-# Async runtime & utilities
-tokio = { version = "1.36.0", features = ["full"] }
-tokio-util = "0.7"
-futures = "0.3"
-async-trait = "0.1"
-
-# Logging & tracing
-tracing = "0.1.40"
-tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
-log = "0.4"
-env_logger = "0.11"
-
-# Error handling
-anyhow = "1.0.79"
+# Core
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"
 thiserror = "1.0"
+async-trait = "0.1"
+futures = "0.3"
 
-# CLI & TUI
-dialoguer = "0.11.0"
-console = "0.15.8"
-indicatif = "0.17.8"
-colored = "2.1.0"
-clap = { version = "4.5.1", features = ["derive"] }
-rustyline = "13.0"
-prettytable-rs = "0.10"
-termion = "3.0"
-tui = "0.19"
-crossterm = "0.27"
-plotters = "0.3"
-structopt = "0.3"
-ctrlc = { version = "3.4", features = ["termination"] }
-atty = "0.2"
-
-# Serialization & data formats
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-serde_yaml = "0.9"
-toml = "0.8"
-bincode = "1.3"
-bytes = "1.5"
-
-# Time & date
-chrono = { version = "0.4", features = ["serde"] }
-humantime = "2.1"
-
-# HTTP client
-reqwest = { version = "0.11", features = ["json"] }
-
-# Cryptography & hashing
-hex = "0.4"
-sha2 = "0.10"
-ed25519-dalek = "2.1"
-rand = "0.8"
-blake3 = "1.5"
-secp256k1 = { version = "0.28", features = ["rand-std"] }
-aes-gcm = "0.10"
-zeroize = "1.7"
-
-# File system & I/O
-walkdir = "2.4"
-tempfile = "3.10"
-zip = "0.6"
-dirs = "5.0"
-config = "0.14"
-open = "5.0"
-
-# System utilities
-rayon = "1.8"
-num_cpus = "1.16"
-byte-unit = "5.1"
-sysinfo = "0.30"
-regex = "1.10"
-snap = "1.1"
-
-# P2P networking
-libp2p = { version = "0.53", features = [
-    "tokio",      # Tokio runtime
-    "tcp",        # TCP transport
-    "dns",        # DNS resolution
-    "noise",      # Noise encryption
-    "yamux",      # Yamux multiplexing
-    "floodsub",   # Floodsub protocol
-    "mdns",       # mDNS discovery
-    "kad",        # Kademlia DHT
-    "ping",       # Ping protocol
-    "metrics",    # Metrics collection
-    "macros",     # Derive macros
-    "identify",   # Identify protocol
-    "autonat",    # NAT traversal
-    "relay",      # Relay protocol
-    "dcutr",      # Direct connection upgrade
-    "upnp",       # UPnP support
-    "websocket",  # WebSocket transport
-    "tls",        # TLS support
-    "rsa",        # RSA support
-    "ed25519",    # Ed25519 support
-    "secp256k1",  # Secp256k1 support
-    "pnet",       # Private network support
-    "request-response", # Request/response protocol
-    "cbor",       # CBOR codec
-    "serde",      # Serde support
-    "async-std",  # Async-std support
-] }
-multiaddr = "0.18"
-
-# Storage
+# Storage and Database
+redb = "1.5"
 rocksdb = { version = "0.20", features = ["multi-threaded-cf"], default-features = false }
 
-# System info
-sys-info = { version = "0.9" }
+# Network and P2P
+quinn = { version = "0.10", features = ["rustls"] }
+rustls = { version = "0.21", features = ["dangerous_configuration"] }
+rcgen = "0.12"
+tokio-rustls = "0.24"
 
-# API documentation and UI
+# Consensus and Distributed Systems
+raft = "0.7"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Caching and Performance
+dashmap = "5.5"
+lru = "0.12"
+
+# Monitoring and Metrics
+prometheus = "0.13"
+tracing = { version = "0.1", features = ["attributes"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# CLI and UI
+clap = { version = "4.0", features = ["derive"] }
+console = "0.15"
+dialoguer = "0.11"
+indicatif = "0.17"
+colored = "2.0"
+
+# Web and API
+axum = "0.7"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors"] }
+hyper = { version = "1.0", features = ["full"] }
 utoipa = { version = "4", features = ["axum_extras", "yaml"] }
 utoipa-swagger-ui = { version = "5", features = ["axum"] }
-webbrowser = { version = "0.8" }
-rust-embed = { version = "8.0" }
-mime_guess = { version = "2.0" }
+
+# System and Utils
+sys-info = "0.9"
+webbrowser = "0.8"
+rust-embed = "8.0"
+mime_guess = "2.0"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+# Zero Knowledge Proofs
+poseidon-rs = "0.0.8"
 
 [features]
 default = ["bundled-rocksdb"]
 bundled-rocksdb = ["rocksdb/default"]  # rocksdbをバンドルする場合
-system-rocksdb = []                     # システムのrocksdbを使用する場合
+system-rocksdb = []     # システムのrocksdbを使用する場合
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["async_tokio"] }
+rand = "0.8"
+uuid = { version = "1.0", features = ["v4"] }
+
+[[bench]]
+name = "benchmark"
+harness = false
 
 [[bin]]
 name = "rustorium"
 path = "src/main.rs"
-
-[lib]
-name = "rustorium"
-path = "src/lib.rs"
