@@ -88,7 +88,14 @@ impl ServiceManager {
                 self.config.storage.path.clone()
             };
             tokio::fs::create_dir_all(&storage_path).await?;
-            let storage = Arc::new(RedbStorage::new(storage_path.to_str().unwrap())?);
+            let storage_config = StorageConfig {
+                path: storage_path.to_string_lossy().to_string(),
+                max_size: 1024 * 1024 * 1024 * 1024, // 1TB
+                compression_enabled: true,
+                encryption_enabled: true,
+                replication_factor: 3,
+            };
+            let storage = Arc::new(RedbStorage::new(storage_config)?);
             self.storage = Some(storage);
             info!("Storage engine initialized");
         }

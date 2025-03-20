@@ -64,7 +64,7 @@ impl QuicNetwork {
         {
             let connections = self.connections.lock().await;
             if let Some(conn) = connections.get(&peer_id) {
-                if !conn.closed() {
+                if !conn.closed().await {
                     return Ok(conn.clone());
                 }
             }
@@ -103,8 +103,7 @@ impl QuicNetwork {
         send.finish().await?;
 
         // レスポンスを待機
-        let mut response = Vec::new();
-        response = recv.read_to_end(1024 * 1024).await?;
+        let response = recv.read_to_end(1024 * 1024).await?;
 
         Ok(())
     }

@@ -118,32 +118,35 @@ impl RedbStorage {
         // データの読み取り
         let value = {
             let table = read_txn.open_table(TX_TABLE)?;
-            match table.get(key)? {
-                Some(value) => value.value().to_vec(),
+            let value = match table.get(key)? {
+                Some(v) => v.value().to_vec(),
                 None => return Ok(None),
-            }
+            };
+            value
         };
         
         // 状態の読み取り
         let state = {
             let table = read_txn.open_table(STATE_TABLE)?;
-            match table.get(key)? {
+            let state = match table.get(key)? {
                 Some(state_bytes) => bincode::deserialize(state_bytes.value())?,
                 None => State {
                     value: value.clone(),
                     timestamp: std::time::SystemTime::now(),
                     version: 1,
                 },
-            }
+            };
+            state
         };
         
         // マークルプルーフの読み取り
         let merkle_proof = {
             let table = read_txn.open_table(MERKLE_TABLE)?;
-            match table.get(key)? {
+            let proof = match table.get(key)? {
                 Some(proof_bytes) => bincode::deserialize(proof_bytes.value())?,
                 None => MerkleProof::default(),
-            }
+            };
+            proof
         };
         
         Ok(Some(ReadResult {
