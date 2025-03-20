@@ -175,12 +175,12 @@ default = ["bundled-rocksdb"]
 bundled-rocksdb = ["rocksdb/default"]  # rocksdbをバンドルする場合
 system-rocksdb = []                     # システムのrocksdbを使用する場合
 
-# API documentation
+# API documentation and UI
 utoipa = { version = "4", features = ["axum_extras", "yaml"] }
 utoipa-swagger-ui = { version = "5", features = ["axum"] }
-webbrowser = "0.8"
-rust-embed = "8.0"
-mime_guess = "2.0"
+webbrowser = { version = "0.8" }
+rust-embed = { version = "8.0" }
+mime_guess = { version = "2.0" }
 
 [[bin]]
 name = "rustorium"
