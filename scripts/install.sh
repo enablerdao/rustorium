@@ -107,7 +107,9 @@ install_rustorium() {
     # 事前ビルド済みバイナリのダウンロードを試みる
     BINARY_URL="https://github.com/enablerdao/rustorium/releases/latest/download/rustorium-${OS}-${ARCH}.tar.gz"
     
-    if curl --output /dev/null --silent --head --fail "$BINARY_URL"; then
+    # バイナリのインストール（高速パス）
+    install_binary() {
+        local url=$1
         echo "Using pre-built binary for ${OS}-${ARCH}..."
         
         # 一時ディレクトリの作成
@@ -116,19 +118,27 @@ install_rustorium() {
         
         # バイナリのダウンロードと展開（rocksdbを含む）
         echo "Downloading pre-built binary (includes rocksdb)..."
-        curl -L "$BINARY_URL" | tar xz
-        
-        # バイナリのインストール
-        echo "Installing binary..."
-        mkdir -p "$HOME/.cargo/bin"
-        cp rustorium "$HOME/.cargo/bin/"
-        chmod +x "$HOME/.cargo/bin/rustorium"
-        
-        # クリーンアップ
-        cd - > /dev/null
-        rm -rf "$TMP_DIR"
-    else
-        echo "Pre-built binary not found, building from source..."
+        if curl -L "$url" | tar xz; then
+            # バイナリのインストール
+            echo "Installing binary..."
+            mkdir -p "$HOME/.cargo/bin"
+            cp rustorium "$HOME/.cargo/bin/"
+            chmod +x "$HOME/.cargo/bin/rustorium"
+            
+            # クリーンアップ
+            cd - > /dev/null
+            rm -rf "$TMP_DIR"
+            return 0
+        else
+            cd - > /dev/null
+            rm -rf "$TMP_DIR"
+            return 1
+        fi
+    }
+
+    # ソースからのビルド（遅いパス）
+    build_from_source() {
+        echo "Building from source..."
         echo "This might take a few minutes..."
         
         # 一時ディレクトリの作成
@@ -147,18 +157,49 @@ install_rustorium() {
         
         # リリースビルドの作成（高速プロファイル使用）
         echo "Building optimized version..."
-        cargo build --profile fast $FEATURES
-        
-        # バイナリのインストール
-        echo "Installing binary..."
-        mkdir -p "$HOME/.cargo/bin"
-        cp target/fast/rustorium "$HOME/.cargo/bin/"
-        chmod +x "$HOME/.cargo/bin/rustorium"
-        
-        # クリーンアップ
-        cd - > /dev/null
-        rm -rf "$TMP_DIR"
+        if cargo build --profile fast $FEATURES; then
+            # バイナリのインストール
+            echo "Installing binary..."
+            mkdir -p "$HOME/.cargo/bin"
+            cp target/fast/rustorium "$HOME/.cargo/bin/"
+            chmod +x "$HOME/.cargo/bin/rustorium"
+            
+            # クリーンアップ
+            cd - > /dev/null
+            rm -rf "$TMP_DIR"
+            return 0
+        else
+            cd - > /dev/null
+            rm -rf "$TMP_DIR"
+            return 1
+        fi
+    }
+
+    # バックグラウンドでのソースコードのクローン
+    clone_source_background() {
+        (
+            CLONE_DIR="$HOME/.rustorium/source"
+            mkdir -p "$CLONE_DIR"
+            cd "$CLONE_DIR"
+            if [ ! -d ".git" ]; then
+                echo "Cloning source code in background..."
+                git clone https://github.com/enablerdao/rustorium.git . > /dev/null 2>&1 &
+            fi
+        ) &
+    }
+
+    # まずバイナリを試す
+    if curl --output /dev/null --silent --head --fail "$BINARY_URL"; then
+        if install_binary "$BINARY_URL"; then
+            # バイナリのインストールに成功
+            # バックグラウンドでソースをクローン
+            clone_source_background
+            return 0
+        fi
     fi
+
+    # バイナリが利用できないか、インストールに失敗した場合はソースからビルド
+    build_from_source
     
     # キャッシュディレクトリの作成
     mkdir -p "$HOME/.rustorium/cache"
