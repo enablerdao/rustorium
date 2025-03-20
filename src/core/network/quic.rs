@@ -64,7 +64,7 @@ impl QuicNetwork {
         {
             let connections = self.connections.lock().await;
             if let Some(conn) = connections.get(&peer_id) {
-                if !matches!(conn.closed().await, Ok(true)) {
+                if !conn.is_closed() {
                     return Ok(conn.clone());
                 }
             }
