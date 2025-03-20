@@ -100,31 +100,87 @@ run_os_setup() {
 install_rustorium() {
     echo "Installing Rustorium..."
     
-    # 一時ディレクトリの作成
-    TMP_DIR=$(mktemp -d)
-    cd "$TMP_DIR"
+    # アーキテクチャとOSの検出
+    ARCH=$(uname -m)
+    OS=$(uname -s | tr '[:upper:]' '[:lower:]')
     
-    # ソースコードの取得
-    git clone https://github.com/enablerdao/rustorium.git .
+    # 事前ビルド済みバイナリのダウンロードを試みる
+    BINARY_URL="https://github.com/enablerdao/rustorium/releases/latest/download/rustorium-${OS}-${ARCH}.tar.gz"
     
-    # 高速ビルドの設定
-    export RUSTFLAGS="-C target-cpu=native"
-    
-    # リリースビルドの作成（高速プロファイル使用）
-    echo "Building optimized version (this may take a few minutes)..."
-    cargo build --profile fast
-    
-    # バイナリのインストール
-    echo "Installing binary..."
-    mkdir -p "$HOME/.cargo/bin"
-    cp target/fast/rustorium "$HOME/.cargo/bin/"
+    if curl --output /dev/null --silent --head --fail "$BINARY_URL"; then
+        echo "Using pre-built binary for ${OS}-${ARCH}..."
+        
+        # 一時ディレクトリの作成
+        TMP_DIR=$(mktemp -d)
+        cd "$TMP_DIR"
+        
+        # バイナリのダウンロードと展開
+        curl -L "$BINARY_URL" | tar xz
+        
+        # バイナリのインストール
+        echo "Installing binary..."
+        mkdir -p "$HOME/.cargo/bin"
+        cp rustorium "$HOME/.cargo/bin/"
+        chmod +x "$HOME/.cargo/bin/rustorium"
+        
+        # クリーンアップ
+        cd - > /dev/null
+        rm -rf "$TMP_DIR"
+    else
+        echo "Pre-built binary not found, building from source..."
+        echo "This might take a few minutes..."
+        
+        # 一時ディレクトリの作成
+        TMP_DIR=$(mktemp -d)
+        cd "$TMP_DIR"
+        
+        # ソースコードの取得
+        git clone https://github.com/enablerdao/rustorium.git .
+        
+        # システムのrocksdbを探す
+        if [ -f "/usr/lib/librocksdb.so" ] || [ -f "/usr/local/lib/librocksdb.so" ]; then
+            echo "Using system rocksdb..."
+            FEATURES="--no-default-features --features system-rocksdb"
+        else
+            echo "Using bundled rocksdb..."
+            FEATURES="--features bundled-rocksdb"
+        fi
+        
+        # 高速ビルドの設定
+        export RUSTFLAGS="-C target-cpu=native"
+        
+        # リリースビルドの作成（高速プロファイル使用）
+        echo "Building optimized version..."
+        cargo build --profile fast $FEATURES
+        
+        # バイナリのインストール
+        echo "Installing binary..."
+        mkdir -p "$HOME/.cargo/bin"
+        cp target/fast/rustorium "$HOME/.cargo/bin/"
+        chmod +x "$HOME/.cargo/bin/rustorium"
+        
+        # クリーンアップ
+        cd - > /dev/null
+        rm -rf "$TMP_DIR"
+    fi
     
     # キャッシュディレクトリの作成
     mkdir -p "$HOME/.rustorium/cache"
     
-    # クリーンアップ
-    cd - > /dev/null
-    rm -rf "$TMP_DIR"
+    # rocksdbのキャッシュディレクトリ
+    mkdir -p "$HOME/.rustorium/cache/rocksdb"
+    
+    # 設定ファイルの作成
+    mkdir -p "$HOME/.rustorium/config"
+    cat > "$HOME/.rustorium/config/rocksdb.toml" << EOF
+[storage]
+cache_size_mb = 512
+max_open_files = 1000
+use_fsync = false
+optimize_for_point_lookup = true
+increase_parallelism = true
+allow_concurrent_memtable_write = true
+EOF
 }
 
 # メイン処理
