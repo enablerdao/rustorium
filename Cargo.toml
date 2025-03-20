@@ -2,92 +2,92 @@
 name = "rustorium"
 version = "0.1.0"
 edition = "2021"
-authors = ["OpenHands <openhands@all-hands.dev>"]
-description = "Next-generation blockchain platform with geographic distribution"
+description = "Next-generation ultra-low latency distributed blockchain platform"
+authors = ["Rustorium Team <team@rustorium.dev>"]
+license = "MIT"
+repository = "https://github.com/enablerdao/rustorium"
 
 [dependencies]
-# Core
+# 非同期ランタイム
 tokio = { version = "1.0", features = ["full"] }
-anyhow = "1.0"
-thiserror = "1.0"
-async-trait = "0.1"
 futures = "0.3"
 
-# Storage and Database
-redb = "1.5"
-rocksdb = { version = "0.20", features = ["multi-threaded-cf"], default-features = false }
-bincode = "1.3"
+# ネットワーク
+quinn = "0.10"  # QUIC実装
+libp2p = { version = "0.52", features = ["tcp", "dns", "websocket", "noise", "yamux"] }
+redpanda = "0.1"  # Redpanda Rustクライアント
 
-# Network and P2P
-quinn = { version = "0.10", features = ["rustls", "tls-rustls"] }
-rustls = { version = "0.21", features = ["dangerous_configuration"] }
-rcgen = "0.12"
-tokio-rustls = "0.24"
+# ストレージ
+tikv-client = "0.3"  # TiKVクライアント
+redb = "1.0"  # 組み込みデータベース
+noria = "0.10"  # ストリーミングデータフロー
 
-# Consensus and Distributed Systems
-raft = "0.7"
+# コンセンサス
+gluon-consensus = "0.1"  # Gluonコンセンサス
+tendermint = "0.30"  # Tendermintコア
+
+# 暗号化
+poseidon-rs = "0.1"  # Poseidonハッシュ
+ed25519-dalek = "2.0"  # 署名
+blake3 = "1.5"  # 高速ハッシュ
+
+# スマートコントラクト
+wasmer = "4.2"  # WebAssembly実行環境
+wasmtime = "14.0"  # 代替WebAssembly実行環境
+
+# API
+axum = "0.7"  # Webフレームワーク
+tonic = "0.10"  # gRPC
+async-graphql = "6.0"  # GraphQL
+
+# モニタリング
+prometheus = "0.13"  # メトリクス
+opentelemetry = { version = "0.20", features = ["rt-tokio"] }
+tracing = "0.1"
+
+# ユーティリティ
+anyhow = "1.0"  # エラー処理
+thiserror = "1.0"  # カスタムエラー
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-
-# Caching and Performance
-dashmap = "5.5"
-lru = "0.12"
-
-# Monitoring and Metrics
-prometheus = "0.13"
-tracing = { version = "0.1", features = ["attributes"] }
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-
-# CLI and UI
-clap = { version = "4.0", features = ["derive"] }
-console = "0.15"
-dialoguer = "0.11"
-indicatif = "0.17"
-colored = "2.0"
-rustyline = "13.0"
-atty = "0.2"
-crossterm = "0.27"
-
-# Web and API
-axum = { version = "0.7", features = ["ws"] }
-tower = "0.4"
-tower-http = { version = "0.5", features = ["cors", "fs"] }
-hyper = { version = "1.0", features = ["full"] }
-utoipa = { version = "4", features = ["axum_extras", "yaml"] }
-utoipa-swagger-ui = { version = "5", features = ["axum"] }
-tokio-tungstenite = "0.20"
-url = "2.5"
-
-# System and Utils
-sys-info = "0.9"
-webbrowser = "0.8"
-rust-embed = "8.0"
-mime_guess = "2.0"
-chrono = { version = "0.4", features = ["serde"] }
-uuid = { version = "1.0", features = ["v4", "serde"] }
-toml = "0.8"
-
-# Zero Knowledge Proofs
-poseidon-rs = "0.0.8"
-
-# Testing
-criterion = { version = "0.5", features = ["async_tokio"] }
-rand = "0.8"
-
-[features]
-default = ["bundled-rocksdb"]
-bundled-rocksdb = ["rocksdb/default"]  # rocksdbをバンドルする場合
-system-rocksdb = []     # システムのrocksdbを使用する場合
+config = "0.13"  # 設定管理
+clap = { version = "4.4", features = ["derive"] }
 
 [dev-dependencies]
-criterion = { version = "0.5", features = ["async_tokio"] }
-rand = "0.8"
-uuid = { version = "1.0", features = ["v4"] }
+tokio-test = "0.4"
+criterion = "0.5"
+proptest = "1.3"
+mockall = "0.11"
+
+[build-dependencies]
+tonic-build = "0.10"
+
+[workspace]
+members = [
+    "crates/core",
+    "crates/network",
+    "crates/consensus",
+    "crates/storage",
+    "crates/api",
+]
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.dev.package."*"]
+opt-level = 2
 
 [[bench]]
-name = "benchmark"
+name = "transaction"
 harness = false
 
-[[bin]]
-name = "rustorium"
-path = "src/main.rs"
+[[bench]]
+name = "consensus"
+harness = false
+
+[[bench]]
+name = "storage"
+harness = false
