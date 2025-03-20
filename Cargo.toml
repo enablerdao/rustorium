@@ -49,12 +49,14 @@ atty = "0.2"
 crossterm = "0.27"
 
 # Web and API
-axum = "0.7"
+axum = { version = "0.7", features = ["ws"] }
 tower = "0.4"
 tower-http = { version = "0.5", features = ["cors", "fs"] }
 hyper = { version = "1.0", features = ["full"] }
 utoipa = { version = "4", features = ["axum_extras", "yaml"] }
 utoipa-swagger-ui = { version = "5", features = ["axum"] }
+tokio-tungstenite = "0.20"
+url = "2.5"
 
 # System and Utils
 sys-info = "0.9"
