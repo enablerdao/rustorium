@@ -287,4 +287,23 @@ impl NodeConfig {
             "light".to_string()
         };
     }
+
+    /// 開発モードの設定を生成
+    pub fn development() -> Self {
+        let mut config = Self::default();
+        config.node.name = "dev-node".to_string();
+        config.node.data_dir = PathBuf::from("/tmp/rustorium/data");
+        config.storage.path = PathBuf::from("/tmp/rustorium/data/storage");
+        config.network.bootstrap_nodes.clear();
+        config.dev.auto_mining = true;
+        config.dev.block_time = 1000;
+        config.performance.max_peers = 10;
+        config.performance.max_pending_tx = 1000;
+        config
+    }
+
+    /// 設定ファイルから読み込む
+    pub fn from_file(path: &str) -> anyhow::Result<Self> {
+        Self::load(path)
+    }
 }
