@@ -1,0 +1,92 @@
+groups:
+  - name: rustorium
+    rules:
+      - alert: NodeDown
+        expr: up{job="rustorium"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Node is down"
+          description: "Rustorium node has been down for more than 5 minutes"
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 90% for more than 5 minutes"
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 90% for more than 5 minutes"
+
+      - alert: DiskSpaceLow
+        expr: node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} * 100 < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space"
+          description: "Disk space is below 10% for more than 5 minutes"
+
+      - alert: HighTransactionLatency
+        expr: rustorium_transaction_latency_seconds > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High transaction latency"
+          description: "Transaction latency is above 1 second for more than 5 minutes"
+
+      - alert: LowPeerCount
+        expr: rustorium_peers_connected < 3
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low peer count"
+          description: "Connected peer count is below 3 for more than 15 minutes"
+
+      - alert: BlockProductionStopped
+        expr: rate(rustorium_blocks_total[15m]) == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Block production stopped"
+          description: "No new blocks have been produced in the last 15 minutes"
+
+      - alert: HighErrorRate
+        expr: rate(rustorium_errors_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate"
+          description: "Error rate is above 10 per minute for more than 5 minutes"
+
+      - alert: ConsensusLagging
+        expr: rustorium_consensus_lag_seconds > 60
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Consensus lagging"
+          description: "Node is lagging behind consensus by more than 60 seconds"
+
+      - alert: APIEndpointDown
+        expr: probe_success{job="blackbox",instance=~".*:9071"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "API endpoint down"
+          description: "API endpoint is not responding"
