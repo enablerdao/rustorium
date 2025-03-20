@@ -1,172 +1,165 @@
+<div align="center">
+
 # 🚀 Rustorium
 
-## **超低遅延・地理分散型ブロックチェーンプラットフォーム**
+**超低遅延・地理分散型ブロックチェーンプラットフォーム**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-blue.svg)](https://www.rust-lang.org)
 [![Build Status](https://github.com/enablerdao/rustorium/workflows/CI/badge.svg)](https://github.com/enablerdao/rustorium/actions)
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://docs.rustorium.dev)
+[![Discord](https://img.shields.io/discord/1234567890?color=7389D8&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/rustorium)
+
+[English](README.en.md) | [中文](README.zh.md) | 日本語
+
+<br>
+
+<img src="docs/images/banner.png" alt="Rustorium Banner" width="800px">
+
+<br>
 
 [📚 ドキュメント](docs/) | [🌍 デモ](https://demo.rustorium.dev) | [💬 Discord](https://discord.gg/rustorium)
 
----
-
-## 🌟 **特徴**
-
-### 🏗 **革新的アーキテクチャ**
-- **[QUIC]ベースP2P**: 超低遅延通信（< 1ms）
-- **[Redpanda]**: 地理分散トランザクション処理
-- **[Gluon]**: 高速分散合意
-- **[Noria]**: リアルタイムキャッシュ
-- **[TiKV] + [Redb]**: 高性能分散KVストア
-- **[Poseidon]**: ZKフレンドリーなハッシュ関数
-
-### 🎯 **ユースケース**
-- **DeFi**: 超高速取引処理（100K+ TPS）
-- **GameFi**: リアルタイムゲーム状態同期
-- **SocialFi**: グローバルソーシャルネットワーク
-- **DataFi**: 大規模分散データ処理
-
-### 🤖 **AI自己最適化**
-- **自動負荷分散**: ニューラルネットワークベース
-- **予測的障害検知**: 異常の早期発見
-- **パフォーマンス最適化**: リアルタイム調整
+</div>
 
 ---
 
-## 🚀 **クイックスタート**
+## 💫 概要
 
-### 📦 **インストール**
+Rustoriumは、次世代の分散型インフラストラクチャを実現する高性能ブロックチェーンプラットフォームです。
+
+- **⚡️ 超低遅延**: 100K+ TPS、レイテンシ < 100ms
+- **🌍 地理分散**: 世界中のノードで最適な処理を実現
+- **🔒 高い信頼性**: ZK証明による検証可能性
+- **🤖 自己最適化**: AIによる自動パフォーマンスチューニング
+
+## 🎯 ユースケース
+
+| 分野 | 特徴 | ユースケース |
+|------|------|------------|
+| 🏦 DeFi | 超高速取引処理 | - 分散型取引所<br>- レンディング<br>- デリバティブ |
+| 🎮 GameFi | リアルタイム同期 | - MMO/RPG<br>- NFTゲーム<br>- メタバース |
+| 👥 SocialFi | グローバル分散 | - SNS<br>- コミュニティ<br>- コンテンツ流通 |
+| 📊 DataFi | 大規模データ処理 | - データマーケット<br>- 分析基盤<br>- AI学習 |
+
+## 🚀 クイックスタート
+
 ```bash
-# バイナリインストール
+# インストール
 curl -sSf https://raw.githubusercontent.com/enablerdao/rustorium/main/scripts/install.sh | bash
 
-# または、ソースからビルド
-git clone https://github.com/enablerdao/rustorium.git
-cd rustorium
-cargo build --release
-```
-
-### 🎮 **基本的な使用方法**
-```bash
 # 開発モードで起動
 rustorium --dev
 
-# 本番モードで起動（設定ファイル必須）
-rustorium --config /path/to/config.toml
-
-# デバッグモードで起動
-rustorium --dev --debug --log-level debug
-
-# メトリクス有効化
-rustorium --dev --metrics
+# 本番モードで起動
+rustorium --config config.toml
 ```
 
-### 🌐 **Web UI/API**
-- **ダッシュボード**: http://localhost:9070
-- **REST API**: http://localhost:9071
-- **WebSocket**: ws://localhost:9072
+## 🏗 アーキテクチャ
 
----
+```mermaid
+graph TD
+    A[クライアント] --> B[トランザクション層]
+    B --> C[分散合意層]
+    C --> D[キャッシュ層]
+    D --> E[ストレージ層]
+    E --> F[クエリ層]
 
-## 📊 **パフォーマンス**
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#dfd,stroke:#333,stroke-width:2px
+    style D fill:#ffd,stroke:#333,stroke-width:2px
+    style E fill:#dff,stroke:#333,stroke-width:2px
+    style F fill:#fdf,stroke:#333,stroke-width:2px
+```
 
-### ⚡️ **トランザクション処理**
+### コアテクノロジー
+
+| レイヤー | 技術 | 特徴 |
+|---------|------|------|
+| 🌐 ネットワーク | [QUIC] | 超低遅延P2P通信 |
+| 📦 トランザクション | [Redpanda] | 地理分散処理 |
+| 🤝 合意形成 | [Gluon] | 高速分散合意 |
+| 💾 キャッシュ | [Noria] | リアルタイムキャッシュ |
+| 📚 ストレージ | [TiKV] + [Redb] | 高性能分散KVストア |
+| ✅ 検証 | [Poseidon] | ZKフレンドリーハッシュ |
+
+## 📊 パフォーマンス
+
+### トランザクション処理能力
+
 | シナリオ | TPS | レイテンシ | 説明 |
 |---------|-----|------------|------|
 | 通常負荷 | 50K+ | < 50ms | 1KB取引、500並列 |
 | 高負荷 | 100K+ | < 100ms | 1KB取引、1000並列 |
 | 極限テスト | 200K+ | < 200ms | 1KB取引、2000並列 |
 
-### 💾 **ストレージ**
-- **容量**: ペタバイトスケール
-- **クエリ**: < 10ms（キャッシュヒット時）
-- **圧縮率**: 3-5x
+### グローバル処理
 
-### 🌍 **グローバル処理**
-- **リージョン内**: < 100ms
-- **リージョン間**: < 2s
-- **レプリケーション**: 即時（非同期）
+- **🚄 リージョン内**: < 100ms
+- **🌍 リージョン間**: < 2s
+- **🔄 レプリケーション**: 即時（非同期）
 
----
+## 🛠 開発者向け
 
-## 🛠 **開発者向け**
+### 必要要件
 
-### 📚 **ドキュメント**
-- [アーキテクチャ概要](docs/architecture/overview.md)
-- [API リファレンス](docs/api/reference.md)
-- [開発ガイド](docs/guides/development.md)
-- [運用ガイド](docs/guides/operations.md)
-
-### 💻 **必要要件**
 - Rust 1.75.0+
 - CMake 3.20+
 - OpenSSL 1.1+
 
-### 🔧 **主要コンポーネント**
+### ドキュメント
+
+- [アーキテクチャ](docs/architecture/README.md)
+- [API リファレンス](docs/api/README.md)
+- [開発ガイド](docs/guides/development.md)
+- [運用ガイド](docs/guides/operations.md)
+
+### コード例
+
 ```rust
 // トランザクション処理
-pub trait TransactionProcessor {
-    async fn submit_transaction(&self, tx: Transaction) -> Result<TxReceipt>;
-    async fn get_transaction(&self, tx_hash: Hash) -> Result<Option<Transaction>>;
-}
+let tx = Transaction::new()
+    .with_data(data)
+    .with_location(location)
+    .build()?;
 
-// 分散合意
-pub trait ConsensusEngine {
-    async fn propose_block(&self, block: Block) -> Result<BlockHash>;
-    async fn validate_block(&self, block: &Block) -> Result<bool>;
-}
+let receipt = client.submit_transaction(tx).await?;
 
-// キャッシュ管理
-pub trait CacheManager {
-    async fn get(&self, key: &[u8]) -> Result<Option<Vec<u8>>>;
-    async fn set(&self, key: &[u8], value: &[u8]) -> Result<()>;
-    async fn optimize(&self) -> Result<()>;
-}
+// ストリーム処理
+let mut stream = client.subscribe_to_events().await?;
 
-// ストレージ
-pub trait Storage {
-    async fn write_with_proof(&self, key: &[u8], value: &[u8]) -> Result<WriteResult>;
-    async fn read(&self, key: &[u8]) -> Result<Option<ReadResult>>;
-    async fn verify_proof(&self, proof: &Proof) -> Result<bool>;
+while let Some(event) = stream.next().await {
+    match event {
+        Event::NewBlock(block) => {
+            println!("New block: {}", block.height);
+        }
+        Event::StateUpdate(update) => {
+            println!("State update: {:?}", update);
+        }
+    }
 }
 ```
 
----
+## 🤝 コントリビューション
 
-## 📈 **運用**
-
-### 📊 **モニタリング**
-- Prometheusメトリクス
-- Grafanaダッシュボード
-- アラート設定
-
-### 💾 **バックアップ**
-- 継続的スナップショット
-- 地理的レプリケーション
-- Point-in-timeリカバリ
-
-### 🔄 **スケーリング**
-- 動的ノード追加/削除
-- 自動シャード再配置
-- リージョン間負荷分散
-
----
-
-## 🤝 **コントリビューション**
-
-プロジェクトへの貢献を歓迎します！以下のガイドをご覧ください：
+プロジェクトへの貢献を歓迎します！
 
 - [コントリビューションガイド](CONTRIBUTING.md)
 - [コーディング規約](docs/coding-standards.md)
 - [ロードマップ](docs/roadmap.md)
 
----
-
-## 📄 **ライセンス**
+## 📄 ライセンス
 
 このプロジェクトはMITライセンスで提供されています。詳細は[LICENSE](LICENSE)ファイルをご覧ください。
 
 ---
+
+<div align="center">
+
+**[🌟 スターをつける](https://github.com/enablerdao/rustorium)** | **[🐛 Issue報告](https://github.com/enablerdao/rustorium/issues)** | **[💬 Discord参加](https://discord.gg/rustorium)**
+
+</div>
 
 [QUIC]: https://www.chromium.org/quic/
 [Redpanda]: https://redpanda.com/
