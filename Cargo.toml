@@ -167,11 +167,15 @@ rocksdb = { version = "0.20", features = [
     "multi-threaded-cf",  # Multi-threaded column families
 ], default-features = false }  # システムのrocksdbを使用する場合はこちらを有効化
 
+# System info
+sys-info = { version = "0.9" }
+
 [features]
 default = ["bundled-rocksdb"]
 bundled-rocksdb = ["rocksdb/default"]  # rocksdbをバンドルする場合
 system-rocksdb = []                     # システムのrocksdbを使用する場合
-sys-info = "0.9"
+
+# API documentation
 utoipa = { version = "4", features = ["axum_extras", "yaml"] }
 utoipa-swagger-ui = { version = "5", features = ["axum"] }
 webbrowser = "0.8"
