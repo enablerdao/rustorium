@@ -101,8 +101,15 @@ install_rustorium() {
     echo "Installing Rustorium..."
     
     # アーキテクチャとOSの検出
-    ARCH=$(uname -m)
     OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+    
+    # アーキテクチャの検出（M1/M2 Macの場合はaarch64を使用）
+    ARCH=$(uname -m)
+    if [ "$OS" = "darwin" ]; then
+        if [ "$ARCH" = "arm64" ] || [ "$(sysctl -n machdep.cpu.brand_string 2>/dev/null | grep -i apple)" ]; then
+            ARCH="aarch64"
+        fi
+    fi
     
     # 事前ビルド済みバイナリのダウンロードを試みる
     BINARY_URL="https://github.com/enablerdao/rustorium/releases/latest/download/rustorium-${OS}-${ARCH}.tar.gz"
