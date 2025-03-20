@@ -172,8 +172,8 @@ impl QuicNetwork {
                 .with_no_client_auth()
         ));
 
-        // エンドポイントの作成
-        let mut endpoint = Endpoint::server(server_config, config.listen_addr)?;
+        // エンドポイントの作成（動的ポート割り当て）
+        let mut endpoint = Endpoint::server(server_config, "0.0.0.0:0".parse()?)?;
         endpoint.set_default_client_config(client_config);
 
         Ok((endpoint, cert_der))
