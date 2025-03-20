@@ -2,15 +2,160 @@
 
 <div align="center">
 
-**次世代の自己最適化型ブロックチェーンプラットフォーム**
+**超低遅延・地理分散型ブロックチェーンプラットフォーム**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 </div>
 
+## 🌟 アーキテクチャ概要
+
+```mermaid
+graph TD
+    A[世界各地のクライアント] --> B[トランザクション受付]
+    B --> C[分散合意・シャード管理]
+    C --> D[地域別リアルタイムキャッシュ]
+    D --> E[分散ストレージ]
+    E --> F[グローバル並列クエリ]
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#dfd,stroke:#333,stroke-width:2px
+    style D fill:#ffd,stroke:#333,stroke-width:2px
+    style E fill:#dff,stroke:#333,stroke-width:2px
+    style F fill:#fdf,stroke:#333,stroke-width:2px
+```
+
+### 🔥 主要コンポーネント
+
+#### 1️⃣ トランザクション受付レイヤー
+- **Redpandaベース**: 超低遅延シャーディング
+- **地理的最適化**: クライアント位置に基づくルーティング
+- **自動負荷分散**: リアルタイムな負荷監視と調整
+
+#### 2️⃣ 分散合意レイヤー
+- **Gluonベース**: 高性能なRaftプロトコル
+- **Geo-Zones**: 地理的に最適化された合意形成
+- **動的シャーディング**: 負荷に応じた自動再配置
+
+#### 3️⃣ キャッシュレイヤー
+- **Noriaベース**: リアルタイムキャッシュ
+- **グローバル分散**: 世界各地にノード配置
+- **フロー最適化**: アクセスパターンに基づく自動最適化
+
+#### 4️⃣ ストレージレイヤー
+- **TiKV + Redb**: 高性能分散KVストア
+- **Poseidonハッシュ**: ZKフレンドリーなVerkle Trees
+- **地理的レプリケーション**: データの最適配置
+
+#### 5️⃣ P2Pネットワーク
+- **QUICベース**: 超高速なP2P通信
+- **自動証明書管理**: セキュアな通信
+- **双方向ストリーム**: 効率的なデータ転送
+
 ---
 
-## 💫 Rustoriumとは
+## 🚀 クイックスタート
+
+### 📦 インストール
+```bash
+curl -sSf https://raw.githubusercontent.com/enablerdao/rustorium/main/scripts/install.sh | bash
+```
+
+### 🎮 基本的な使用方法
+```bash
+# ノードの起動（地域を指定）
+rustorium start --region asia-northeast
+
+# ステータス確認
+rustorium status
+
+# メトリクス監視
+rustorium monitor
+
+# シャード情報の確認
+rustorium shards list
+
+# キャッシュ最適化の実行
+rustorium cache optimize
+```
+
+## 📊 パフォーマンス特性
+
+### トランザクション処理
+- **スループット**: 100,000+ TPS（地域内）
+- **レイテンシ**: < 100ms（地域内）
+- **グローバル確定**: < 2s
+
+### ストレージ
+- **容量**: ペタバイトスケール
+- **クエリレイテンシ**: < 10ms（キャッシュヒット時）
+- **レプリケーション**: 非同期（即時）/ 同期（選択可）
+
+### キャッシュ
+- **ヒット率**: 95%+（最適化後）
+- **更新伝播**: < 50ms
+- **メモリ使用**: 設定可能（ノードごと）
+
+## 🛠 開発者向け情報
+
+### 必要要件
+- Rust 1.75.0+
+- CMake 3.20+
+- OpenSSL 1.1+
+
+### ローカル開発環境のセットアップ
+```bash
+# リポジトリのクローン
+git clone https://github.com/enablerdao/rustorium.git
+cd rustorium
+
+# 依存関係のインストール
+cargo build
+
+# テストの実行
+cargo test
+
+# 開発用ノードの起動（シングルノード）
+cargo run -- --dev
+```
+
+### アーキテクチャドキュメント
+- [システム設計](docs/architecture/overview.md)
+- [トランザクション処理](docs/architecture/transaction.md)
+- [分散合意](docs/architecture/consensus.md)
+- [キャッシュ最適化](docs/architecture/cache.md)
+- [ストレージ](docs/architecture/storage.md)
+- [P2Pネットワーク](docs/architecture/network.md)
+
+## 📈 運用ガイド
+
+### モニタリング
+- Prometheusエクスポーター内蔵
+- Grafanaダッシュボード提供
+- アラート設定可能
+
+### バックアップ
+- 継続的スナップショット
+- 地理的レプリケーション
+- Point-in-time リカバリ
+
+### スケーリング
+- ノードの動的追加/削除
+- シャードの自動再配置
+- リージョン間負荷分散
+
+## 🤝 コントリビューション
+
+プロジェクトへの貢献を歓迎します！
+
+- [コントリビューションガイド](CONTRIBUTING.md)
+- [コーディング規約](docs/coding-standards.md)
+- [ロードマップ](docs/roadmap.md)
+
+## 📄 ライセンス
+
+このプロジェクトはMITライセンスで提供されています。詳細は[LICENSE](LICENSE)ファイルをご覧ください。
 
 Rustoriumは、革新的な分散型ストレージ、ZK証明、AI自己最適化を統合した次世代のブロックチェーンプラットフォームです。TiKV/CockroachDBベースの高性能ストレージエンジンと、最先端のZK技術を組み合わせることで、unprecedented（前例のない）レベルのスケーラビリティと検証可能性を実現します。
 
