@@ -196,6 +196,12 @@ impl RedbStorage {
         Ok(())
     }
     
+    pub async fn shutdown(&self) -> Result<()> {
+        info!("Shutting down storage...");
+        self.compact().await?;
+        Ok(())
+    }
+
     pub async fn get_stats(&self) -> Result<StorageStats> {
         let db = self.db.lock().await;
         let read_txn = db.begin_read()?;

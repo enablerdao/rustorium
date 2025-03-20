@@ -67,7 +67,7 @@ impl ServiceManager {
     /// ブロック数を取得
     pub async fn get_block_count(&self) -> u64 {
         if let Some(storage) = &self.storage {
-            storage.get_block_count().await.unwrap_or(0)
+            storage.get_stats().await.map(|s| s.transaction_count).unwrap_or(0)
         } else {
             0
         }
