@@ -130,8 +130,98 @@ main() {
     # rustoriumのインストール
     install_rustorium
 
+    # rustoriumコマンドをグローバルに利用可能にする
+    if [ -d "$HOME/.cargo/bin" ]; then
+        if ! command -v rustorium &> /dev/null; then
+            echo "Creating rustorium command..."
+            cat > "$HOME/.cargo/bin/rustorium" << 'EOF'
+#!/bin/bash
+if [ -f "$(dirname $(which cargo))/../lib/rustlib/uninstall.sh" ]; then
+    RUST_DIR="$(dirname $(which cargo))/.."
+else
+    RUST_DIR="$HOME/.cargo"
+fi
+
+# サーバーの状態確認
+check_server() {
+    if command -v pgrep &> /dev/null; then
+        pgrep -f "rustorium.*--base-port" > /dev/null
+        return $?
+    else
+        ps aux | grep -v grep | grep "rustorium.*--base-port" > /dev/null
+        return $?
+    fi
+}
+
+# サーバーの起動
+start_server() {
+    if ! check_server; then
+        echo "Starting Rustorium server..."
+        if [ -f "$PWD/Cargo.toml" ]; then
+            # ソースディレクトリ内の場合
+            cargo run -- "$@" &
+        else
+            # インストール済みバイナリを使用
+            "$RUST_DIR/bin/rustorium" "$@" &
+        fi
+        sleep 2
+        if check_server; then
+            echo "Server started successfully"
+        else
+            echo "Failed to start server"
+            return 1
+        fi
+    else
+        echo "Server is already running"
+    fi
+}
+
+# メイン処理
+if [ "$1" = "stop" ]; then
+    if check_server; then
+        pkill -f "rustorium.*--base-port"
+        echo "Server stopped"
+    else
+        echo "Server is not running"
+    fi
+elif [ "$1" = "restart" ]; then
+    if check_server; then
+        pkill -f "rustorium.*--base-port"
+        echo "Server stopped"
+    fi
+    start_server "$@"
+elif [ "$1" = "status" ]; then
+    if check_server; then
+        echo "Server is running"
+        ps aux | grep -v grep | grep "rustorium.*--base-port"
+    else
+        echo "Server is not running"
+    fi
+else
+    start_server "$@"
+fi
+EOF
+            chmod +x "$HOME/.cargo/bin/rustorium"
+        fi
+    fi
+
     echo -e "${GREEN}Installation complete!${NC}"
-    echo -e "${BLUE}To start Rustorium, run: rustorium${NC}"
+    
+    # サーバーが実行中でなければ起動
+    if ! pgrep -f "rustorium.*--base-port" > /dev/null; then
+        echo -e "${BLUE}Starting Rustorium server...${NC}"
+        rustorium --no-interactive &
+        sleep 2
+        echo -e "${GREEN}Server started successfully${NC}"
+    else
+        echo -e "${BLUE}Rustorium server is already running${NC}"
+    fi
+
+    echo -e "\n${GREEN}Available commands:${NC}"
+    echo -e "  ${BLUE}rustorium${NC}          - Start the server"
+    echo -e "  ${BLUE}rustorium stop${NC}     - Stop the server"
+    echo -e "  ${BLUE}rustorium restart${NC}  - Restart the server"
+    echo -e "  ${BLUE}rustorium status${NC}   - Check server status"
 }
 
 main

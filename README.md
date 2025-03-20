@@ -34,20 +34,27 @@ curl -sSf https://raw.githubusercontent.com/enablerdao/rustorium/main/scripts/in
 
 詳細なインストール手順は[こちら](docs/installation.md)をご覧ください。
 
-### 🎮 ノードの起動
+### 🎮 ノードの管理
 ```bash
-# シンプルな起動
+# 起動
 rustorium
 
-# ポートを変更（デフォルト: 9070-9072）
-rustorium --base-port 8000
+# 停止
+rustorium stop
 
-# バックグラウンドで実行
-rustorium --no-interactive
+# 再起動
+rustorium restart
 
-# データディレクトリを指定
-rustorium --data-dir my-node-data
+# 状態確認
+rustorium status
+
+# オプション付きで起動
+rustorium --base-port 8000          # ポート変更（デフォルト: 9070-9072）
+rustorium --no-interactive          # バックグラウンドで実行
+rustorium --data-dir my-node-data   # データディレクトリを指定
 ```
+
+インストール後、サーバーは自動的にバックグラウンドで起動します。
 
 詳細な使用方法は[こちら](docs/usage.md)をご覧ください。
 ```
