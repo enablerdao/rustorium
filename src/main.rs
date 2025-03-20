@@ -4,7 +4,8 @@ use rustorium::{
     config::NodeConfig,
     services::ServiceManager,
     core::{
-        storage::redb_storage::RedbStorage,
+        storage::redb_storage::{RedbStorage, StorageConfig},
+        network::quic::{QuicNetwork, NetworkConfig},
         ai::AiOptimizer,
     },
 };
@@ -43,12 +44,26 @@ async fn main() -> Result<()> {
     // ノードの役割を自動判定
     config.detect_role();
 
-    // ストレージディレクトリの作成
-    tokio::fs::create_dir_all(&config.node.data_dir).await?;
-    tokio::fs::create_dir_all(&config.storage.path).await?;
+    // ストレージの設定と初期化
+    let storage_config = StorageConfig {
+        path: config.storage.path.to_string_lossy().to_string(),
+        max_size: 1024 * 1024 * 1024 * 1024, // 1TB
+        compression_enabled: true,
+        encryption_enabled: true,
+        replication_factor: 3,
+    };
+    let storage = Arc::new(RedbStorage::new(storage_config)?);
 
-    // Redbストレージエンジンの初期化
-    let storage = Arc::new(RedbStorage::new(&config.storage.path)?);
+    // ネットワークの設定と初期化
+    let network_config = NetworkConfig {
+        listen_addr: format!("0.0.0.0:{}", config.network.port).parse()?,
+        bootstrap_nodes: config.network.bootstrap_nodes.clone(),
+        max_concurrent_streams: 1000,
+        keep_alive_interval: std::time::Duration::from_secs(10),
+        handshake_timeout: std::time::Duration::from_secs(10),
+        idle_timeout: std::time::Duration::from_secs(30),
+    };
+    let network = Arc::new(QuicNetwork::new(network_config).await?);
 
     // AI最適化エンジンの初期化
     let ai_optimizer = Arc::new(Mutex::new(AiOptimizer::new()));

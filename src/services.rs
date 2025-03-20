@@ -6,7 +6,7 @@ use crate::{
     web::WebServer,
     core::{
         storage::redb_storage::RedbStorage,
-        network::P2PNetwork,
+        network::quic::QuicNetwork,
         ai::AiOptimizer,
     },
 };
@@ -16,7 +16,7 @@ use tokio::sync::Mutex;
 pub struct ServiceManager {
     config: NodeConfig,
     storage: Option<Arc<RedbStorage>>,
-    network: Option<Arc<P2PNetwork>>,
+    network: Option<Arc<QuicNetwork>>,
     web_server: Option<WebServer>,
     ai_optimizer: Option<Arc<Mutex<AiOptimizer>>>,
 }
@@ -102,10 +102,17 @@ impl ServiceManager {
             info!("AI optimization engine initialized");
         }
 
-        // P2Pネットワークを初期化
-        info!("Initializing P2P network...");
-        let keypair = libp2p::identity::Keypair::generate_ed25519();
-        let network = Arc::new(P2PNetwork::new(keypair).await?);
+        // QUICネットワークを初期化
+        info!("Initializing QUIC network...");
+        let network_config = crate::core::network::quic::NetworkConfig {
+            listen_addr: format!("0.0.0.0:{}", self.config.network.port).parse()?,
+            bootstrap_nodes: self.config.network.bootstrap_nodes.clone(),
+            max_concurrent_streams: 1000,
+            keep_alive_interval: std::time::Duration::from_secs(10),
+            handshake_timeout: std::time::Duration::from_secs(10),
+            idle_timeout: std::time::Duration::from_secs(30),
+        };
+        let network = Arc::new(QuicNetwork::new(network_config).await?);
         self.network = Some(network.clone());
 
         // Web UIサーバーを起動
