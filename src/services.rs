@@ -5,7 +5,7 @@ use crate::{
     config::NodeConfig,
     web::WebServer,
     core::{
-        storage::redb_storage::RedbStorage,
+        storage::redb_storage::{RedbStorage, StorageConfig},
         network::quic::QuicNetwork,
         ai::AiOptimizer,
     },
