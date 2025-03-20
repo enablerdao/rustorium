@@ -1,156 +1,187 @@
-# 🚀 5分で分かるRustorium
+# 🚀 クイックスタート
 
-## 💫 Rustoriumって何？
+## 📦 インストール
 
-Rustoriumは、次世代の分散型インフラストラクチャです。従来のブロックチェーンが抱える3つの課題を解決します：
-
-- ⚡️ **スピード**: 従来の100倍以上の処理速度
-- 🔄 **スケーラビリティ**: 需要に応じて無限に拡張
-- 🛡️ **セキュリティ**: AIによる自動防御システム
-
-## 🎯 こんなことができます
-
-### 1. 超高速トランザクション
-```rust
-// 0.5秒で取引確定
-let tx = Transaction::new()
-    .from(my_wallet)
-    .to(friend_wallet)
-    .amount(100)
-    .send()?;
-
-// 即座に結果を確認
-assert_eq!(tx.status, Status::Confirmed);
-```
-
-### 2. スマートコントラクト
-```solidity
-// Solidity & WebAssemblyに対応
-contract GameItem {
-    string public name;
-    uint public power;
-    
-    constructor(string memory _name, uint _power) {
-        name = _name;
-        power = _power;
-    }
-}
-```
-
-### 3. クロスチェーン操作
-```typescript
-// 他のチェーンとシームレスに連携
-const bridge = new CrossChainBridge();
-await bridge.transfer({
-    from: "ethereum",
-    to: "rustorium",
-    amount: "1.0 ETH"
-});
-```
-
-## 🚀 始め方
-
-### 1. インストール
+### 1️⃣ バイナリインストール
 ```bash
-# CLIツールのインストール
-curl -L https://get.rustorium.org | bash
-
-# 開発環境の準備
-rustorium init my-project
+curl -sSf https://raw.githubusercontent.com/enablerdao/rustorium/main/scripts/install.sh | bash
 ```
 
-### 2. ウォレットの作成
+### 2️⃣ ソースからビルド
 ```bash
-# 新しいウォレットを作成
-rustorium wallet create
+# リポジトリのクローン
+git clone https://github.com/enablerdao/rustorium.git
+cd rustorium
 
-# テストトークンを取得
+# ビルド
+cargo build --release
+
+# バイナリのインストール
+sudo cp target/release/rustorium /usr/local/bin/
+```
+
+## 🎮 基本的な使用方法
+
+### 1️⃣ ノードの起動
+```bash
+# 開発モードで起動
+rustorium --dev
+
+# 本番モードで起動
+rustorium --config /path/to/config.toml
+```
+
+### 2️⃣ ステータス確認
+```bash
+# ノードの状態を確認
+rustorium status
+
+# メトリクスを表示
+rustorium monitor
+```
+
+### 3️⃣ トランザクションの送信
+```bash
+# トランザクションの作成と送信
+rustorium tx send \
+  --to 0x1234... \
+  --amount 100 \
+  --data "Hello, World!"
+
+# トランザクションの確認
+rustorium tx status <TX_HASH>
+```
+
+### 4️⃣ ブロックの探索
+```bash
+# 最新ブロックの確認
+rustorium block latest
+
+# 特定のブロックの詳細を表示
+rustorium block <BLOCK_NUMBER>
+```
+
+## 🌐 Web UI
+
+### 1️⃣ ダッシュボード
+- http://localhost:9070 - メインダッシュボード
+- http://localhost:9071 - APIエンドポイント
+- http://localhost:9072 - WebSocketインターフェース
+
+### 2️⃣ APIの使用
+```bash
+# REST API
+curl http://localhost:9071/api/v1/status
+
+# WebSocket
+wscat -c ws://localhost:9072
+```
+
+## 📊 モニタリング
+
+### 1️⃣ メトリクス
+```bash
+# Prometheusメトリクス
+curl http://localhost:9070/metrics
+
+# ノード統計
+rustorium stats
+```
+
+### 2️⃣ ログ
+```bash
+# ログの表示
+rustorium logs
+
+# デバッグログの有効化
+rustorium --log-level debug
+```
+
+## 🔧 設定例
+
+### config.toml
+```toml
+[node]
+name = "my-node"
+data_dir = "/var/lib/rustorium"
+
+[network]
+port = 9070
+bootstrap_nodes = [
+    "node1.rustorium.network:9070",
+    "node2.rustorium.network:9070"
+]
+
+[storage]
+path = "/var/lib/rustorium/data"
+max_size = "1TB"
+compression = true
+
+[web]
+enabled = true
+cors_origins = ["*"]
+```
+
+## 🛠 開発者ツール
+
+### 1️⃣ テストネットの使用
+```bash
+# テストネットの起動
+rustorium testnet start
+
+# テストトークンの取得
 rustorium faucet request
 ```
 
-### 3. スマートコントラクトのデプロイ
+### 2️⃣ デバッグツール
 ```bash
-# コントラクトをデプロイ
-rustorium deploy my-contract.sol
+# デバッグコンソール
+rustorium debug console
 
-# コントラクトと対話
-rustorium contract call MyContract.hello()
+# ネットワーク診断
+rustorium debug network
 ```
 
-## 💎 主な特徴
+## 📚 次のステップ
 
-### ⚡️ パフォーマンス
-- 1秒以内の取引確定
-- 最大100,000 TPS
-- 自動スケーリング
-
-### 🛠️ 開発者フレンドリー
-- 多言語SDK対応
-- 充実したドキュメント
-- 開発者ツール完備
-
-### 🔐 セキュリティ
-- AIベースの監視
-- マルチレイヤー保護
-- 自動アップデート
-
-## 🌟 ユースケース
-
-### 1. DeFi
-- 超高速取引
-- クロスチェーンスワップ
-- 自動マーケットメイク
-
-### 2. GameFi
-- リアルタイム処理
-- 大規模プレイヤー対応
-- 低手数料
-
-### 3. エンタープライズ
-- プライベートシャード
-- カスタマイズ可能
-- 高度なモニタリング
-
-## 📈 今後の展開
-
-### フェーズ1（現在）
-- ✅ コアシステムの完成
-- ✅ テストネット運用
-- ✅ 開発者ツール提供
-
-### フェーズ2（進行中）
-- 🔄 メインネット準備
-- 🔄 エコシステム拡大
-- 🔄 企業パートナーシップ
-
-## 🤝 参加方法
-
-### 開発者として
-1. [開発者ポータル](https://dev.rustorium.org)に登録
-2. [SDKをインストール](docs/sdk-guide.md)
-3. [サンプルプロジェクト](examples/)を試す
-
-### バリデーターとして
-1. [バリデーターガイド](validator.md)を確認
-2. 必要なRUSをステーク
-3. ノードを設定して運用開始
-
-## 📚 もっと詳しく
-
-- [技術仕様書](architecture/overview.md)
+- [アーキテクチャ概要](architecture/overview.md)
 - [APIリファレンス](api/reference.md)
-- [チュートリアル](tutorials/)
+- [開発ガイド](guides/development.md)
+- [運用ガイド](guides/operations.md)
 
-## 🌐 コミュニティ
+## 🆘 トラブルシューティング
 
-- [Discord](https://discord.gg/rustorium)で議論に参加
-- [Forum](https://forum.rustorium.org)で質問
-- [Twitter](https://twitter.com/rustorium)でフォロー
+### よくある問題
 
----
+1. **ノードが起動しない**
+   ```bash
+   # ポート使用状況の確認
+   rustorium check ports
+   
+   # 設定の検証
+   rustorium check config
+   ```
 
-<div align="center">
+2. **同期が遅い**
+   ```bash
+   # ネットワーク診断
+   rustorium network diagnose
+   
+   # ピア接続の確認
+   rustorium network peers
+   ```
 
-**[🎮 プレイグラウンドを試す](https://play.rustorium.org)** | **[📖 詳細なドキュメントを見る](https://docs.rustorium.org)**
+3. **メモリ使用量が高い**
+   ```bash
+   # メモリ使用状況の確認
+   rustorium monitor memory
+   
+   # キャッシュのクリア
+   rustorium cache clear
+   ```
 
-</div>
+### サポート
+
+- [Discord](https://discord.gg/rustorium)
+- [GitHub Issues](https://github.com/enablerdao/rustorium/issues)
+- [ドキュメント](https://docs.rustorium.dev)
