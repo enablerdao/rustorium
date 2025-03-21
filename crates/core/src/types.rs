@@ -1,4 +1,4 @@
-//! 共通型定義
+//! GQT Core - 共通型定義
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
