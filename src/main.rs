@@ -1,15 +1,17 @@
-//! GQT - 量子的高速ブロックチェーンプラットフォーム
+//! Rustorium - 量子的高速ブロックチェーンプラットフォーム
 
 use clap::Parser;
-use gqt_core::{Config, Node};
-use gqt_network::{NetworkModule, NetworkModuleFactory};
-use gqt_consensus::{ConsensusModule, ConsensusModuleFactory};
-use gqt_storage::{StorageModule, StorageModuleFactory};
-use gqt_runtime::{RuntimeModule, RuntimeModuleFactory};
-use std::path::PathBuf;
+use rustorium_core::{Config, Node};
+use rustorium_network::{NetworkModule, NetworkModuleFactory};
+use rustorium_consensus::{ConsensusModule, ConsensusModuleFactory};
+use rustorium_storage::{StorageModule, StorageModuleFactory};
+use rustorium_runtime::{RuntimeModule, RuntimeModuleFactory};
+use rustorium_api::{ApiServer, ApiConfig, ApiState};
+use std::{path::PathBuf, sync::Arc};
+use tokio::sync::RwLock;
 use tracing_subscriber::{fmt, EnvFilter};
 
-/// GQTノードのコマンドライン引数
+/// Rustoriumノードのコマンドライン引数
 #[derive(Parser, Debug)]
 #[clap(version, about)]
 struct Args {
@@ -40,6 +42,18 @@ struct Args {
     /// データディレクトリ
     #[clap(long)]
     data_dir: Option<PathBuf>,
+
+    /// Web UIのポート
+    #[clap(long, default_value = "9070")]
+    web_port: u16,
+
+    /// REST APIのポート
+    #[clap(long, default_value = "9071")]
+    api_port: u16,
+
+    /// WebSocketのポート
+    #[clap(long, default_value = "9072")]
+    ws_port: u16,
 
     /// ログレベル
     #[clap(long, default_value = "info")]
@@ -96,14 +110,24 @@ async fn main() -> anyhow::Result<()> {
     let storage = StorageModuleFactory::create(config.storage.clone());
     let runtime = RuntimeModuleFactory::create(config.runtime.clone());
 
-    // ノードの作成と起動
-    let mut node = Node::new(
-        config.into(),
-        network,
-        consensus,
-        storage,
-        runtime,
-    );
+    // APIサーバーの設定
+    let api_config = ApiConfig {
+        web_port: args.web_port,
+        api_port: args.api_port,
+        ws_port: args.ws_port,
+        static_dir: PathBuf::from("frontend/dist"),
+    };
+
+    // APIサーバーの状態
+    let api_state = Arc::new(ApiState {
+        network: Arc::new(RwLock::new(network)),
+        consensus: Arc::new(RwLock::new(consensus)),
+        storage: Arc::new(RwLock::new(storage)),
+        runtime: Arc::new(RwLock::new(runtime)),
+    });
+
+    // APIサーバーの作成
+    let api_server = ApiServer::new(api_state.clone(), api_config);
 
     // シグナルハンドラの設定
     let (shutdown_tx, mut shutdown_rx) = tokio::sync::mpsc::channel(1);
@@ -111,15 +135,15 @@ async fn main() -> anyhow::Result<()> {
         let _ = shutdown_tx.try_send(());
     })?;
 
-    // ノードの初期化と起動
-    node.init().await?;
-    node.start().await?;
+    // APIサーバーの起動
+    tokio::spawn(async move {
+        if let Err(e) = api_server.start().await {
+            tracing::error!("API server error: {}", e);
+        }
+    });
 
     // シャットダウン待機
     shutdown_rx.recv().await;
-
-    // ノードの停止
-    node.stop().await?;
 
     Ok(())
 }
