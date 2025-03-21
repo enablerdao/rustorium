@@ -1,4 +1,4 @@
-//! ネットワークモジュールのインターフェース
+//! GQT Core - ネットワークモジュールインターフェース
 
 use crate::{Module, ModuleConfig};
 use async_trait::async_trait;

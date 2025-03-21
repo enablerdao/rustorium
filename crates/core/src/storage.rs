@@ -1,7 +1,17 @@
-//! ストレージモジュールのインターフェース
+//! GQT Core - ストレージモジュールインターフェース
 
 use crate::{Module, ModuleConfig};
 use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
+
+/// ストレージ操作
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum StorageOperation {
+    /// データの保存
+    Put { key: Vec<u8>, value: Vec<u8> },
+    /// データの削除
+    Delete { key: Vec<u8> },
+}
 
 /// ストレージモジュールのインターフェース
 #[async_trait]
@@ -18,15 +28,6 @@ pub trait StorageModule: Module {
     async fn snapshot(&self) -> anyhow::Result<Vec<u8>>;
     /// スナップショットからの復元
     async fn restore(&mut self, snapshot: Vec<u8>) -> anyhow::Result<()>;
-}
-
-/// ストレージ操作
-#[derive(Debug, Clone)]
-pub enum StorageOperation {
-    /// データの保存
-    Put { key: Vec<u8>, value: Vec<u8> },
-    /// データの削除
-    Delete { key: Vec<u8> },
 }
 
 /// ストレージモジュールのファクトリ

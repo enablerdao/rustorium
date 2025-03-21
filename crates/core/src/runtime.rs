@@ -1,4 +1,4 @@
-//! ランタイムモジュールのインターフェース
+//! GQT Core - ランタイムモジュールインターフェース
 
 use crate::{Module, ModuleConfig};
 use async_trait::async_trait;

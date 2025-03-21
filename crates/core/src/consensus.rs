@@ -1,4 +1,4 @@
-//! コンセンサスモジュールのインターフェース
+//! GQT Core - コンセンサスモジュールインターフェース
 
 use crate::{Module, ModuleConfig};
 use async_trait::async_trait;
