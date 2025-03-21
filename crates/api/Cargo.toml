@@ -1,16 +1,16 @@
 [package]
-name = "rustorium-api"
+name = "gqt-api"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 
 [dependencies]
-rustorium-core = { path = "../core" }
-rustorium-network = { path = "../network" }
-rustorium-consensus = { path = "../consensus" }
-rustorium-storage = { path = "../storage" }
-rustorium-runtime = { path = "../runtime" }
+gqt-core = { path = "../core" }
+gqt-network = { path = "../network" }
+gqt-consensus = { path = "../consensus" }
+gqt-storage = { path = "../storage" }
+gqt-runtime = { path = "../runtime" }
 tokio.workspace = true
 anyhow.workspace = true
 tracing.workspace = true
