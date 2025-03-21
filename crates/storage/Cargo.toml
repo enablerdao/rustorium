@@ -1,12 +1,12 @@
 [package]
-name = "gqt-storage"
+name = "rustorium-storage"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 
 [dependencies]
-gqt-core = { path = "../core", features = ["storage"] }
+rustorium-core = { path = "../core", features = ["storage"] }
 tokio.workspace = true
 anyhow.workspace = true
 tracing.workspace = true

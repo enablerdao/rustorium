@@ -11,7 +11,7 @@ members = [
 [workspace.package]
 version = "0.1.0"
 edition = "2021"
-authors = ["GQT Team"]
+authors = ["Rustorium Team"]
 license = "MIT"
 
 [workspace.dependencies]
@@ -52,15 +52,15 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [[bin]]
-name = "gqt"
+name = "rustorium"
 path = "src/main.rs"
 
 [dependencies]
-gqt-core = { path = "crates/core" }
-gqt-network = { path = "crates/network" }
-gqt-consensus = { path = "crates/consensus" }
-gqt-storage = { path = "crates/storage" }
-gqt-runtime = { path = "crates/runtime" }
+rustorium-core = { path = "crates/core" }
+rustorium-network = { path = "crates/network" }
+rustorium-consensus = { path = "crates/consensus" }
+rustorium-storage = { path = "crates/storage" }
+rustorium-runtime = { path = "crates/runtime" }
 tokio.workspace = true
 anyhow.workspace = true
 tracing.workspace = true

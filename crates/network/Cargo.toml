@@ -1,12 +1,12 @@
 [package]
-name = "gqt-network"
+name = "rustorium-network"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 
 [dependencies]
-gqt-core = { path = "../core", features = ["network"] }
+rustorium-core = { path = "../core", features = ["network"] }
 tokio.workspace = true
 anyhow.workspace = true
 tracing.workspace = true

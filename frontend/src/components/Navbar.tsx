@@ -24,7 +24,7 @@ export default function Navbar() {
       <Flex h={16} alignItems="center" justifyContent="space-between">
         <HStack spacing={8} alignItems="center">
           <Text fontSize="xl" fontWeight="bold" as={RouterLink} to="/">
-            GQT Dashboard
+            Rustorium Dashboard
           </Text>
           <HStack as="nav" spacing={4} display={{ base: 'none', md: 'flex' }}>
             <Button as={RouterLink} to="/" variant="ghost">
