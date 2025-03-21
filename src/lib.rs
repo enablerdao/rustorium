@@ -1,21 +1,13 @@
-pub mod util;
-pub mod services;
-pub mod web;
-pub mod cli;
-pub mod i18n;
-pub mod core {
-    pub mod transaction;
-    pub mod consensus;
-    pub mod cache;
-    pub mod storage {
-        pub mod redb_storage;
-    }
-    pub mod network {
-        pub mod quic;
-        pub use quic::*;
-    }
-    pub mod ai;
-}
-pub mod config;
+pub mod api;
+pub mod blockchain;
+pub mod mempool;
+pub mod storage;
+pub mod types;
+pub mod validator;
 
-pub use config::NodeConfig;
+pub use api::{ApiState, create_api_router};
+pub use blockchain::Blockchain;
+pub use mempool::Mempool;
+pub use storage::Storage;
+pub use types::{Block, Transaction, Hash, Address, BlockHeader, Signature};
+pub use validator::{ValidatorSet, ValidatorState, ValidatorNode};
