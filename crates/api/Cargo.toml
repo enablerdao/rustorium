@@ -1,15 +1,25 @@
 [package]
 name = "rustorium-api"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
 
 [dependencies]
-axum = "0.7"
-tonic = "0.10"
-async-graphql = "6.0"
+rustorium-core = { path = "../core" }
+rustorium-network = { path = "../network" }
+rustorium-consensus = { path = "../consensus" }
+rustorium-storage = { path = "../storage" }
+rustorium-runtime = { path = "../runtime" }
+tokio.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+axum = { version = "0.7", features = ["json", "ws"] }
+tower-http = { version = "0.5", features = ["cors", "trace"] }
 
-tokio = { version = "1.0", features = ["full"] }
-anyhow = "1.0"
-thiserror = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-tracing = "0.1"
+[features]
+default = ["full"]
+full = ["rest", "websocket", "grpc"]
+rest = []
+websocket = []
+grpc = []

@@ -1,19 +1,20 @@
 [package]
-name = "rustorium-consensus"
+name = "rustorium-runtime"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 
 [dependencies]
-rustorium-core = { path = "../core", features = ["consensus"] }
+rustorium-core = { path = "../core", features = ["runtime"] }
 tokio.workspace = true
 anyhow.workspace = true
 tracing.workspace = true
+gluon.workspace = true
 
 [features]
-default = ["hotstuff"]
-hotstuff = []
-avalanche = []
-tendermint = []
-raft = []
+default = ["wasm"]
+wasm = []
+evm = []
+move = []
+custom = []

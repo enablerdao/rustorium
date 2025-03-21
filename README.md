@@ -2,7 +2,7 @@
 
 # 🚀 Rustorium
 
-**次世代の超低遅延・地理分散型ブロックチェーンプラットフォーム**
+**次世代のモジュラーブロックチェーンプラットフォーム**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-blue.svg)](https://www.rust-lang.org)
@@ -20,17 +20,34 @@
 
 ## 🌟 主な特徴
 
-### ⚡️ 超高性能アーキテクチャ
-- **100K+ TPS**: 業界最高レベルのトランザクション処理
-- **< 100ms レイテンシ**: リアルタイム処理対応
-- **シャーディング**: 自動スケーリング
+### ⚡️ モジュラーアーキテクチャ
+- **プラグイン型設計**: 各レイヤーを自由に組み合わせ可能
+- **柔軟なカスタマイズ**: 用途に応じて最適な構成を選択
+- **高い拡張性**: 新しいモジュールを簡単に追加可能
 
-### 🔧 堅牢な技術スタック
-- **[QUIC](https://quicwg.org)**: 超低遅延P2Pネットワーク
-- **[Redpanda](https://redpanda.com)**: 高性能イベントストリーミング
-- **[Gluon](https://gluon.rs)**: 分散コンピューティング
-- **[Noria](https://github.com/mit-pdos/noria)**: 高性能データフロー処理
-- **[TiKV](https://tikv.org)**: 分散KVストア
+### 🔧 モジュール一覧
+
+#### 1. ネットワークレイヤー
+- **[QUIC](docs/tech-stack/quic.md)**: 超低遅延P2Pネットワーク
+- **[libp2p](docs/tech-stack/libp2p.md)**: 分散P2Pプロトコル
+- **カスタム**: 独自のネットワークプロトコル
+
+#### 2. コンセンサスレイヤー
+- **[HotStuff](docs/tech-stack/hotstuff.md)**: BFTコンセンサス
+- **[Avalanche](docs/tech-stack/avalanche.md)**: 確率的コンセンサス
+- **[Tendermint](docs/tech-stack/tendermint.md)**: BFTコンセンサス
+- **[Raft](docs/tech-stack/raft.md)**: 分散合意アルゴリズム
+
+#### 3. ストレージレイヤー
+- **[TiKV](docs/tech-stack/tikv.md)**: 分散KVストア
+- **[RocksDB](docs/tech-stack/rocksdb.md)**: 高性能ローカルストレージ
+- **カスタム**: 独自のストレージエンジン
+
+#### 4. ランタイムレイヤー
+- **[WebAssembly](docs/tech-stack/wasm.md)**: WAMSランタイム
+- **[EVM](docs/tech-stack/evm.md)**: Ethereumランタイム
+- **[Move](docs/tech-stack/move.md)**: Moveランタイム
+- **カスタム**: 独自のランタイム環境
 
 ### 🛠 開発者フレンドリー
 - **Rustネイティブ**: 型安全で高性能
@@ -47,9 +64,10 @@
 ```mermaid
 graph TD
     A[アプリケーション層] --> B[API層]
-    B --> C[実行層]
+    B --> C[ランタイム層]
     C --> D[コンセンサス層]
     D --> E[ストレージ層]
+    D --> F[ネットワーク層]
 
     subgraph "アプリケーション層"
         A1[Web UI] & A2[SDK] & A3[CLI]
@@ -59,19 +77,20 @@ graph TD
         B1[REST API] & B2[WebSocket] & B3[gRPC]
     end
 
-    subgraph "実行層"
-        C1[Gluon] --> C2[Noria]
-        C2 --> C3[トランザクション処理]
+    subgraph "ランタイム層"
+        C1[WASM] & C2[EVM] & C3[Move]
     end
 
     subgraph "コンセンサス層"
-        D1[QUIC] --> D2[Redpanda]
-        D2 --> D3[シャーディング]
+        D1[HotStuff] & D2[Avalanche] & D3[Tendermint] & D4[Raft]
     end
 
     subgraph "ストレージ層"
-        E1[TiKV] --> E2[状態管理]
-        E2 --> E3[スナップショット]
+        E1[TiKV] & E2[RocksDB] & E3[カスタム]
+    end
+
+    subgraph "ネットワーク層"
+        F1[QUIC] & F2[libp2p] & F3[カスタム]
     end
 
     style A fill:#f9f,stroke:#333,stroke-width:2px
@@ -79,6 +98,7 @@ graph TD
     style C fill:#dfd,stroke:#333,stroke-width:2px
     style D fill:#ffd,stroke:#333,stroke-width:2px
     style E fill:#dff,stroke:#333,stroke-width:2px
+    style F fill:#fdf,stroke:#333,stroke-width:2px
 ```
 
 ## 🚀 クイックスタート
@@ -87,16 +107,36 @@ graph TD
 # インストール
 curl -sSf https://raw.githubusercontent.com/enablerdao/rustorium/main/scripts/install.sh | bash
 
-# 開発モードで起動
+# 開発モードで起動（デフォルト構成）
 rustorium --dev
 
-# 本番モードで起動
+# カスタム構成で起動
 rustorium --config config.toml
+```
+
+### カスタム構成例
+
+```toml
+[network]
+module = "quic"  # or "libp2p" or "custom"
+
+[consensus]
+module = "hotstuff"  # or "avalanche" or "tendermint" or "raft"
+
+[storage]
+module = "tikv"  # or "rocksdb" or "custom"
+
+[runtime]
+module = "wasm"  # or "evm" or "move" or "custom"
+
+[api]
+modules = ["rest", "websocket", "grpc"]
 ```
 
 ## 📚 ドキュメント
 
 - [アーキテクチャ](docs/architecture/README.md)
+- [モジュール設計](docs/modules/README.md)
 - [APIリファレンス](docs/api/README.md)
 - [開発ガイド](docs/guides/development.md)
 - [運用ガイド](docs/guides/operations.md)
@@ -118,6 +158,12 @@ cd rustorium
 
 # 依存関係のインストール
 cargo build
+
+# 特定のモジュールのみビルド
+cargo build -p rustorium-network --features quic
+cargo build -p rustorium-consensus --features hotstuff
+cargo build -p rustorium-storage --features tikv
+cargo build -p rustorium-runtime --features wasm
 
 # テストの実行
 cargo test
