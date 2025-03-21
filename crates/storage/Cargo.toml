@@ -1,16 +1,20 @@
 [package]
 name = "rustorium-storage"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
 
 [dependencies]
-tikv-client = "0.3"
-redb = "1.0"
-noria = "0.10"
-poseidon-rs = "0.1"
+rustorium-core = { path = "../core", features = ["storage"] }
+tokio.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tikv-client.workspace = true
+rocksdb.workspace = true
 
-tokio = { version = "1.0", features = ["full"] }
-anyhow = "1.0"
-thiserror = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-tracing = "0.1"
+[features]
+default = ["tikv"]
+tikv = ["tikv-client"]
+rocksdb = ["rocksdb"]
+custom = []

@@ -1,102 +1,119 @@
 <div align="center">
 
-# 🚀 Rustorium
+# 🚀 GQT (GQT Quantum Trust)
 
-**次世代の超低遅延・地理分散型ブロックチェーンプラットフォーム**
+**次世代の量子的高速・モジュラーブロックチェーンプラットフォーム**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/rust-1.75%2B-blue.svg)](https://www.rust-lang.org)
-[![Build Status](https://github.com/enablerdao/rustorium/workflows/CI/badge.svg)](https://github.com/enablerdao/rustorium/actions)
-[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://docs.rustorium.dev)
-[![Discord](https://img.shields.io/discord/1234567890?color=7389D8&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/rustorium)
+[![Build Status](https://github.com/enablerdao/gqt/workflows/CI/badge.svg)](https://github.com/enablerdao/gqt/actions)
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://docs.gqt.dev)
+[![Discord](https://img.shields.io/discord/1234567890?color=7389D8&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/gqt)
 
 [English](README.en.md) | [中文](README.zh.md) | 日本語
 
-<img src="docs/images/banner.png" alt="Rustorium Banner" width="800px">
+<img src="docs/images/banner.png" alt="GQT Banner" width="800px">
 
-[📚 ドキュメント](docs/) | [🌍 デモ](https://demo.rustorium.dev) | [💬 Discord](https://discord.gg/rustorium)
+[📚 ドキュメント](docs/) | [🌍 デモ](https://demo.gqt.dev) | [💬 Discord](https://discord.gg/gqt)
 
 </div>
 
-## 🌟 主な特徴
+## 🌟 GQTとは？
 
-### ⚡️ 超高性能アーキテクチャ
+GQT（GQT Quantum Trust）は、次世代の量子的高速・モジュラーブロックチェーンプラットフォームです。
+最先端の技術スタックを組み合わせ、超高速で柔軟なブロックチェーンインフラを提供します。
+
+### ⚡️ 主な特徴
+
+#### 1. 量子的高速性
 - **100K+ TPS**: 業界最高レベルのトランザクション処理
 - **< 100ms レイテンシ**: リアルタイム処理対応
 - **シャーディング**: 自動スケーリング
 
-### 🔧 堅牢な技術スタック
-- **[QUIC](https://quicwg.org)**: 超低遅延P2Pネットワーク
-- **[Redpanda](https://redpanda.com)**: 高性能イベントストリーミング
-- **[Gluon](https://gluon.rs)**: 分散コンピューティング
-- **[Noria](https://github.com/mit-pdos/noria)**: 高性能データフロー処理
-- **[TiKV](https://tikv.org)**: 分散KVストア
+#### 2. 完全モジュラー設計
+- **プラグイン型アーキテクチャ**: 各レイヤーを自由に組み替え可能
+- **柔軟なカスタマイズ**: ユースケースに応じた最適な構成
+- **高い拡張性**: 新モジュールの追加が容易
 
-### 🛠 開発者フレンドリー
-- **Rustネイティブ**: 型安全で高性能
-- **充実したSDK**: 多言語サポート
-- **豊富なツール**: CLI, デバッガー, etc.
+### 🔧 革新的技術スタック
 
-### 📊 包括的なモニタリング
-- **Prometheus/Grafana**: メトリクス可視化
-- **OpenTelemetry**: 分散トレーシング
-- **ELKスタック**: ログ分析
+#### 1. ネットワークレイヤー
+- **[QUIC](docs/tech-stack/quic.md)**: 超低遅延P2Pネットワーク
+  - 0-RTTハンドシェイク
+  - マルチストリーム並列転送
+  - HOLブロッキング解消
 
-## 🏗 アーキテクチャ概要
+#### 2. コンピューティングレイヤー
+- **[Gluon](docs/tech-stack/gluon.md)**: 分散コンピューティング基盤
+  - JITコンパイル最適化
+  - 並列処理エンジン
+  - メモリプール管理
 
-```mermaid
-graph TD
-    A[アプリケーション層] --> B[API層]
-    B --> C[実行層]
-    C --> D[コンセンサス層]
-    D --> E[ストレージ層]
+#### 3. ストレージレイヤー
+- **[TiKV](docs/tech-stack/tikv.md)**: 分散KVストア
+  - MVCCトランザクション
+  - Raftコンセンサス
+  - 自動シャーディング
 
-    subgraph "アプリケーション層"
-        A1[Web UI] & A2[SDK] & A3[CLI]
-    end
+### 🛠 モジュール構成例
 
-    subgraph "API層"
-        B1[REST API] & B2[WebSocket] & B3[gRPC]
-    end
+#### DeFi向け構成
+```toml
+[network]
+module = "quic"  # 超低遅延通信
+max_streams = 1000
+initial_rtt = 100
 
-    subgraph "実行層"
-        C1[Gluon] --> C2[Noria]
-        C2 --> C3[トランザクション処理]
-    end
+[consensus]
+module = "hotstuff"  # 高速BFT
+validators = 21
+block_time = 1
 
-    subgraph "コンセンサス層"
-        D1[QUIC] --> D2[Redpanda]
-        D2 --> D3[シャーディング]
-    end
+[storage]
+module = "tikv"  # 分散KV
+shards = 16
+replicas = 3
 
-    subgraph "ストレージ層"
-        E1[TiKV] --> E2[状態管理]
-        E2 --> E3[スナップショット]
-    end
+[runtime]
+module = "wasm"  # WebAssembly VM
+memory_limit = "4GB"
+```
 
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style B fill:#bbf,stroke:#333,stroke-width:2px
-    style C fill:#dfd,stroke:#333,stroke-width:2px
-    style D fill:#ffd,stroke:#333,stroke-width:2px
-    style E fill:#dff,stroke:#333,stroke-width:2px
+#### エンタープライズ向け構成
+```toml
+[network]
+module = "custom"  # プライベートネット
+encryption = "aes-256"
+
+[consensus]
+module = "raft"  # シンプルな合意形成
+nodes = 5
+
+[storage]
+module = "rocksdb"  # ローカルKV
+cache_size = "1GB"
+
+[runtime]
+module = "move"  # 型安全言語
 ```
 
 ## 🚀 クイックスタート
 
 ```bash
 # インストール
-curl -sSf https://raw.githubusercontent.com/enablerdao/rustorium/main/scripts/install.sh | bash
+curl -sSf https://raw.githubusercontent.com/enablerdao/gqt/main/scripts/install.sh | bash
 
-# 開発モードで起動
-rustorium --dev
+# 開発モードで起動（デフォルト構成）
+gqt --dev
 
-# 本番モードで起動
-rustorium --config config.toml
+# カスタム構成で起動
+gqt --config config.toml
 ```
 
 ## 📚 ドキュメント
 
 - [アーキテクチャ](docs/architecture/README.md)
+- [モジュール設計](docs/modules/README.md)
 - [APIリファレンス](docs/api/README.md)
 - [開発ガイド](docs/guides/development.md)
 - [運用ガイド](docs/guides/operations.md)
@@ -113,11 +130,17 @@ rustorium --config config.toml
 
 ```bash
 # リポジトリのクローン
-git clone https://github.com/enablerdao/rustorium.git
-cd rustorium
+git clone https://github.com/enablerdao/gqt.git
+cd gqt
 
 # 依存関係のインストール
 cargo build
+
+# 特定のモジュールのみビルド
+cargo build -p gqt-network --features quic
+cargo build -p gqt-consensus --features hotstuff
+cargo build -p gqt-storage --features tikv
+cargo build -p gqt-runtime --features wasm
 
 # テストの実行
 cargo test
@@ -142,6 +165,6 @@ cargo doc --open
 
 <div align="center">
 
-**[🌟 スターをつける](https://github.com/enablerdao/rustorium)** | **[🐛 Issue報告](https://github.com/enablerdao/rustorium/issues)** | **[💬 Discord参加](https://discord.gg/rustorium)**
+**[🌟 スターをつける](https://github.com/enablerdao/gqt)** | **[🐛 Issue報告](https://github.com/enablerdao/gqt/issues)** | **[💬 Discord参加](https://discord.gg/gqt)**
 
 </div>

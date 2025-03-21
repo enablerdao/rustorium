@@ -1,14 +1,19 @@
 [package]
 name = "rustorium-consensus"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
 
 [dependencies]
-gluon-consensus = "0.1"
-tendermint = "0.30"
+rustorium-core = { path = "../core", features = ["consensus"] }
+tokio.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
 
-tokio = { version = "1.0", features = ["full"] }
-anyhow = "1.0"
-thiserror = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-tracing = "0.1"
+[features]
+default = ["hotstuff"]
+hotstuff = []
+avalanche = []
+tendermint = []
+raft = []

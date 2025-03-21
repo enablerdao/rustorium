@@ -1,16 +1,22 @@
 [package]
 name = "rustorium-core"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
 
 [dependencies]
-rustorium-network = { path = "../network" }
-rustorium-consensus = { path = "../consensus" }
-rustorium-storage = { path = "../storage" }
-rustorium-api = { path = "../api" }
+tokio.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+hex.workspace = true
 
-tokio = { version = "1.0", features = ["full"] }
-anyhow = "1.0"
-thiserror = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-tracing = "0.1"
+[features]
+default = []
+full = ["network", "consensus", "storage", "runtime"]
+network = []
+consensus = []
+storage = []
+runtime = []

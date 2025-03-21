@@ -1,22 +1,39 @@
-//! 共通の型定義
+//! GQT Core - 共通型定義
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
-/// トランザクションハッシュ
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TxHash([u8; 32]);
+/// ブロック
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Block {
+    /// ブロックヘッダー
+    pub header: BlockHeader,
+    /// トランザクション一覧
+    pub transactions: Vec<Transaction>,
+    /// レシート一覧
+    pub receipts: Vec<Receipt>,
+}
 
-/// ブロックハッシュ
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct BlockHash([u8; 32]);
-
-/// アドレス
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Address([u8; 20]);
-
-/// 署名
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Signature([u8; 64]);
+/// ブロックヘッダー
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BlockHeader {
+    /// ブロック番号
+    pub number: u64,
+    /// 親ブロックのハッシュ
+    pub parent_hash: Hash,
+    /// ステートルート
+    pub state_root: Hash,
+    /// トランザクションルート
+    pub transactions_root: Hash,
+    /// レシートルート
+    pub receipts_root: Hash,
+    /// タイムスタンプ
+    pub timestamp: u64,
+    /// バリデーター
+    pub validator: Address,
+    /// 署名
+    pub signature: Signature,
+}
 
 /// トランザクション
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -25,54 +42,83 @@ pub struct Transaction {
     pub from: Address,
     /// 受信者アドレス
     pub to: Address,
+    /// 送金額
+    pub value: u64,
+    /// ガス価格
+    pub gas_price: u64,
+    /// ガスリミット
+    pub gas_limit: u64,
+    /// ノンス
+    pub nonce: u64,
     /// データ
     pub data: Vec<u8>,
     /// 署名
     pub signature: Signature,
 }
 
-/// ブロック
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Block {
-    /// ブロック番号
-    pub number: u64,
-    /// 前ブロックのハッシュ
-    pub parent_hash: BlockHash,
-    /// タイムスタンプ
-    pub timestamp: u64,
-    /// トランザクションリスト
-    pub transactions: Vec<Transaction>,
-    /// ステートルート
-    pub state_root: [u8; 32],
-}
-
-/// トランザクション実行結果
+/// レシート
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Receipt {
     /// トランザクションハッシュ
-    pub tx_hash: TxHash,
+    pub transaction_hash: Hash,
     /// ステータス
-    pub status: Status,
-    /// ガス使用量
+    pub status: ReceiptStatus,
+    /// 使用したガス量
     pub gas_used: u64,
-    /// ログ
+    /// ログ一覧
     pub logs: Vec<Log>,
 }
 
-/// ステータス
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Status {
+/// レシートステータス
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum ReceiptStatus {
+    /// 成功
     Success,
+    /// 失敗
     Failure,
 }
 
 /// ログ
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Log {
-    /// アドレス
+    /// コントラクトアドレス
     pub address: Address,
-    /// トピック
-    pub topics: Vec<[u8; 32]>,
+    /// トピック一覧
+    pub topics: Vec<Hash>,
     /// データ
     pub data: Vec<u8>,
+}
+
+/// ハッシュ
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct Hash(pub [u8; 32]);
+
+/// アドレス
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct Address(pub [u8; 20]);
+
+/// 署名
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct Signature(pub [u8; 64]);
+
+impl Transaction {
+    /// トランザクションのハッシュを計算
+    pub fn hash(&self) -> Hash {
+        // TODO: 実際のハッシュ計算を実装
+        Hash([0; 32])
+    }
+
+    /// 署名の検証
+    pub fn verify_signature(&self) -> bool {
+        // TODO: 実際の署名検証を実装
+        true
+    }
+}
+
+impl Block {
+    /// ブロックのハッシュを計算
+    pub fn hash(&self) -> Hash {
+        // TODO: 実際のハッシュ計算を実装
+        Hash([0; 32])
+    }
 }

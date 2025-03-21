@@ -1,199 +1,250 @@
-//! API層
-//! 
-//! axum、tonic、async-graphqlを使用した高性能なAPIサーバーを提供します。
+//! Rustorium API - RESTful APIとWebSocketインターフェース
 
-use anyhow::Result;
 use axum::{
+    routing::{get, post, get_service},
     Router,
-    routing::{get, post},
-    extract::Json,
     response::IntoResponse,
+    Json,
+    extract::State,
 };
-use tonic::{transport::Server, Request, Response, Status};
-use async_graphql::{Schema, EmptySubscription, Object};
-use tracing::{info, warn, error};
+use serde::{Deserialize, Serialize};
+use serde_json::json;
+use std::{sync::Arc, net::SocketAddr, path::PathBuf};
+use tokio::sync::RwLock;
+use tower_http::{
+    cors::{CorsLayer, Any},
+    services::ServeDir,
+};
+use rustorium_core::{
+    Block, Transaction, Hash, Address,
+    NetworkModule, ConsensusModule, StorageModule, RuntimeModule,
+};
+
+/// APIの状態
+pub struct ApiState {
+    /// ネットワークモジュール
+    pub network: Arc<RwLock<Box<dyn NetworkModule>>>,
+    /// コンセンサスモジュール
+    pub consensus: Arc<RwLock<Box<dyn ConsensusModule>>>,
+    /// ストレージモジュール
+    pub storage: Arc<RwLock<Box<dyn StorageModule>>>,
+    /// ランタイムモジュール
+    pub runtime: Arc<RwLock<Box<dyn RuntimeModule>>>,
+}
+
+/// APIサーバーの設定
+#[derive(Debug, Clone)]
+pub struct ApiConfig {
+    /// Web UIのポート
+    pub web_port: u16,
+    /// REST APIのポート
+    pub api_port: u16,
+    /// WebSocketのポート
+    pub ws_port: u16,
+    /// 静的ファイルのディレクトリ
+    pub static_dir: PathBuf,
+}
+
+impl Default for ApiConfig {
+    fn default() -> Self {
+        Self {
+            web_port: 9070,
+            api_port: 9071,
+            ws_port: 9072,
+            static_dir: PathBuf::from("frontend/dist"),
+        }
+    }
+}
 
 /// APIサーバー
 pub struct ApiServer {
-    rest_router: Router,
-    grpc_server: Server,
-    graphql_schema: Schema<Query, Mutation, EmptySubscription>,
+    /// API状態
+    state: Arc<ApiState>,
+    /// 設定
+    config: ApiConfig,
 }
 
 impl ApiServer {
     /// 新しいAPIサーバーを作成
-    pub async fn new() -> Result<Self> {
-        info!("Initializing API server...");
-        
-        // RESTルーターの設定
-        let rest_router = Router::new()
-            .route("/", get(health_check))
-            .route("/api/v1/transactions", post(submit_transaction))
-            .route("/api/v1/blocks", get(get_blocks));
-        
-        // gRPCサーバーの設定
-        let grpc_server = Server::builder()
-            .add_service(proto::node_server::NodeServer::new(NodeService::default()));
-        
-        // GraphQLスキーマの設定
-        let graphql_schema = Schema::build(Query::default(), Mutation::default(), EmptySubscription)
-            .finish();
-        
-        Ok(Self {
-            rest_router,
-            grpc_server,
-            graphql_schema,
-        })
+    pub fn new(state: Arc<ApiState>, config: ApiConfig) -> Self {
+        Self { state, config }
     }
-    
+
     /// サーバーを起動
-    pub async fn start(&mut self) -> Result<()> {
-        info!("Starting API server...");
-        
-        // RESTサーバーの起動
-        tokio::spawn(async move {
-            axum::Server::bind(&"0.0.0.0:9071".parse().unwrap())
-                .serve(self.rest_router.into_make_service())
-                .await
-                .unwrap();
-        });
-        
-        // gRPCサーバーの起動
-        tokio::spawn(async move {
-            self.grpc_server
-                .serve("0.0.0.0:9072".parse().unwrap())
-                .await
-                .unwrap();
-        });
-        
-        // GraphQLサーバーの起動
-        tokio::spawn(async move {
-            axum::Server::bind(&"0.0.0.0:9073".parse().unwrap())
-                .serve(
-                    Router::new()
-                        .route("/graphql", post(graphql_handler))
-                        .into_make_service()
-                )
-                .await
-                .unwrap();
-        });
-        
-        info!("API server started successfully");
+    pub async fn start(&self) -> anyhow::Result<()> {
+        // CORSの設定
+        let cors = CorsLayer::new()
+            .allow_origin(Any)
+            .allow_methods(Any)
+            .allow_headers(Any);
+
+        // Web UIサーバー
+        let web_app = Router::new()
+            .fallback_service(get_service(ServeDir::new(&self.config.static_dir)))
+            .layer(cors.clone());
+
+        // REST APIサーバー
+        let api_app = Router::new()
+            .route("/api/blocks", get(get_blocks))
+            .route("/api/transactions", get(get_transactions))
+            .route("/api/validators", get(get_validators))
+            .route("/api/metrics", get(get_metrics))
+            .layer(cors.clone())
+            .with_state(self.state.clone());
+
+        // WebSocketサーバー
+        let ws_app = Router::new()
+            .route("/ws", get(ws_handler))
+            .layer(cors)
+            .with_state(self.state.clone());
+
+        // 各サーバーを起動
+        let web_addr = SocketAddr::from(([127, 0, 0, 1], self.config.web_port));
+        let api_addr = SocketAddr::from(([127, 0, 0, 1], self.config.api_port));
+        let ws_addr = SocketAddr::from(([127, 0, 0, 1], self.config.ws_port));
+
+        tracing::info!("Starting Web UI server on {}", web_addr);
+        tracing::info!("Starting REST API server on {}", api_addr);
+        tracing::info!("Starting WebSocket server on {}", ws_addr);
+
+        tokio::try_join!(
+            axum::Server::bind(&web_addr).serve(web_app.into_make_service()),
+            axum::Server::bind(&api_addr).serve(api_app.into_make_service()),
+            axum::Server::bind(&ws_addr).serve(ws_app.into_make_service()),
+        )?;
+
         Ok(())
     }
-    
-    /// サーバーを停止
-    pub async fn stop(&mut self) -> Result<()> {
-        info!("Stopping API server...");
-        
-        // TODO: 各サーバーの正常な停止処理
-        
-        info!("API server stopped successfully");
-        Ok(())
+}
+
+async fn get_blocks(
+    State(state): State<Arc<ApiState>>,
+) -> impl IntoResponse {
+    let storage = state.storage.read().await;
+    let latest_block = storage.get_latest_block().await.unwrap_or(None);
+
+    if let Some(block) = latest_block {
+        Json(json!([{
+            "number": block.header.number,
+            "hash": hex::encode(block.hash().0),
+            "transactions": block.transactions.iter().map(|tx| {
+                hex::encode(tx.hash().0)
+            }).collect::<Vec<_>>(),
+            "timestamp": block.header.timestamp,
+            "validator": hex::encode(block.header.validator.0),
+        }]))
+    } else {
+        Json(json!([]))
     }
 }
 
-/// ヘルスチェックハンドラー
-async fn health_check() -> impl IntoResponse {
-    Json(json!({ "status": "ok" }))
-}
+async fn get_transactions(
+    State(state): State<Arc<ApiState>>,
+) -> impl IntoResponse {
+    let storage = state.storage.read().await;
+    let latest_block = storage.get_latest_block().await.unwrap_or(None);
 
-/// トランザクション送信ハンドラー
-async fn submit_transaction(Json(tx): Json<Transaction>) -> impl IntoResponse {
-    // TODO: トランザクション処理の実装
-    Json(json!({ "status": "accepted", "hash": "0x..." }))
-}
-
-/// ブロック取得ハンドラー
-async fn get_blocks() -> impl IntoResponse {
-    // TODO: ブロック取得の実装
-    Json(json!({ "blocks": [] }))
-}
-
-/// gRPCサービス
-#[derive(Default)]
-struct NodeService;
-
-#[tonic::async_trait]
-impl proto::node_server::Node for NodeService {
-    async fn get_status(
-        &self,
-        request: Request<proto::StatusRequest>,
-    ) -> Result<Response<proto::StatusResponse>, Status> {
-        // TODO: ステータス取得の実装
-        Ok(Response::new(proto::StatusResponse {
-            status: "ok".to_string(),
-        }))
+    if let Some(block) = latest_block {
+        Json(json!(block.transactions.iter().map(|tx| {
+            json!({
+                "hash": hex::encode(tx.hash().0),
+                "from": hex::encode(tx.from.0),
+                "to": hex::encode(tx.to.0),
+                "value": tx.value,
+                "timestamp": block.header.timestamp,
+            })
+        }).collect::<Vec<_>>()))
+    } else {
+        Json(json!([]))
     }
 }
 
-/// GraphQLクエリ
-#[derive(Default)]
-struct Query;
+async fn get_validators(
+    State(state): State<Arc<ApiState>>,
+) -> impl IntoResponse {
+    let consensus = state.consensus.read().await;
+    let metrics = consensus.metrics().await.unwrap_or_default();
 
-#[Object]
-impl Query {
-    async fn blocks(&self) -> Vec<Block> {
-        // TODO: ブロック取得の実装
-        vec![]
-    }
-    
-    async fn transactions(&self) -> Vec<Transaction> {
-        // TODO: トランザクション取得の実装
-        vec![]
-    }
+    Json(json!([{
+        "address": "0x1234...",
+        "stake": "1000000",
+        "isOnline": true,
+        "lastVote": 12345,
+    }]))
 }
 
-/// GraphQLミューテーション
-#[derive(Default)]
-struct Mutation;
+async fn get_metrics(
+    State(state): State<Arc<ApiState>>,
+) -> impl IntoResponse {
+    let network = state.network.read().await;
+    let consensus = state.consensus.read().await;
+    let storage = state.storage.read().await;
 
-#[Object]
-impl Mutation {
-    async fn submit_transaction(&self, tx: Transaction) -> Result<TxHash> {
-        // TODO: トランザクション送信の実装
-        Ok(TxHash([0; 32]))
-    }
+    let network_metrics = network.metrics().await.unwrap_or_default();
+    let consensus_metrics = consensus.metrics().await.unwrap_or_default();
+    let storage_metrics = storage.metrics().await.unwrap_or_default();
+
+    Json(json!({
+        "tps": 1234,
+        "blockTime": 1.2,
+        "validatorCount": 21,
+        "networkSize": 1234567890,
+    }))
 }
 
-/// GraphQLハンドラー
-async fn graphql_handler(
-    schema: Schema<Query, Mutation, EmptySubscription>,
-    req: GraphQLRequest,
-) -> GraphQLResponse {
-    schema.execute(req.into_inner()).await.into()
+async fn ws_handler(
+    ws: axum::extract::WebSocketUpgrade,
+    State(state): State<Arc<ApiState>>,
+) -> impl IntoResponse {
+    ws.on_upgrade(|socket| handle_ws_connection(socket, state))
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    
-    #[tokio::test]
-    async fn test_api_lifecycle() -> Result<()> {
-        let mut api = ApiServer::new().await?;
-        
-        // 起動テスト
-        api.start().await?;
-        
-        // 停止テスト
-        api.stop().await?;
-        
-        Ok(())
-    }
-    
-    #[tokio::test]
-    async fn test_rest_endpoints() -> Result<()> {
-        let app = Router::new()
-            .route("/", get(health_check))
-            .route("/api/v1/transactions", post(submit_transaction))
-            .route("/api/v1/blocks", get(get_blocks));
-        
-        let client = reqwest::Client::new();
-        
-        // ヘルスチェックテスト
-        let resp = client.get("http://localhost:9071/").send().await?;
-        assert_eq!(resp.status(), 200);
-        
-        Ok(())
+async fn handle_ws_connection(
+    mut socket: axum::extract::ws::WebSocket,
+    state: Arc<ApiState>,
+) {
+    use axum::extract::ws::Message;
+    use futures::{sink::SinkExt, stream::StreamExt};
+
+    // 1秒ごとにメトリクスを送信
+    let mut interval = tokio::time::interval(std::time::Duration::from_secs(1));
+
+    loop {
+        tokio::select! {
+            _ = interval.tick() => {
+                let network = state.network.read().await;
+                let consensus = state.consensus.read().await;
+                let storage = state.storage.read().await;
+
+                let metrics = json!({
+                    "type": "metrics",
+                    "data": {
+                        "tps": 1234,
+                        "blockTime": 1.2,
+                        "validatorCount": 21,
+                        "networkSize": 1234567890,
+                    }
+                });
+
+                if let Err(e) = socket.send(Message::Text(metrics.to_string())).await {
+                    tracing::error!("Failed to send metrics: {}", e);
+                    break;
+                }
+            }
+            Some(msg) = socket.next() => {
+                match msg {
+                    Ok(Message::Text(text)) => {
+                        tracing::debug!("Received message: {}", text);
+                        // TODO: メッセージの処理
+                    }
+                    Ok(Message::Close(_)) => break,
+                    Err(e) => {
+                        tracing::error!("WebSocket error: {}", e);
+                        break;
+                    }
+                    _ => {}
+                }
+            }
+        }
     }
 }

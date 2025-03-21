@@ -1,185 +1,149 @@
-use anyhow::Result;
+//! Rustorium - 量子的高速ブロックチェーンプラットフォーム
+
 use clap::Parser;
-use rustorium::{
-    cli::console::InteractiveConsole,
-    config::NodeConfig,
-    services::ServiceManager,
-    core::{
-        storage::redb_storage::{RedbStorage, StorageConfig},
-        network::quic::{QuicNetwork, NetworkConfig},
-        ai::AiOptimizer,
-    },
-};
+use rustorium_core::{Config, Node};
+use rustorium_network::{NetworkModule, NetworkModuleFactory};
+use rustorium_consensus::{ConsensusModule, ConsensusModuleFactory};
+use rustorium_storage::{StorageModule, StorageModuleFactory};
+use rustorium_runtime::{RuntimeModule, RuntimeModuleFactory};
+use rustorium_api::{ApiServer, ApiConfig, ApiState};
+use std::{path::PathBuf, sync::Arc};
+use tokio::sync::RwLock;
+use tracing_subscriber::{fmt, EnvFilter};
 
-use std::sync::Arc;
-use tokio::sync::Mutex;
-use tracing::{info, warn, error, Level};
-use tracing_subscriber::fmt;
-use console::style;
-
-#[derive(Parser)]
-#[clap(name = "rustorium", about = "Next-generation blockchain platform")]
-struct Opts {
+/// Rustoriumノードのコマンドライン引数
+#[derive(Parser, Debug)]
+#[clap(version, about)]
+struct Args {
     /// 設定ファイルのパス
-    #[clap(long, default_value = "/etc/rustorium/config.toml")]
-    config: String,
+    #[clap(short, long)]
+    config: Option<PathBuf>,
 
-    /// データディレクトリ
-    #[clap(long, default_value = "/var/lib/rustorium")]
-    data_dir: String,
-
-    /// ベースポート番号
-    #[clap(long, default_value = "9070")]
-    port: u16,
-
-    /// 開発モード
+    /// 開発モードで起動
     #[clap(long)]
     dev: bool,
 
-    /// インタラクティブモードを無効化
+    /// ノードID
     #[clap(long)]
-    no_interactive: bool,
+    node_id: Option<String>,
+
+    /// リッスンアドレス
+    #[clap(long)]
+    listen_addr: Option<String>,
+
+    /// 外部アドレス
+    #[clap(long)]
+    external_addr: Option<String>,
+
+    /// ブートストラップノード
+    #[clap(long)]
+    bootstrap_nodes: Vec<String>,
+
+    /// データディレクトリ
+    #[clap(long)]
+    data_dir: Option<PathBuf>,
+
+    /// Web UIのポート
+    #[clap(long, default_value = "9070")]
+    web_port: u16,
+
+    /// REST APIのポート
+    #[clap(long, default_value = "9071")]
+    api_port: u16,
+
+    /// WebSocketのポート
+    #[clap(long, default_value = "9072")]
+    ws_port: u16,
 
     /// ログレベル
     #[clap(long, default_value = "info")]
     log_level: String,
-
-    /// メトリクスを有効化
-    #[clap(long)]
-    metrics: bool,
-
-    /// ワーカー数
-    #[clap(long, default_value = "1")]
-    workers: usize,
-
-    /// デバッグモード
-    #[clap(long)]
-    debug: bool,
 }
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> anyhow::Result<()> {
     // コマンドライン引数の解析
-    let opts = Opts::parse();
+    let args = Args::parse();
 
     // ロギングの設定
-    let log_level = match opts.log_level.to_lowercase().as_str() {
-        "debug" => Level::DEBUG,
-        "info" => Level::INFO,
-        "warn" => Level::WARN,
-        "error" => Level::ERROR,
-        _ => Level::INFO,
-    };
+    let env_filter = EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| EnvFilter::new(&args.log_level));
 
-    let subscriber = fmt::fmt()
-        .with_max_level(log_level)
-        .with_target(opts.debug)
-        .with_thread_ids(opts.debug)
-        .with_file(opts.debug)
-        .with_line_number(opts.debug)
-        .with_thread_names(opts.debug)
-        .with_level(true)
-        .with_ansi(true)
-        .pretty()
-        .finish();
+    fmt()
+        .with_env_filter(env_filter)
+        .with_target(false)
+        .with_thread_ids(true)
+        .with_thread_names(true)
+        .with_file(true)
+        .with_line_number(true)
+        .init();
 
-    tracing::subscriber::set_global_default(subscriber)
-        .expect("Failed to set tracing subscriber");
-
-    // 開発モードのログ
-    if opts.dev {
-        info!("Running in development mode");
-        info!("Data directory: {}", opts.data_dir);
-        info!("Base port: {}", opts.port);
-    }
-
-    // 設定の読み込みと更新
-    let mut config = if opts.dev {
-        NodeConfig::development()
+    // 設定の読み込み
+    let mut config = if let Some(path) = args.config {
+        Config::load(path)?
+    } else if args.dev {
+        Config::default()
     } else {
-        NodeConfig::from_file(&opts.config)?
+        anyhow::bail!("Configuration file is required in production mode");
     };
 
-    // 設定の更新
-    config.node.data_dir = opts.data_dir.into();
-    config.network.port = opts.port;
-    config.web.enabled = true;
+    // コマンドライン引数で設定を上書き
+    if let Some(node_id) = args.node_id {
+        config.node_id = node_id;
+    }
+    if let Some(listen_addr) = args.listen_addr {
+        config.network.listen_addr = listen_addr;
+    }
+    if let Some(external_addr) = args.external_addr {
+        config.network.external_addr = external_addr;
+    }
+    if !args.bootstrap_nodes.is_empty() {
+        config.network.bootstrap_nodes = args.bootstrap_nodes;
+    }
+    if let Some(data_dir) = args.data_dir {
+        config.storage.data_dir = data_dir.to_string_lossy().into_owned();
+    }
 
-    // ディレクトリの作成
-    tokio::fs::create_dir_all(&config.node.data_dir).await?;
-    tokio::fs::create_dir_all(&config.storage.path).await?;
+    // モジュールの作成
+    let network = NetworkModuleFactory::create(config.network.clone());
+    let consensus = ConsensusModuleFactory::create(config.consensus.clone());
+    let storage = StorageModuleFactory::create(config.storage.clone());
+    let runtime = RuntimeModuleFactory::create(config.runtime.clone());
 
-    info!("Initializing storage...");
-    // ストレージの設定と初期化
-    let storage_config = StorageConfig {
-        path: config.storage.path.to_string_lossy().to_string(),
-        max_size: 1024 * 1024 * 1024 * 1024, // 1TB
-        compression_enabled: true,
-        encryption_enabled: true,
-        replication_factor: 3,
+    // APIサーバーの設定
+    let api_config = ApiConfig {
+        web_port: args.web_port,
+        api_port: args.api_port,
+        ws_port: args.ws_port,
+        static_dir: PathBuf::from("frontend/dist"),
     };
-    let storage = Arc::new(RedbStorage::new(storage_config)?);
 
-    info!("Initializing network...");
-    // ネットワークの設定と初期化
-    let network_config = NetworkConfig {
-        listen_addr: format!("0.0.0.0:{}", config.network.port).parse()?,
-        bootstrap_nodes: config.network.bootstrap_nodes.clone(),
-        max_concurrent_streams: 1000,
-        keep_alive_interval: std::time::Duration::from_secs(10),
-        handshake_timeout: std::time::Duration::from_secs(10),
-        idle_timeout: std::time::Duration::from_secs(30),
-    };
-    let network = Arc::new(QuicNetwork::new(network_config).await?);
+    // APIサーバーの状態
+    let api_state = Arc::new(ApiState {
+        network: Arc::new(RwLock::new(network)),
+        consensus: Arc::new(RwLock::new(consensus)),
+        storage: Arc::new(RwLock::new(storage)),
+        runtime: Arc::new(RwLock::new(runtime)),
+    });
 
-    info!("Initializing AI optimizer...");
-    // AI最適化エンジンの初期化
-    let ai_optimizer = Arc::new(Mutex::new(AiOptimizer::new()));
+    // APIサーバーの作成
+    let api_server = ApiServer::new(api_state.clone(), api_config);
 
-    // 最適化タスクの開始
-    if !opts.dev {
-        let ai_optimizer_clone = ai_optimizer.clone();
-        tokio::spawn(async move {
-            loop {
-                let mut optimizer = ai_optimizer_clone.lock().await;
-                if let Err(e) = optimizer.optimize_system().await {
-                    error!("AI optimization error: {}", e);
-                }
-                tokio::time::sleep(tokio::time::Duration::from_secs(60)).await;
-            }
-        });
-    }
+    // シグナルハンドラの設定
+    let (shutdown_tx, mut shutdown_rx) = tokio::sync::mpsc::channel(1);
+    ctrlc::set_handler(move || {
+        let _ = shutdown_tx.try_send(());
+    })?;
 
-    info!("Starting services...");
-    // サービスマネージャーを作成して起動
-    let mut service_manager = ServiceManager::new(config.clone());
-    service_manager.set_storage(storage);
-    service_manager.set_ai_optimizer(ai_optimizer);
-    service_manager.start().await?;
+    // APIサーバーの起動
+    tokio::spawn(async move {
+        if let Err(e) = api_server.start().await {
+            tracing::error!("API server error: {}", e);
+        }
+    });
 
-    info!("Rustorium node started successfully!");
-    info!("API endpoint: http://localhost:{}", config.network.port);
-    info!("Web UI: http://localhost:{}", config.network.port + 1);
-    info!("WebSocket: ws://localhost:{}", config.network.port + 2);
-
-    // メトリクスの有効化
-    if opts.metrics {
-        info!("Metrics enabled at http://localhost:{}/metrics", config.network.port);
-    }
-
-    // インタラクティブコンソールを起動（--no-interactiveが指定されていない場合）
-    if !opts.no_interactive {
-        InteractiveConsole::run(&service_manager).await?;
-    } else {
-        info!("Running in non-interactive mode. Press Ctrl+C to stop.");
-        tokio::signal::ctrl_c().await?;
-        println!("\n{}", style("Received Ctrl+C, shutting down...").dim());
-    }
-
-    // シャットダウン処理
-    info!("Shutting down services...");
-    service_manager.stop().await?;
-    info!("Shutdown complete.");
+    // シャットダウン待機
+    shutdown_rx.recv().await;
 
     Ok(())
 }
