@@ -1,103 +1,61 @@
-//! Rustorium Core
-//! 
-//! このクレートはRustoriumの中核機能を提供します。
+//! Rustorium Core - モジュラーブロックチェーンのコアインターフェース
 
-use anyhow::Result;
-use thiserror::Error;
-use tracing::{info, warn, error};
-
+pub mod network;
+pub mod consensus;
+pub mod storage;
+pub mod runtime;
 pub mod types;
-pub mod transaction;
-pub mod block;
-pub mod state;
 
-#[derive(Error, Debug)]
-pub enum CoreError {
-    #[error("トランザクションエラー: {0}")]
-    TransactionError(String),
-    
-    #[error("ブロックエラー: {0}")]
-    BlockError(String),
-    
-    #[error("ステートエラー: {0}")]
-    StateError(String),
+pub use network::NetworkModule;
+pub use consensus::ConsensusModule;
+pub use storage::StorageModule;
+pub use runtime::RuntimeModule;
+pub use types::*;
+
+/// モジュールの共通インターフェース
+#[async_trait::async_trait]
+pub trait Module: Send + Sync {
+    /// モジュールの初期化
+    async fn init(&mut self) -> anyhow::Result<()>;
+    /// モジュールの開始
+    async fn start(&mut self) -> anyhow::Result<()>;
+    /// モジュールの停止
+    async fn stop(&mut self) -> anyhow::Result<()>;
+    /// モジュールのステータス取得
+    async fn status(&self) -> anyhow::Result<ModuleStatus>;
+    /// モジュールのメトリクス取得
+    async fn metrics(&self) -> anyhow::Result<ModuleMetrics>;
 }
 
-/// Rustoriumのコアエンジン
-pub struct RustoriumCore {
-    network: rustorium_network::NetworkManager,
-    consensus: rustorium_consensus::ConsensusEngine,
-    storage: rustorium_storage::StorageEngine,
-    api: rustorium_api::ApiServer,
+/// モジュールのステータス
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ModuleStatus {
+    /// 初期化前
+    Uninitialized,
+    /// 初期化済み
+    Initialized,
+    /// 起動中
+    Running,
+    /// 停止中
+    Stopped,
+    /// エラー発生
+    Error(String),
 }
 
-impl RustoriumCore {
-    /// 新しいRustoriumインスタンスを作成
-    pub async fn new() -> Result<Self> {
-        info!("Initializing Rustorium Core...");
-        
-        let network = rustorium_network::NetworkManager::new().await?;
-        let consensus = rustorium_consensus::ConsensusEngine::new().await?;
-        let storage = rustorium_storage::StorageEngine::new().await?;
-        let api = rustorium_api::ApiServer::new().await?;
-        
-        Ok(Self {
-            network,
-            consensus,
-            storage,
-            api,
-        })
-    }
-    
-    /// ノードを起動
-    pub async fn start(&mut self) -> Result<()> {
-        info!("Starting Rustorium node...");
-        
-        // ネットワークの初期化
-        self.network.start().await?;
-        
-        // コンセンサスの開始
-        self.consensus.start().await?;
-        
-        // APIサーバーの起動
-        self.api.start().await?;
-        
-        info!("Rustorium node started successfully");
-        Ok(())
-    }
-    
-    /// ノードを停止
-    pub async fn stop(&mut self) -> Result<()> {
-        info!("Stopping Rustorium node...");
-        
-        // APIサーバーの停止
-        self.api.stop().await?;
-        
-        // コンセンサスの停止
-        self.consensus.stop().await?;
-        
-        // ネットワークの停止
-        self.network.stop().await?;
-        
-        info!("Rustorium node stopped successfully");
-        Ok(())
-    }
+/// モジュールのメトリクス
+#[derive(Debug, Clone)]
+pub struct ModuleMetrics {
+    /// メトリクス収集時刻
+    pub timestamp: std::time::SystemTime,
+    /// メトリクス
+    pub metrics: std::collections::HashMap<String, f64>,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    
-    #[tokio::test]
-    async fn test_core_lifecycle() -> Result<()> {
-        let mut core = RustoriumCore::new().await?;
-        
-        // 起動テスト
-        core.start().await?;
-        
-        // 停止テスト
-        core.stop().await?;
-        
-        Ok(())
-    }
+/// モジュールの設定
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct ModuleConfig {
+    /// モジュール名
+    pub name: String,
+    /// モジュールの設定
+    pub config: std::collections::HashMap<String, serde_json::Value>,
 }
