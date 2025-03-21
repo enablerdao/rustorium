@@ -26,10 +26,11 @@
 - **シャーディング**: 自動スケーリング
 
 ### 🔧 堅牢な技術スタック
-- **[RocksDB](https://rocksdb.org)**: 高性能KVストア
-- **[libp2p](https://libp2p.io)**: P2Pネットワーク
-- **[Tendermint](https://tendermint.com)**: BFTコンセンサス
-- **[Wasmer](https://wasmer.io)**: WebAssembly実行環境
+- **[QUIC](https://quicwg.org)**: 超低遅延P2Pネットワーク
+- **[Redpanda](https://redpanda.com)**: 高性能イベントストリーミング
+- **[Gluon](https://gluon.rs)**: 分散コンピューティング
+- **[Noria](https://github.com/mit-pdos/noria)**: 高性能データフロー処理
+- **[TiKV](https://tikv.org)**: 分散KVストア
 
 ### 🛠 開発者フレンドリー
 - **Rustネイティブ**: 型安全で高性能
@@ -49,15 +50,36 @@ graph TD
     B --> C[実行層]
     C --> D[コンセンサス層]
     D --> E[ストレージ層]
-    
+
+    subgraph "アプリケーション層"
+        A1[Web UI] & A2[SDK] & A3[CLI]
+    end
+
+    subgraph "API層"
+        B1[REST API] & B2[WebSocket] & B3[gRPC]
+    end
+
+    subgraph "実行層"
+        C1[Gluon] --> C2[Noria]
+        C2 --> C3[トランザクション処理]
+    end
+
+    subgraph "コンセンサス層"
+        D1[QUIC] --> D2[Redpanda]
+        D2 --> D3[シャーディング]
+    end
+
+    subgraph "ストレージ層"
+        E1[TiKV] --> E2[状態管理]
+        E2 --> E3[スナップショット]
+    end
+
     style A fill:#f9f,stroke:#333,stroke-width:2px
     style B fill:#bbf,stroke:#333,stroke-width:2px
     style C fill:#dfd,stroke:#333,stroke-width:2px
     style D fill:#ffd,stroke:#333,stroke-width:2px
     style E fill:#dff,stroke:#333,stroke-width:2px
 ```
-
-詳細な技術スタックは[アーキテクチャドキュメント](docs/architecture/README.md)をご覧ください。
 
 ## 🚀 クイックスタート
 

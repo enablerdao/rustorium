@@ -2,92 +2,66 @@
 name = "rustorium"
 version = "0.1.0"
 edition = "2021"
-description = "Next-generation ultra-low latency distributed blockchain platform"
-authors = ["Rustorium Team <team@rustorium.dev>"]
-license = "MIT"
-repository = "https://github.com/enablerdao/rustorium"
 
 [dependencies]
-# 非同期ランタイム
 tokio = { version = "1.0", features = ["full"] }
-futures = "0.3"
-
-# ネットワーク
-quinn = "0.10"  # QUIC実装
-libp2p = { version = "0.52", features = ["tcp", "dns", "websocket", "noise", "yamux"] }
-redpanda = "0.1"  # Redpanda Rustクライアント
-
-# ストレージ
-tikv-client = "0.3"  # TiKVクライアント
-redb = "1.0"  # 組み込みデータベース
-noria = "0.10"  # ストリーミングデータフロー
-
-# コンセンサス
-gluon-consensus = "0.1"  # Gluonコンセンサス
-tendermint = "0.30"  # Tendermintコア
-
-# 暗号化
-poseidon-rs = "0.1"  # Poseidonハッシュ
-ed25519-dalek = "2.0"  # 署名
-blake3 = "1.5"  # 高速ハッシュ
-
-# スマートコントラクト
-wasmer = "4.2"  # WebAssembly実行環境
-wasmtime = "14.0"  # 代替WebAssembly実行環境
-
-# API
-axum = "0.7"  # Webフレームワーク
-tonic = "0.10"  # gRPC
-async-graphql = "6.0"  # GraphQL
-
-# モニタリング
-prometheus = "0.13"  # メトリクス
-opentelemetry = { version = "0.20", features = ["rt-tokio"] }
+anyhow = "1.0"
 tracing = "0.1"
-
-# ユーティリティ
-anyhow = "1.0"  # エラー処理
-thiserror = "1.0"  # カスタムエラー
+tracing-subscriber = "0.3"
+axum = { version = "0.7", features = ["json", "ws"] }
+tower-http = { version = "0.5", features = ["cors", "trace"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-config = "0.13"  # 設定管理
+hex = { version = "0.4", features = ["serde"] }
 clap = { version = "4.4", features = ["derive"] }
 
+# P2P通信
+quinn = "0.10"
+
+# イベントストリーミング
+rdkafka = { version = "0.34", features = ["cmake-build"] }
+
+# 分散コンピューティング
+gluon = "0.17"
+
+# データフロー処理
+noria-server = "0.6"
+
+# 分散KVストア
+tikv-client = "0.3"
+
+# モニタリング
+opentelemetry = { version = "0.20", features = ["metrics", "trace"] }
+opentelemetry-prometheus = "0.13"
+prometheus = "0.13"
+
 [dev-dependencies]
+tempfile = "3.10"
 tokio-test = "0.4"
 criterion = "0.5"
-proptest = "1.3"
-mockall = "0.11"
-
-[build-dependencies]
-tonic-build = "0.10"
-
-[workspace]
-members = [
-    "crates/core",
-    "crates/network",
-    "crates/consensus",
-    "crates/storage",
-    "crates/api",
-]
-
-[profile.release]
-lto = true
-codegen-units = 1
-panic = "abort"
-strip = true
-
-[profile.dev.package."*"]
-opt-level = 2
 
 [[bench]]
 name = "transaction"
 harness = false
 
-[[bench]]
-name = "consensus"
-harness = false
+[profile.dev]
+opt-level = 0
+debug = true
+debug-assertions = true
+overflow-checks = true
+lto = false
+panic = 'unwind'
+incremental = true
+codegen-units = 256
+rpath = false
 
-[[bench]]
-name = "storage"
-harness = false
+[profile.release]
+opt-level = 3
+debug = false
+debug-assertions = false
+overflow-checks = false
+lto = true
+panic = 'abort'
+incremental = false
+codegen-units = 1
+rpath = false
